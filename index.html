@@ -1,50 +1,152 @@
-<!-- 보일러 템플릿 `!` -->
-
 <!DOCTYPE html>
-<html lang="en"> <!--기본 언어를 지정. 없어도 됨. -->
-
-<!-- meta data -->
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>멋쟁이 개발자 혜냄!</title> <!--페이지 제목으로 나오는 것(탭)-->
+    <title>멋쟁이 개발자 혜냄!</title>
     <link rel="stylesheet" href="./assets/css/style.css">
     <style>
-        h1 {
-            display: inline;
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9; /* Light Gray */
+            color: #333;
+        }
+
+        header {
+            background-color: #00247f; /* Navy Blue */
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: 4px solid #d0ff28; /* Light Yellow */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        header h2 {
+            margin: 5px 0;
+            font-size: 1.5em;
+            color: #c3ceff;
+        }
+
+        header h3 {
+            margin: 5px 0;
+            font-size: 1.2em;
+            color: #d0dbff;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .profile-info {
+            background: #fff;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            border: 2px solid #00247f; /* Navy Blue */
+        }
+
+        .profile-info ol {
+            padding-left: 20px;
+        }
+
+        .profile-info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .profile-info li {
+            margin-bottom: 10px;
+        }
+
+        .profile-info button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #00247f; /* Navy Blue */
+            color: #fff;
+            border: none;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .profile-info button:hover {
+            background-color: #001a56; /* Darker Navy Blue */
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            margin: 0 10px;
+        }
+
+        .social-links img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.3s;
+        }
+
+        .social-links img:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
-
-<!-- web 상에 보여질 내용 -->
 <body>
-    <h1>멋쟁이 개발자 혜냄!</h1>
-    <h2 style="display: inline;">김혜민(Hyemin Kim)</h2>
-    <h3>SSAFY 12기 서울 7반 비전공 JAVA</h3>
-     <button onclick="location.href='240806.html'">Go to Second Page</button>
-    <ol>
-        <li>전공
-            <ul>
-                수학교육과
-            </ul>
-        </li>
-        <li>MBTI
-            <ul>
-                ENFP
-            </ul>
-        </li>
-        <li>취미
-            <ul>
-                배구
-            </ul>
-        </li>
-    </ol>
-    <a href="https://github.com/hyenem" alt="깃헙 아이콘">
-        <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png">
-    </a>
-    <a href="https://blog.naver.com/hyemin-t" alt="블로그 아이콘">
-        <img src="./assets/img/blog.png" alt="">
-    </a>
+    <header>
+        <h1>멋쟁이 개발자 혜냄!</h1>
+        <h2>김혜민(Hyemin Kim)</h2>
+        <h3>SSAFY 12기 서울 7반 비전공 JAVA</h3>
+    </header>
+    <main>
+        <div class="profile-info">
+            <button onclick="location.href='240806.html'">Go to Second Page</button>
+            <ol>
+                <li>전공
+                    <ul>
+                        <li>수학교육과</li>
+                    </ul>
+                </li>
+                <li>MBTI
+                    <ul>
+                        <li>ENFP</li>
+                    </ul>
+                </li>
+                <li>취미
+                    <ul>
+                        <li>배구</li>
+                    </ul>
+                </li>
+            </ol>
+            <div class="social-links">
+                <a href="https://github.com/hyenem" alt="깃헙 아이콘">
+                    <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" alt="GitHub">
+                </a>
+                <a href="https://blog.naver.com/hyemin-t" alt="블로그 아이콘">
+                    <img src="./assets/img/blog.png" alt="Naver Blog">
+                </a>
+            </div>
+        </div>
+    </main>
 </body>
-
 </html>
