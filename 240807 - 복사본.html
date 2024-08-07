@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page with Toggle</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1 {
+            color: #ffffff;
+            background-color: #00247f;
+            padding: 10px;
+            border-radius: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #buttonWrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #toggleButton, .pageButton {
+            padding: 15px 25px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #toggleButton {
+            background-color: #ffffff;
+            font-weight: bold;
+            color: #d0ff28;
+            text-shadow: -1px 0px rgb(0, 0, 0), 0px 1px rgb(0, 0, 0), 1px 0px rgb(0, 0, 0), 0px -1px rgb(0, 0, 0);
+        }
+
+        #toggleButton:hover {
+            background-color: #001a5f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .pageButton {
+            padding: 10px 10px;
+            background-color: #e8f5e9;
+            border-radius: 30px;
+            border: 3px solid #001a5f;
+            background-color: #dfeeff;
+            text-align: center;
+            color: #000000; 
+            font-size: 15px;
+        }
+
+        .pageButton:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <h1>📅날짜별 다이어리📆</h1>
+    <div id="buttonWrapper">
+        <button id="toggleButton">24년 8월</button>
+        <div id="buttonContainer" class="hidden">
+            <button class="pageButton" onclick="location.href='240806.html'">6일</button>
+            <button class="pageButton" onclick="location.href='240807.html'">7일</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('toggleButton').addEventListener('click', function() {
+            var container = document.getElementById('buttonContainer');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
