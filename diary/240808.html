@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>하루 계획표</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            color: #ffffff;
+            background-color: #00247f;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        h2 {
+            color: #000000;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .section {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .time {
+            font-weight: bold;
+            color: #d0ff28;
+            text-shadow: -1px 0px rgb(0, 0, 0), 0px 1px rgb(0, 0, 0), 1px 0px rgb(0, 0, 0), 0px -1px rgb(0, 0, 0);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px 0;
+        }
+        .goal, .task-list, .diary {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .goal {
+            border-left: 5px solid #ff9393;
+        }
+        .task-list {
+            border-left: 5px solid #055f00;
+        }
+        .task-list input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .diary{
+            border-left: 5px solid #000759;
+
+        }
+        .emoji {
+            font-size: 1.2em;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 5px solid #950000;
+            background-color: #ffeaea;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>        
+    <h1 class="emoji">📅 8월 8일 📅</h1>
+
+    <div class="highlight">
+        <h2 class="emoji">✨ 오늘의 목표</h2>
+        <ul>
+            <li>주변 사람의 입장도 신경쓰면서 살기</li>
+        </ul>
+    </div>
+
+    <div class="task-list">
+        <h2 class="emoji">🔄 할 일 목록</h2>
+        <ul>
+            <li><input type="checkbox" checked> SWEA_1859_백만장자 프로젝트</li>
+            <li><input type="checkbox" checked> SWEA_1966_숫자를 정렬하자</li>
+            <li><input type="checkbox" checked> SWEA_2805_농작물 수확하기</li>
+            <li><input type="checkbox" checked> SWEA_1974_스도쿠 검증</li>
+            <li><input type="checkbox" checked> SWEA_1860_진기의 최고급 붕어빵</li>
+            <li><input type="checkbox" > 다이어리 쓰기</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="emoji">🕘 일과 전</h2>
+        <ul>
+            <li><span class="time">6:20 AM</span> - 기상</li>
+            <li><span class="time">8:00 AM</span> - 취업 특강 초기 상담</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="emoji">🕚 일과 중</h2>
+        <ul>
+            <li><span class="time">9:00 AM</span> - 라이브 강의 듣기</li>
+            <li><span class="time">11:00 AM</span> - 오늘 할 일 계획하기</li>
+            <li><span class="time">12:30 PM</span> - 점심 시간</li>
+            <li><span class="time">13:45 PM</span> - 실습 </li>
+            <li><span class="time">15:00 PM</span> - 일타싸피 OT </li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="emoji">🕛 일과 후</h2>
+        <ul>
+            <li><span class="time">18:00 PM</span> - 친구들이랑 공부하기</li>
+            <li><span class="time">23:00 PM</span> - 다이어리 작성 및 하루 정리</li>
+        </ul>
+    </div>
+    <div class="task-list">
+        <h2 class="emoji"> 💻 오늘 알게된 점</h2>
+        <ul>
+            <li></li>
+        </ul>
+    </div>
+    <div class="diary">
+        <h2 class="emoji">✏️ 오늘의 일기</h2>
+        <ul>
+            <li></li>
+        </ul>
+    </div>
+
+</body>
+</html>
