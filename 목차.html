@@ -34,7 +34,7 @@
             align-items: center;
         }
 
-        #toggleButton, .pageButton {
+        #toggleButton, .pageButton, .pageButtonweekend {
             padding: 15px 25px;
             font-size: 20px;
             font-weight: bold;
@@ -46,6 +46,7 @@
             transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
 
         #toggleButton {
             background-color: #ffffff;
@@ -76,6 +77,25 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
+
+        .pageButtonweekend {
+            padding: 10px 10px;
+            background-color: #e8f5e9;
+            border-radius: 30px;
+            border: 3px solid #5f0000;
+            background-color: #ffffff;
+            text-align: center;
+            color: #000000; 
+            font-size: 15px;
+        }
+
+        .pageButtonweekend:hover {
+            background-color: #882121;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+
     </style>
 </head>
 <body>
@@ -87,6 +107,7 @@
             <button class="pageButton" onclick="location.href='diary/240807.html'">7일</button>
             <button class="pageButton" onclick="location.href='diary/240808.html'">8일</button>
             <button class="pageButton" onclick="location.href='diary/240809.html'">9일</button>
+            <button class="pageButtonweekend" onclick="location.href='diary/240810.html'">10일</button>
         </div>
     </div>
 
