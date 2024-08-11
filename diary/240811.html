@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>하루 계획표</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            color: #ffffff;
+            background-color: #00247f;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        h2 {
+            color: #000000;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .section {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .time {
+            font-weight: bold;
+            color: #d0ff28;
+            text-shadow: -1px 0px rgb(0, 0, 0), 0px 1px rgb(0, 0, 0), 1px 0px rgb(0, 0, 0), 0px -1px rgb(0, 0, 0);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px 0;
+        }
+        .goal, .task-list, .diary {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .goal {
+            border-left: 5px solid #ff9393;
+        }
+        .task-list {
+            border-left: 5px solid #055f00;
+        }
+        .task-list input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .diary{
+            border-left: 5px solid #000759;
+
+        }
+        .emoji {
+            font-size: 1.2em;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 5px solid #950000;
+            background-color: #ffeaea;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>        
+    <h1 class="emoji">📅 8월 11일 📅</h1>
+
+    <div class="highlight">
+        <h2 class="emoji">✨ 오늘의 목표</h2>
+        <ul>
+            <li>사람도 잘 챙기기! 더 이상 무언갈 그만 포기하기!</li>
+        </ul>
+    </div>
+
+    <div class="task-list">
+        <h2 class="emoji">🔄 할 일 목록</h2>
+        <ul>
+            <li><input type="checkbox" > SWEA_벽돌깨기</li>
+            <li><input type="checkbox" > SWEA_게리멘더링</li>
+            <li><input type="checkbox" checked> SQL 실습해보기</li>
+            <li><input type="checkbox" checked> 다이어리 쓰기</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="emoji">🕘 오전</h2>
+        <ul>
+            <li><span class="time">9:30 AM</span> - 기상</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2 class="emoji">🕚 오후</h2>
+        <ul>
+            <li><span class="time">11:00 PM</span> - 하긴해 생일선물 쇼핑하기</li>
+            <li><span class="time">14:00 PM</span> - MySQL 공부하기 </li>
+            <li><span class="time">17:00 PM</span> - 파이썬 자동화 공부하기 </li>
+            <li><span class="time">20:00 PM</span> - 배구하기 </li>
+        </ul>
+    </div>
+
+    <div class="diary">
+        <h2 class="emoji"> 💻 오늘 알게된 점</h2>
+        <ul>
+            <li> SQL 가장 기본적인 명령어들 사용해보기</li>
+            <li> SQL에 stored procedure 개념과 trigger 개념</li>
+            <li> 마크다운 표 가운데 정렬 하는 방법 </li>
+        </ul>
+    </div>
+    <div class="diary">
+        <h2 class="emoji">✏️ 오늘의 일기</h2>
+        <ul>
+            <li>오늘은 뭔가 중간에 많이 힘든 날이었다. 사람들 사이에 둘러쌓여있다가 뭔가 갑자기 똥 하고 혼자가 됐는데, 되게 헛헛하고 내가 지금 뭐하고있나 싶고,,, 혼자서 지내는걸 이렇게 못하는 사람인줄 몰랐다.</li>
+            <li>하지만 나에겐 친구들이 있지! 비리얼 보고 위로해주는 해완이도, 배구 데리고 올라가주는 대성오빠도, 끝나고 집 델따주는 은규도, 햄버거 사주는 성태오빠도, 같이 놀아주는 희원언니도 다 좋다.</li>
+            <li>배구 사람들이 편해진지 그렇게 오래되지 않은 것 같다. 내가 이 사람들이랑 잘 못어울린다고 생각하고 있었는데, 또 새로운 환경에 놓여지니 이 사람들이 나에겐 너무 편하고 감사한 사람들이었다는걸 다시 한 번 느낀다.</li>
+        </ul>
+    </div>
+
+</body>
+</html>
