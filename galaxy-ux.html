@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galaxy UX 특화 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">07 · GALAXY UX</span>
+      <h1>Galaxy + Buds 특화 UX</h1>
+      <p class="subtitle">Galaxy 폰 사용자에게만 제공되는 추가 레이어. Dumb bridge 위에 얹어 호환성은 유지하면서 갤럭시 생태계만의 가치를 더한다.</p>
+    </section>
+
+    <div class="callout">
+      <strong>아키텍처적 위치</strong>
+      이 모든 기능은 <a href="host-bridge.html">범용 호스트 브릿지</a>를 끄거나 대체하지 않습니다.
+      Bridge는 그대로 작동하고, 그 위에 Galaxy 전용 컴패니언 앱이 <em>관찰자(observer)</em>로
+      얹혀 부가 가치를 만듭니다. 타사 기기 호환성은 변하지 않습니다.
+    </div>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#why">1. 왜 Galaxy 특화인가</a></li>
+        <li><a href="#layer">2. 아키텍처 레이어링</a></li>
+        <li><a href="#access">3. Galaxy가 데이터를 얻는 경로</a></li>
+        <li><a href="#features">4. 특화 기능 목록</a></li>
+        <li><a href="#wearable">5. Galaxy Wearable 통합</a></li>
+        <li><a href="#bixby">6. Bixby 라우팅 옵션</a></li>
+        <li><a href="#smartthings">7. SmartThings/Find 연동</a></li>
+        <li><a href="#handoff">8. 멀티 디바이스 핸드오프</a></li>
+        <li><a href="#privacy">9. 프라이버시 분리</a></li>
+        <li><a href="#compare">10. 일반 폰 vs Galaxy 폰 비교</a></li>
+      </ul>
+    </div>
+
+    <section id="why">
+      <h2>1. 왜 Galaxy 특화인가</h2>
+      <ul>
+        <li><strong>이미 가지고 있는 자산:</strong> Galaxy Wearable, SmartThings, One UI, Bixby 등 생태계 인프라 재사용</li>
+        <li><strong>제조사 차별화:</strong> "삼성을 쓰면 BudsAI가 더 똑똑하게 동작" — Galaxy 구매 이유 강화</li>
+        <li><strong>UX 끝맺음:</strong> 답변을 음성으로만 듣는 것 외에 시각적/지속적 액세스 제공</li>
+        <li><strong>플랫폼 통합:</strong> 락스크린, 노티, Always-On Display까지 자연스러운 연결</li>
+      </ul>
+    </section>
+
+    <section id="layer">
+      <h2>2. 아키텍처 레이어링</h2>
+
+      <div class="diagram">┌──────────────────────────────────────────────────────────────┐
+│  Galaxy Companion App (One UI 내장 또는 Galaxy Wearable 내)   │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐         │
+│  │ 히스토리  │ │  설정    │ │ Bixby    │ │ SmartTh. │  ← Galaxy 전용
+│  │  타임라인 │ │ 위젯     │ │ 라우팅   │ │  연동    │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘         │
+└────────────────────┬─────────────────────────────────────────┘
+                     │ (서버에 read API, push 구독)
+                     │
+─────────────────────┼─────────────────────────────── 표준 레이어 ───
+                     │
+┌────────────────────▼─────────────────────────────────────────┐
+│  BudsBridge / OS BT PAN (어떤 호스트에서든 동작)               │
+│  - BT ↔ TCP 바이트 파이프, AI 모름                             │
+└──────────────────────────────────────────────────────────────┘
+       ▲                                            ▲
+       │ BT (암호문)                                │ HTTPS (암호문)
+       │                                            │
+   [Buds] ──────── E2E TLS ──────────────────── [Server]</div>
+
+      <p>Galaxy 앱은 BT 경로에 끼어들지 않는다. <strong>서버 측 read API</strong>를 통해
+      자기 계정의 히스토리/상태를 읽어와 UI를 만든다.</p>
+    </section>
+
+    <section id="access">
+      <h2>3. Galaxy가 데이터를 얻는 경로</h2>
+
+      <h3>3.1 Pull (서버 조회)</h3>
+      <p>Galaxy 컴패니언 앱이 자기 계정으로 서버 API에 인증해 히스토리/세션 결과를 조회.</p>
+      <ul>
+        <li><code>GET /v1/sessions?after=…&limit=20</code> — 최근 세션 목록</li>
+        <li><code>GET /v1/sessions/{id}</code> — 특정 세션 상세 (텍스트/오디오 URL)</li>
+      </ul>
+
+      <h3>3.2 Push (실시간 알림)</h3>
+      <p>새 세션 완료 시 서버가 Galaxy 컴패니언 앱에 푸시.</p>
+      <ul>
+        <li>FCM/HMS 푸시 + 데이터 페이로드</li>
+        <li>오디오 답변이 끝나는 시점 즈음에 폰 화면에 "방금 답변" 카드 표시</li>
+      </ul>
+
+      <h3>3.3 Audio Snoop (선택, 권한 후 활성)</h3>
+      <p>Galaxy Wearable에 기본 페어링된 버즈는 SCMS-T 보호 외에 별도 보조 채널로
+      세션 메타데이터를 함께 보낼 수 있음 — 사용자가 명시적으로 동의 시:</p>
+      <ul>
+        <li>버즈가 응답 직후 GATT 별도 characteristic으로 "세션 ID + intent + 텍스트" 짧게 전송</li>
+        <li>Galaxy 앱이 즉시 카드/노티 표시 (서버 푸시보다 빠름)</li>
+        <li>여전히 페이로드 본문은 E2E TLS로 안 보임 — 메타만 공유</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>주의</strong>
+        Audio Snoop은 사용자 동의 + Galaxy 환경 자동 감지 시에만 활성. 타사 폰에서는 0.
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>4. 특화 기능 목록</h2>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>🕒 타임라인 히스토리</h3>
+          <p>오늘 들은 곡, 번역한 문장, 요약한 강의를 시간순으로. One UI 디자인.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🔍 검색</h3>
+          <p>"지난주 영어 단어 뭐였지?" 자연어로 히스토리 검색.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📌 핀 / 즐겨찾기</h3>
+          <p>좋아한 곡, 외울 단어, 다시 들을 답변을 저장.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📲 위젯</h3>
+          <p>홈 화면 위젯에 "최근 답변" 표시, 락스크린 위젯 지원.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🌗 Always-On Display</h3>
+          <p>답변 핵심 한 줄을 AOD에 잠시 표시 (옵션).</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎵 Spotify/YouTube Music 딥링크</h3>
+          <p>곡 식별 결과 → "이 곡 재생" 버튼 한 번.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📚 단어장</h3>
+          <p>번역/사전 검색한 단어를 자동 단어장으로 → Galaxy Notes/Quizlet 연동.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📝 회의 노트</h3>
+          <p>회의 통화 중 트리거 → 답변 + 원문을 Samsung Notes에 자동 저장.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🌍 Galaxy AI 통합</h3>
+          <p>One UI의 Galaxy AI 번역/요약 기능과 같은 보이스 톤·언어 설정 공유.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🤖 Bixby 라우팅</h3>
+          <p>오디오 무관한 일반 질문은 Bixby로 라우팅 옵션.</p>
+        </div>
+        <div class="feature-card">
+          <h3>⌚ Galaxy Watch 뷰</h3>
+          <p>워치 화면에 최근 답변, 트리거 횟수, 빠른 재생.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🏠 SmartThings 자동화</h3>
+          <p>"이 곡이 식별되면 거실 조명 무드 모드로" 같은 루틴.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="wearable">
+      <h2>5. Galaxy Wearable 통합</h2>
+
+      <p>BudsAI 설정 UI는 <strong>별도 앱이 아니라 Galaxy Wearable 앱 안의 한 섹션</strong>으로 들어감.</p>
+
+      <h3>5.1 Wearable 내 진입 경로</h3>
+      <div class="diagram">Galaxy Wearable 앱
+  ├── 내 버즈
+  │    ├── 노이즈 컨트롤
+  │    ├── 터치 컨트롤
+  │    ├── 이퀄라이저
+  │    └── BudsAI               ← 여기 진입
+  │         ├── 활성화 / 트리거 제스처
+  │         ├── 버퍼 길이
+  │         ├── 응답 언어/음성
+  │         ├── 히스토리 (Galaxy 전용)
+  │         ├── 단어장 (Galaxy 전용)
+  │         └── 프라이버시</div>
+
+      <h3>5.2 펌웨어 OTA</h3>
+      <ul>
+        <li>버즈 펌웨어 업데이트가 Galaxy Wearable 안에서 같이 관리됨</li>
+        <li>BudsAI 펌웨어 모듈은 별도 채널 (slow/stable) 선택 가능</li>
+      </ul>
+    </section>
+
+    <section id="bixby">
+      <h2>6. Bixby 라우팅 옵션</h2>
+
+      <h3>6.1 동작</h3>
+      <p>사용자가 트리거 후 "오늘 날씨 어때?" 같이 <strong>청취 오디오와 무관한 질문</strong>을 하면:</p>
+      <ol class="steps">
+        <li>서버 의도 분류가 <code>general</code>로 분류</li>
+        <li>(Galaxy 환경 + 사용자 옵션 ON) 시 답변을 Bixby에 위임 가능</li>
+        <li>Bixby가 답을 만들어 BudsAI 서버로 회신</li>
+        <li>BudsAI는 그대로 TTS로 버즈에 전달</li>
+      </ol>
+
+      <h3>6.2 왜 옵션인가</h3>
+      <ul>
+        <li>Galaxy 사용자라도 BudsAI 자체 LLM을 선호할 수 있음</li>
+        <li>또는 Galaxy 디바이스 명령("이 사진 보내줘") 같은 건 Bixby가 더 잘함 → 자동 라우팅 가치</li>
+      </ul>
+    </section>
+
+    <section id="smartthings">
+      <h2>7. SmartThings / Find 연동</h2>
+
+      <h3>7.1 SmartThings Routines</h3>
+      <p>BudsAI 세션 결과를 트리거로 사용:</p>
+      <pre><code>If (BudsAI.intent == "song_id") AND (BudsAI.result.genre == "jazz") then
+    SmartThings.Routine("저녁 재즈 무드"): 거실 조명 dim, 스피커 볼륨 ↓</code></pre>
+
+      <h3>7.2 SmartThings Find</h3>
+      <ul>
+        <li>버즈 분실 시 Galaxy Find로 위치 추적 (기존 기능)</li>
+        <li>BudsAI는 별도 영향 없음</li>
+      </ul>
+    </section>
+
+    <section id="handoff">
+      <h2>8. 멀티 디바이스 핸드오프</h2>
+
+      <p>Galaxy 생태계 안에서는 한 사용자가 폰/태블릿/워치/PC를 동시 보유. BudsAI도 이 사이를 매끄럽게 이동.</p>
+
+      <h3>8.1 시나리오</h3>
+      <div class="card">
+        <p><strong>상황:</strong> 폰으로 음악 듣다가 폰 두고 산책 가면서 Galaxy Watch만 차고 나감</p>
+        <p><strong>동작:</strong></p>
+        <ol>
+          <li>버즈가 폰 BT 끊기는 걸 감지</li>
+          <li>Galaxy Watch에 자동 재연결 (이미 페어링됨)</li>
+          <li>Watch가 LTE/Wi-Fi로 호스트 브릿지 역할 수행</li>
+          <li>사용자 입장: 끊김 없이 그대로 BudsAI 사용</li>
+        </ol>
+      </div>
+
+      <h3>8.2 동시 다중 페어링</h3>
+      <ul>
+        <li>Galaxy 디바이스는 Multipoint BT로 폰+태블릿 동시 연결 지원</li>
+        <li>현재 활성 디바이스의 호스트 브릿지를 사용, 다른 디바이스는 idle</li>
+        <li>전환 시 서버 세션은 그대로 유지 (디바이스 인증서가 같으므로)</li>
+      </ul>
+    </section>
+
+    <section id="privacy">
+      <h2>9. 프라이버시 분리</h2>
+
+      <ul>
+        <li><strong>오디오 페이로드:</strong> Galaxy 앱조차 못 봄 (E2E 유지)</li>
+        <li><strong>메타데이터(히스토리/intent):</strong> 사용자 동의 후 Galaxy 앱이 서버에서 읽음</li>
+        <li><strong>로컬 저장:</strong> Galaxy 앱이 히스토리 캐시를 폰에 저장하지만 Knox 보안 영역 사용</li>
+        <li><strong>옵트아웃:</strong> 사용자가 Galaxy 특화 기능을 끄면 즉시 캐시 삭제, 푸시 구독 해지</li>
+        <li><strong>비 Galaxy 사용자:</strong> 영향 0 — 페이지조차 보지 못함</li>
+      </ul>
+    </section>
+
+    <section id="compare">
+      <h2>10. 일반 폰 vs Galaxy 폰 비교</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>기능</th><th>일반 폰 (Dumb Bridge)</th><th>Galaxy + Buds</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>기본 음성 답변</td><td>✅</td><td>✅</td></tr>
+            <tr><td>오디오 페이로드 보호</td><td>✅ E2E</td><td>✅ E2E</td></tr>
+            <tr><td>UI 히스토리</td><td>❌</td><td>✅ Wearable 내</td></tr>
+            <tr><td>위젯/AOD</td><td>❌</td><td>✅</td></tr>
+            <tr><td>음악 딥링크</td><td>❌</td><td>✅</td></tr>
+            <tr><td>단어장 자동 누적</td><td>❌</td><td>✅</td></tr>
+            <tr><td>Bixby 라우팅</td><td>❌</td><td>✅</td></tr>
+            <tr><td>SmartThings 루틴</td><td>❌</td><td>✅</td></tr>
+            <tr><td>Watch 핸드오프</td><td>❌</td><td>✅</td></tr>
+            <tr><td>OTA 펌웨어 업데이트</td><td>제조사 도구</td><td>Wearable 통합</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <strong>핵심</strong>
+        Galaxy 특화는 <strong>덧셈</strong>이지 뺄셈이 아니다.
+        타사 기기 호환성은 그대로 100% 유지되며, Galaxy 사용자에겐 보너스 레이어가 켜진다.
+      </div>
+    </section>
+
+    <p class="dim">→ 끝까지 읽으셨습니다. <a href="simulation.html">시뮬레이션</a>으로 흐름을 다시 보거나 <a href="index.html">개요</a>로 돌아갈 수 있어요.</p>
+
+    <nav class="pager">
+      <a href="server-api.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">서버 API</span>
+      </a>
+      <a href="index.html" class="pager-next">
+        <span class="pager-label">처음으로 →</span>
+        <span class="pager-title">개요</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">07 · GALAXY UX</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

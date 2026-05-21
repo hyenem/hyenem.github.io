@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>컨셉 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">01 · CONCEPT</span>
+      <h1>컨셉 정리</h1>
+      <p class="subtitle">초기 아이디어에서 음성 질의 결합 버전까지의 진화 과정.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#v1">v1 · AI 자동 추측 버전</a></li>
+        <li><a href="#v2">v2 · 음성 질의 결합 버전</a></li>
+        <li><a href="#flow">v2 전체 플로우</a></li>
+        <li><a href="#advantages">v1 대비 장점</a></li>
+        <li><a href="#v3">v3 · 호스트 무관 / 무설치 아키텍처</a></li>
+        <li><a href="#considerations">고려 사항</a></li>
+      </ul>
+    </div>
+
+    <section id="v1">
+      <h2>v1 · AI 자동 추측 버전</h2>
+      <p>
+        사용자가 버즈로 듣고 있던 직전 N초의 오디오를 트리거 한 번으로 서버에 보내고,
+        AI가 "이게 무엇인지" 알아서 추측해 답해주는 초기안.
+      </p>
+
+      <h3>흐름</h3>
+      <ol class="steps">
+        <li>버즈가 출력 PCM의 마지막 N초를 링버퍼에 유지</li>
+        <li>사용자가 터치 제스처(롱프레스 등)로 트리거</li>
+        <li>버즈가 버퍼를 압축·패킷화해 호스트로 BT 전송</li>
+        <li>호스트가 인터넷 게이트웨이 역할로 서버에 전달</li>
+        <li>서버 AI가 음성/음악/환경음을 자동 분류 후 응답</li>
+        <li>응답을 TTS로 합성해 버즈에 재생</li>
+      </ol>
+
+      <div class="diagram">v1:  [Buds 청취]
+       ↓ 트리거
+     [Track A 30s만 전송]
+       ↓
+     [Server AI "이게 뭐지?" 추측] ── 의도 모호 ──> 한 가지 답만 가능</div>
+
+      <div class="callout warn">
+        <strong>한계</strong>
+        AI가 의도를 추측해야 하므로 "노래 제목"인지 "단어 뜻"인지 "번역"인지 모호.
+        같은 오디오에 대해 다양한 질문이 불가능.
+      </div>
+    </section>
+
+    <section id="v2">
+      <h2>v2 · 음성 질의 결합 버전</h2>
+      <p>
+        트리거는 동일하되, 트리거 직후 사용자가 <strong>음성으로 질문</strong>하면
+        AI가 (직전 오디오 + 질문) 두 가지를 함께 받아 정확한 의도로 답하는 구조.
+      </p>
+      <p>이전 버전이 "이게 뭐였지?"를 AI가 추측했다면, v2는 사용자가 직접 묻는 것이 핵심.</p>
+
+      <div class="diagram">v2:  [Buds 청취]
+       ↓ 트리거
+     [Track A 30s + Track B 사용자 음성] → 두 트랙 묶어 전송
+       ↓
+     [Server: STT(Track B) → 의도 분류 → 핸들러(Track A)]
+       ↓
+     [Intent별 정확한 답] ✓</div>
+    </section>
+
+    <section id="flow">
+      <h2>v2 전체 플로우</h2>
+      <div class="diagram">[Listening]   →   [Trigger]   →   [User asks by voice]   →   [AI answers]
+─────────         ──────────       ───────────────────       ────────────
+링버퍼에           터치 제스처      마이크 ON,                직전 오디오 +
+N초 보관           (롱프레스)       질문 녹음 (~5초)          질문 합쳐 분석</div>
+
+      <ol class="steps">
+        <li><strong>상시 버퍼링</strong> — 출력 PCM 마지막 N초(예: 30초)를 링버퍼에 유지</li>
+        <li><strong>트리거</strong> — 버즈 터치패드 롱프레스</li>
+        <li><strong>확인 신호</strong> — 버즈에서 짧은 "띵" 효과음으로 "지금부터 말하세요" 알림</li>
+        <li><strong>음성 질의 녹음</strong> — 버즈 마이크가 켜져서 사용자 음성 캡처, VAD로 침묵 감지 시 자동 종료</li>
+        <li><strong>패킷 생성</strong> — Track A(직전 사운드) + Track B(사용자 질문) 두 트랙을 묶음</li>
+        <li><strong>전송</strong> — 버즈가 mTLS로 호스트(폰/노트북/MP3 등) 경유 서버로 직접 송신</li>
+        <li><strong>서버 AI 처리</strong> — Track B를 STT로 의도 파악 후 Track A에 해당 처리 적용</li>
+        <li><strong>TTS 응답</strong> — 호스트 경유로 버즈에 스트리밍 재생</li>
+      </ol>
+    </section>
+
+    <section id="advantages">
+      <h2>v1 대비 장점</h2>
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>의도 명확</h3>
+          <p>AI가 추측하지 않고 사용자가 원하는 정보를 정확히 제공.</p>
+        </div>
+        <div class="feature-card">
+          <h3>확장성</h3>
+          <p>같은 오디오 1개에 대해 무한히 다양한 질문 가능 — 가사·번역·요약·추천·의미 등.</p>
+        </div>
+        <div class="feature-card">
+          <h3>자연스러움</h3>
+          <p>"잠깐, 방금 뭐였지?" 같은 자연어 그대로 사용.</p>
+        </div>
+        <div class="feature-card">
+          <h3>컨텍스트 활용</h3>
+          <p>LLM이 (직전 오디오 내용) + (사용자 질문) 두 가지 컨텍스트를 함께 받음.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="v3">
+      <h2>v3 · 호스트 무관 / 무설치 아키텍처 <span class="badge">FINAL</span></h2>
+      <p>
+        v2까지는 "폰 앱"을 통한 중계를 가정했지만, 이는 타사 기기 호환성을 막고
+        제조사·OS 종속을 만듭니다. v3에서는 폰을 포함한 <strong>모든 인터넷 가능
+        BT 호스트</strong>(노트북·MP3·TV·차량·eSIM 동글 등)에서 동작하도록
+        구조를 재설계합니다.
+      </p>
+
+      <h3>핵심 변경</h3>
+      <ul>
+        <li><strong>폰 → 호스트:</strong> 중계자가 폰 하나로 한정되지 않음. 어떤 BT+인터넷 기기든 가능</li>
+        <li><strong>호스트는 Dumb Pipe:</strong> 페이로드 못 봄, 표준 BT PAN(NAP) 위에서 IP 라우터 역할만</li>
+        <li><strong>mTLS 종단점이 버즈:</strong> 디바이스 인증서(Secure Element 보관) + 서버와 직접 mTLS 핸드셰이크</li>
+        <li><strong>인증 토큰 호스트에 없음:</strong> 호스트 메모리에 비밀 정보 0 → 보안 표면 축소</li>
+        <li><strong>앱 설치 불필요:</strong> OS 빌트인 BT 테더링 토글 한 번 (Win/Mac/Linux/Android/Android-MP3)</li>
+      </ul>
+
+      <h3>새 흐름 (v2 → v3 변경점)</h3>
+      <div class="diagram">v2:  [Buds] ──BT──> [폰 앱 (인증·라우팅)] ──HTTPS(JWT)──> [Server]
+                       ↑ 페이로드 봄 (잠재 노출 표면)
+
+v3:  [Buds(mTLS 종단)] ──BT PAN──> [Host (라우터 only)] ──IP──> [Server(mTLS)]
+        ↑ 디바이스 인증서                    ↑ 페이로드 못 봄
+        E2E 암호화 ─────────────────────────────────────────────►</div>
+
+      <h3>Galaxy 특화 경로는 별도 레이어</h3>
+      <p>
+        Galaxy + Buds 사용자에게는 히스토리·위젯·Bixby 통합 같은 부가 가치를
+        <strong>옵저버 컴패니언 앱</strong> 형태로 제공. 이는 Dumb Pipe 위에
+        선택적으로 얹히는 레이어라 타사 호환성을 해치지 않음.
+        자세한 내용은 <a href="galaxy-ux.html">Galaxy UX 페이지</a>.
+      </p>
+
+      <div class="callout info">
+        <strong>왜 이게 본 설계인가</strong>
+        제조사 잠금 없는 표준 BT 인프라 활용 → 사용자 진입 마찰 0 →
+        새 호환 버즈/호스트 등장 시 즉시 사용 가능. 자세한 구현은
+        <a href="host-bridge.html">범용 호스트 브릿지</a> 페이지 참고.
+      </div>
+    </section>
+
+    <section id="considerations">
+      <h2>고려 사항</h2>
+
+      <h3>프라이버시</h3>
+      <ul>
+        <li>상시 전송이 아닌 트리거 직후 구간만 전송</li>
+        <li>마이크 활성 시 효과음 + 폰 화면 표시</li>
+        <li>사용자 명시 동의 후 활성화</li>
+      </ul>
+
+      <h3>UX</h3>
+      <ul>
+        <li>취소 제스처: 녹음 중 다시 탭하면 취소</li>
+        <li>연속 대화: 답변 후 "근데 그 곡 가사도 알려줘" 같은 후속 질문 가능 (세션 유지)</li>
+        <li>버퍼 길이 설정: 30초/1분/3분 사용자 선택 (배터리 vs 활용도 트레이드오프)</li>
+      </ul>
+
+      <h3>저전력</h3>
+      <ul>
+        <li>링버퍼 인코딩은 재생 중일 때만 동작</li>
+        <li>트리거는 GPIO 인터럽트로 즉시 깨움</li>
+      </ul>
+    </section>
+
+    <p class="dim">→ 구체적인 사용 예시는 <a href="scenarios.html">시나리오 페이지</a>에서, 흐름은 <a href="simulation.html">시뮬레이션</a>에서 확인하세요.</p>
+
+    <nav class="pager">
+      <a href="simulation.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">시뮬레이션</span>
+      </a>
+      <a href="scenarios.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">사용 시나리오</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">01 · CONCEPT</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

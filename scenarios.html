@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시나리오 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">02 · SCENARIOS</span>
+      <h1>사용 시나리오</h1>
+      <p class="subtitle">실제 사용자가 BudsAI를 어떻게 활용하는지 구체적인 예시들. 흐름을 애니메이션으로 보려면 <a href="simulation.html">시뮬레이션</a>으로.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#examples">대표 시나리오</a></li>
+        <li><a href="#intents">의도(Intent) 분류</a></li>
+        <li><a href="#extended">확장 시나리오</a></li>
+      </ul>
+    </div>
+
+    <section id="examples">
+      <h2>대표 시나리오</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>청취 중이던 것</th>
+              <th>트리거 후 사용자 음성</th>
+              <th>AI 응답</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>카페에서 흘러나오는 음악</td>
+              <td>"이 노래 누구 곡이야?"</td>
+              <td>"아이유의 'Love wins all'입니다"</td>
+            </tr>
+            <tr>
+              <td>영어 팟캐스트</td>
+              <td>"방금 quintessential 무슨 뜻?"</td>
+              <td>"전형적인, 본질적인이란 뜻이에요"</td>
+            </tr>
+            <tr>
+              <td>미국 드라마 시청</td>
+              <td>"방금 대사 한국어로 번역해줘"</td>
+              <td>"'그가 그럴 줄 알았어'라는 뜻이에요"</td>
+            </tr>
+            <tr>
+              <td>회의 통화</td>
+              <td>"방금 김 부장님이 뭐라고 했어?"</td>
+              <td>"다음 주 화요일까지 보고서 달라고 하셨어요"</td>
+            </tr>
+            <tr>
+              <td>강의 청취</td>
+              <td>"방금 설명한 엔트로피 다시 쉽게 풀어줘"</td>
+              <td>"엔트로피는 쉽게 말해 무질서도인데..."</td>
+            </tr>
+            <tr>
+              <td>라디오 뉴스</td>
+              <td>"이 사건 배경이 뭐야?"</td>
+              <td>"말씀하신 사건은 어제 발생한..." (Track A STT + 외부 검색)</td>
+            </tr>
+            <tr>
+              <td>음악 듣는 중</td>
+              <td>"이 가수 다른 노래 추천해줘"</td>
+              <td>(곡 식별 → 같은 아티스트 추천)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="intents">
+      <h2>의도(Intent) 분류</h2>
+      <p>Track B(사용자 질문)를 STT로 변환 후 의도를 분류하여 Track A(직전 사운드)에 적절한 처리를 적용합니다.</p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>🎵 song_id</h3>
+          <p>"이 노래 뭐야?" → 음악 fingerprint 매칭으로 곡 정보 반환.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📝 transcribe</h3>
+          <p>"방금 뭐라고 했어?" → Track A STT → 텍스트 그대로 반환.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📋 summarize</h3>
+          <p>"지금 한 말 요약해줘" → STT → LLM 요약.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📖 define</h3>
+          <p>"이 단어 무슨 뜻?" → STT → 단어 추출 → 사전 검색.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🌐 translate</h3>
+          <p>"한국어로 번역해줘" → STT → 번역 모델.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🐦 classify</h3>
+          <p>"이거 새 소리야?" → 환경음 분류 모델.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🔍 search</h3>
+          <p>"이 사건 배경 알려줘" → STT → 외부 검색 + LLM.</p>
+        </div>
+        <div class="feature-card">
+          <h3>💡 recommend</h3>
+          <p>"비슷한 거 추천해줘" → 곡 식별 → 추천 시스템.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="extended">
+      <h2>확장 시나리오</h2>
+
+      <h3>연속 대화</h3>
+      <div class="card">
+        <p><strong>사용자:</strong> (음악 듣는 중 트리거) "이 노래 뭐야?"</p>
+        <p><strong>AI:</strong> "아이유의 'Love wins all'입니다."</p>
+        <p><strong>사용자:</strong> (다시 트리거) "이 가수 다른 노래 추천해줘"</p>
+        <p><strong>AI:</strong> "아이유의 다른 곡으로는 'Blueming', 'Celebrity'..."</p>
+        <p class="dim">→ <code>PrevSessionID</code> 메타데이터로 세션 컨텍스트 유지</p>
+      </div>
+
+      <h3>오프라인 fallback</h3>
+      <div class="card">
+        <p>폰 인터넷 미연결 시 큐잉 후 연결되면 일괄 처리.</p>
+        <p class="dim">"인터넷 연결되면 다시 알려드릴게요"</p>
+      </div>
+
+      <h3>긴 컨텍스트가 필요한 경우</h3>
+      <div class="card">
+        <p>강의/팟캐스트처럼 30초보다 긴 컨텍스트가 필요할 때 사용자가 버퍼 길이를 1분/3분으로 설정 가능.</p>
+        <p class="dim">단, 배터리 소비와 트레이드오프</p>
+      </div>
+    </section>
+
+    <p class="dim">→ 이 시나리오들이 어떻게 데이터로 표현되는지는 <a href="packet.html">패킷 포맷</a>에서, 서버가 의도를 어떻게 처리하는지는 <a href="server-api.html">서버 API</a>에서 다룹니다.</p>
+
+    <nav class="pager">
+      <a href="concept.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">컨셉</span>
+      </a>
+      <a href="packet.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">패킷 포맷</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">02 · SCENARIOS</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

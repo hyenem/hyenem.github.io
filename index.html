@@ -1,152 +1,171 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>멋쟁이 개발자 혜냄!</title>
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9; /* Light Gray */
-            color: #333;
-        }
-
-        header {
-            background-color: #00247f; /* Navy Blue */
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-            border-bottom: 4px solid #ffea28; /* Light Yellow */
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #ffffff;
-        }
-
-        header h2 {
-            margin: 5px 0;
-            font-size: 1.5em;
-            color: #c3ceff;
-        }
-
-        header h3 {
-            margin: 5px 0;
-            font-size: 1.2em;
-            color: #d0dbff;
-        }
-
-        main {
-            padding: 20px;
-        }
-
-        .profile-info {
-            background: #fff;
-            margin: 20px auto;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
-            border: 2px solid #00247f; /* Navy Blue */
-        }
-
-        .profile-info ol {
-            padding-left: 20px;
-        }
-
-        .profile-info ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .profile-info li {
-            margin-bottom: 10px;
-        }
-
-        .profile-info button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #00247f; /* Navy Blue */
-            color: #fff;
-            border: none;
-            text-align: center;
-            cursor: pointer;
-            margin-top: 20px;
-            border-radius: 5px;
-            font-size: 1em;
-            transition: background-color 0.3s;
-        }
-
-        .profile-info button:hover {
-            background-color: #001a56; /* Darker Navy Blue */
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .social-links a {
-            margin: 0 10px;
-        }
-
-        .social-links img {
-            width: 40px;
-            height: 40px;
-            transition: transform 0.3s;
-        }
-
-        .social-links img:hover {
-            transform: scale(1.1);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudsAI — 직전 사운드 + 음성 질의 AI 시스템</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <header>
-        <h1>멋쟁이 개발자 혜냄!</h1>
-        <h2>김혜민(Hyemin Kim)</h2>
-        <h3>SSAFY 12기 서울 7반 비전공 JAVA</h3>
-    </header>
-    <main>
-        <div class="profile-info">
-            <button onclick="location.href='목차.html'">오늘의 계획표</button>
-            <ol>
-                <li>전공
-                    <ul>
-                        <li>수학교육과</li>
-                    </ul>
-                </li>
-                <li>MBTI
-                    <ul>
-                        <li>ENTJ</li>
-                    </ul>
-                </li>
-                <li>취미
-                    <ul>
-                        <li>배구</li>
-                    </ul>
-                </li>
-            </ol>
-            <div class="social-links">
-                <a href="https://github.com/hyenem" alt="깃헙 아이콘">
-                    <img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" alt="GitHub">
-                </a>
-                <a href="https://blog.naver.com/hyemin-t" alt="블로그 아이콘">
-                    <img src="./assets/img/blog.png" alt="Naver Blog">
-                </a>
-            </div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>BudsAI</h1>
+      <p class="subtitle">
+        버즈로 듣던 직전 사운드와 사용자의 음성 질의를 결합해<br/>
+        AI가 정확히 원하는 답을 들려주는 시스템
+      </p>
+      <p class="subtitle" style="margin-top:16px; font-size:15px; color:var(--text-muted);">
+        앱 설치 없이 어떤 BT+인터넷 기기와도 호환 · 모든 페이로드는 E2E 암호화 · 종단간 ~3초 응답
+      </p>
+    </section>
+
+    <!-- 시뮬레이션 강조 CTA -->
+    <div class="cta-banner">
+      <div class="cta-text">
+        <h2>▶ 인터랙티브 시뮬레이션으로 먼저 보세요</h2>
+        <p>버튼 한 번이면 전 과정이 애니메이션으로 흐릅니다. 비전공자용 쉬운 설명과 기술 디테일이 동시에 표시돼요. 문서 읽기 전 가장 빠른 이해 경로입니다.</p>
+      </div>
+      <a href="simulation.html" class="cta-button">
+        시뮬레이션 실행 <span class="arrow">→</span>
+      </a>
+    </div>
+
+    <section>
+      <h2>핵심 아이디어</h2>
+      <p>
+        버즈가 출력 중인 오디오의 직전 N초를 링버퍼에 보관하다가, 사용자가 트리거 제스처를
+        입력하고 음성으로 질문하면, 두 오디오(직전 사운드 + 질문)를 함께 서버 AI로 보내
+        의도에 맞는 답을 TTS로 들려주는 구조입니다.
+      </p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>1. 상시 버퍼링</h3>
+          <p>버즈 출력 사운드를 Opus로 인코딩해 압축 링버퍼에 유지. 약 150KB로 30초 보관.</p>
         </div>
-    </main>
+        <div class="feature-card">
+          <h3>2. 제스처 트리거</h3>
+          <p>버즈 터치패드 롱프레스로 트리거 → ARMED 효과음 → 마이크 ON.</p>
+        </div>
+        <div class="feature-card">
+          <h3>3. 음성 질의</h3>
+          <p>사용자가 자연어로 질문하면 VAD가 침묵 감지 시 자동으로 녹음 종료.</p>
+        </div>
+        <div class="feature-card">
+          <h3>4. AI 분석</h3>
+          <p>서버가 (직전 오디오 + 질문) 컨텍스트로 의도 파악 후 적절한 답변 생성.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>문서 구성</h2>
+      <p>주제별 페이지로 구성되어 있습니다. <a href="simulation.html">시뮬레이션</a>으로 흐름을 먼저 보고, 그 뒤 관심 있는 모듈을 깊게 보는 순서를 추천합니다.</p>
+
+      <div class="page-grid">
+        <a href="concept.html" class="page-card">
+          <span class="page-card-number">01</span>
+          <h3>컨셉 정리</h3>
+          <p>초기 아이디어 v1 → 음성 질의 v2 → 호스트 무관 v3로의 진화 과정.</p>
+          <span class="page-card-arrow">→ 자세히 보기</span>
+        </a>
+
+        <a href="scenarios.html" class="page-card">
+          <span class="page-card-number">02</span>
+          <h3>사용 시나리오</h3>
+          <p>음악 식별, 번역, 회의 요약 등 실제 활용 예시 + 의도 분류 표.</p>
+          <span class="page-card-arrow">→ 자세히 보기</span>
+        </a>
+
+        <a href="packet.html" class="page-card">
+          <span class="page-card-number">03</span>
+          <h3>패킷 포맷</h3>
+          <p>Session Message · Frame 2-레이어 구조와 TLV 메타데이터 스펙.</p>
+          <span class="page-card-arrow">→ 자세히 보기</span>
+        </a>
+
+        <a href="firmware.html" class="page-card">
+          <span class="page-card-number">04</span>
+          <h3>버즈 펌웨어</h3>
+          <p>상태 머신, 링버퍼, 마이크 캡처, BT 전송, 응답 재생까지.</p>
+          <span class="page-card-arrow">→ 자세히 보기</span>
+        </a>
+
+        <a href="host-bridge.html" class="page-card">
+          <span class="page-card-number">05</span>
+          <h3>범용 호스트 브릿지 <span class="badge">Zero-Install</span></h3>
+          <p>폰·노트북·MP3·TV 무관. OS 표준 BT PAN 활용해 앱 설치 0으로 동작.</p>
+          <span class="page-card-arrow">→ 자세히 보기</span>
+        </a>
+
+        <a href="server-api.html" class="page-card">
+          <span class="page-card-number">06</span>
+          <h3>서버 API</h3>
+          <p>엔드포인트, mTLS+JWT 이중 인증, AI 파이프라인(STT · 의도분류 · TTS).</p>
+          <span class="page-card-arrow">→ 자세히 보기</span>
+        </a>
+
+        <a href="galaxy-ux.html" class="page-card">
+          <span class="page-card-number">07</span>
+          <h3>Galaxy UX 특화 <span class="badge info">Bonus</span></h3>
+          <p>Galaxy + Buds 사용자에게만 추가되는 히스토리·위젯·Bixby·SmartThings 통합.</p>
+          <span class="page-card-arrow">→ 자세히 보기</span>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2>전체 아키텍처 한눈에</h2>
+      <div class="diagram">[Buds] ──BT(PAN)──> [Host: 폰/노트북/MP3/TV/eSIM] ──IP──> [Server + AI]
+   ↑                                                          │
+   └──────────────── TTS 응답 음성 ←─────────────────────────┘</div>
+      <p>
+        버즈가 패킷 생성, mTLS 종단, HTTPS 요청까지 직접 수행합니다. 호스트(폰·노트북·MP3 등)는
+        표준 BT PAN으로 IP 라우터 역할만 — 페이로드는 못 봅니다. 앱 설치 없이도 OS 빌트인 BT
+        테더링만으로 동작합니다.
+      </p>
+    </section>
+
+    <!-- 하단 prev/next -->
+    <nav class="pager">
+      <span class="pager-prev pager-empty">
+        <span class="pager-label">처음</span>
+      </span>
+      <a href="simulation.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">시뮬레이션</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">00 · OVERVIEW</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
 </body>
 </html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>서버 API — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">06 · SERVER API</span>
+      <h1>서버 API & AI 파이프라인</h1>
+      <p class="subtitle">엔드포인트, AI 파이프라인(STT · 의도분류 · 핸들러 · TTS), 응답 스트리밍.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#overview">1. 서버 역할 개요</a></li>
+        <li><a href="#auth-model">1.5. 인증 모델 (mTLS + JWT)</a></li>
+        <li><a href="#arch">2. 서버 아키텍처</a></li>
+        <li><a href="#endpoints">3. API 엔드포인트</a></li>
+        <li><a href="#ws">4. WebSocket 프로토콜</a></li>
+        <li><a href="#pipeline">5. AI 파이프라인</a></li>
+        <li><a href="#intent">6. 의도 분류</a></li>
+        <li><a href="#handlers">7. 의도별 핸들러</a></li>
+        <li><a href="#tts">8. TTS & 응답 스트리밍</a></li>
+        <li><a href="#session">9. 세션 & 연속 대화</a></li>
+        <li><a href="#perf">10. 성능 목표 & SLA</a></li>
+        <li><a href="#scaling">11. 스케일링</a></li>
+        <li><a href="#errors">12. 에러 코드</a></li>
+      </ul>
+    </div>
+
+    <section id="overview">
+      <h2>1. 서버 역할 개요</h2>
+      <p>
+        서버는 패킷 포맷 v1.0의 Session Message를 받아 페이로드를 파싱하고,
+        AI 파이프라인을 거쳐 응답을 생성한 뒤 같은 포맷으로 되돌려줍니다.
+        가능한 한 응답을 <strong>스트리밍</strong>으로 내보내 종단간 지연을 최소화합니다.
+      </p>
+    </section>
+
+    <section id="auth-model">
+      <h2>1.5. 인증 모델 (mTLS + JWT 이중 경로)</h2>
+
+      <p>서버는 두 가지 클라이언트 종류를 구분하며, 각기 다른 인증 방식을 사용합니다.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>클라이언트</th><th>인증 방식</th><th>경로</th><th>접근 권한</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>버즈</strong> (오디오 세션)</td>
+              <td>mTLS · 디바이스 X.509 인증서 (SE 보관)</td>
+              <td><code>/v1/stream</code>, <code>/v1/sessions</code></td>
+              <td>자기 디바이스의 세션 생성·송수신</td>
+            </tr>
+            <tr>
+              <td><strong>컴패니언 앱</strong> (Galaxy UX / 웹 콘솔)</td>
+              <td>JWT (OAuth로 발급)</td>
+              <td><code>/v1/sessions/{id}</code> 조회, <code>/v1/user/*</code></td>
+              <td>자기 계정의 메타데이터 read · 설정 관리</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>1.5.1 두 경로의 매핑</h3>
+      <ul>
+        <li>사용자가 최초 1회 디바이스 인증서를 자기 계정에 연결 (웹 또는 컴패니언 앱)</li>
+        <li>이후 서버는 mTLS의 디바이스 ID → 사용자 ID 자동 매핑</li>
+        <li>컴패니언 앱은 OAuth로 받은 JWT로 자기 계정의 히스토리 조회</li>
+        <li>버즈는 JWT를 갖지 않음 (호스트 노출 표면 축소)</li>
+      </ul>
+
+      <div class="callout info">
+        <strong>핵심</strong>
+        오디오 페이로드 경로(<strong>버즈 ↔ 서버</strong>)는 mTLS로 종단간 암호화.
+        호스트는 평문 못 봄. JWT는 컴패니언 앱의 read-only API용 보조 채널.
+      </div>
+    </section>
+
+    <section id="arch">
+      <h2>2. 서버 아키텍처</h2>
+      <div class="diagram">                       ┌──────────────────────┐
+                       │   API Gateway        │  ← TLS, 인증, 레이트 리밋
+                       │   (HTTP/2, WS)       │
+                       └──────────┬───────────┘
+                                  │
+                       ┌──────────▼───────────┐
+                       │  Session Controller   │  ← 세션 생성, 라우팅
+                       └──────────┬───────────┘
+                                  │
+              ┌───────────────────┼───────────────────┐
+              ▼                   ▼                   ▼
+       ┌────────────┐     ┌────────────┐      ┌────────────┐
+       │   STT      │     │ Intent     │      │   Audio    │
+       │  Service   │     │ Classifier │      │ Fingerprint│
+       └────────────┘     └─────┬──────┘      └────────────┘
+                                │
+                ┌───────────────┼───────────────────┐
+                ▼               ▼                   ▼
+         ┌──────────┐    ┌──────────┐        ┌──────────┐
+         │  LLM     │    │Translate │        │   Music  │
+         │ (RAG)    │    │  Service │        │   DB     │
+         └──────────┘    └──────────┘        └──────────┘
+                │
+                ▼
+         ┌──────────────┐
+         │  TTS Service │  ← 응답 음성 합성, 청크 단위 출력
+         └──────┬───────┘
+                │
+                ▼
+         [WebSocket 응답 스트림]
+
+       ┌─────────────────┐
+       │  Object Storage │  ← 로그, 학습 데이터, 임시 오디오 (S3)
+       └─────────────────┘
+       ┌─────────────────┐
+       │  Redis          │  ← 세션 캐시, 레이트 리밋
+       └─────────────────┘
+       ┌─────────────────┐
+       │  PostgreSQL     │  ← 사용자, 히스토리 메타
+       └─────────────────┘</div>
+    </section>
+
+    <section id="endpoints">
+      <h2>3. API 엔드포인트</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Path</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="badge info">WS</span></td><td><code>/v1/stream</code></td><td>메인: 양방향 스트리밍 세션</td></tr>
+            <tr><td><span class="badge">POST</span></td><td><code>/v1/sessions</code></td><td>단일 요청/응답 (WebSocket 미지원 클라이언트용)</td></tr>
+            <tr><td><span class="badge">GET</span></td><td><code>/v1/sessions/{id}</code></td><td>세션 상태/결과 조회 (오프라인 큐 동기화)</td></tr>
+            <tr><td><span class="badge">POST</span></td><td><code>/v1/sessions/{id}/followup</code></td><td>연속 대화 후속 질문</td></tr>
+            <tr><td><span class="badge">POST</span></td><td><code>/v1/auth/token</code></td><td>컴패니언 앱용 JWT 발급/갱신 (버즈는 mTLS 직접)</td></tr>
+            <tr><td><span class="badge">DELETE</span></td><td><code>/v1/user/data</code></td><td>사용자 데이터 일괄 삭제 (GDPR)</td></tr>
+            <tr><td><span class="badge">GET</span></td><td><code>/v1/devices/{id}/firmware</code></td><td>버즈 펌웨어 업데이트 정보</td></tr>
+            <tr><td><span class="badge">GET</span></td><td><code>/v1/healthz</code></td><td>헬스 체크</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.1 POST /v1/sessions (단일)</h3>
+      <pre><code>POST /v1/sessions HTTP/1.1
+Authorization: Bearer &lt;jwt&gt;
+X-Device-ID: 8f7d3a2c-...
+Content-Type: application/octet-stream
+Content-Length: 130248
+
+[Session Message 바이너리]
+
+---
+
+HTTP/1.1 200 OK
+Content-Type: application/octet-stream
+X-Session-ID: a1b2c3d4
+X-Intent: song_id
+X-Confidence: 0.92
+
+[Response Session Message 바이너리]</code></pre>
+
+      <h3>3.2 GET /v1/sessions/{id}</h3>
+      <pre><code>GET /v1/sessions/a1b2c3d4 HTTP/1.1
+Authorization: Bearer &lt;jwt&gt;
+
+---
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "session_id": "a1b2c3d4",
+  "status": "completed",
+  "intent": "song_id",
+  "confidence": 0.92,
+  "response_text": "아이유의 'Love wins all'입니다",
+  "response_audio_url": "https://cdn.budsai.com/tts/a1b2c3d4.opus",
+  "created_at": "2026-05-21T14:23:11Z",
+  "completed_at": "2026-05-21T14:23:14Z"
+}</code></pre>
+    </section>
+
+    <section id="ws">
+      <h2>4. WebSocket 프로토콜</h2>
+
+      <h3>4.1 메시지 타입</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>방향</th><th>Type</th><th>Frame</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>C→S</td><td><code>session</code></td><td>Binary</td><td>요청 Session Message</td></tr>
+            <tr><td>C→S</td><td><code>cancel</code></td><td>Text JSON</td><td>진행 중인 세션 취소</td></tr>
+            <tr><td>C→S</td><td><code>ping</code></td><td>Text JSON</td><td>keepalive</td></tr>
+            <tr><td>S→C</td><td><code>ack</code></td><td>Text JSON</td><td>요청 접수 확인</td></tr>
+            <tr><td>S→C</td><td><code>progress</code></td><td>Text JSON</td><td>처리 단계 알림 (stt, intent, handler...)</td></tr>
+            <tr><td>S→C</td><td><code>intent</code></td><td>Text JSON</td><td>분류된 의도 통보 (UX용)</td></tr>
+            <tr><td>S→C</td><td><code>tts_chunk</code></td><td>Binary</td><td>TTS 오디오 청크</td></tr>
+            <tr><td>S→C</td><td><code>done</code></td><td>Text JSON</td><td>완료 + 최종 메타데이터</td></tr>
+            <tr><td>S→C</td><td><code>error</code></td><td>Text JSON</td><td>오류</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.2 진행 단계 통보</h3>
+      <pre><code>// 1단계: 요청 수신 즉시
+{"type":"ack","session_id":"a1b2c3d4","ts":1716297791000}
+
+// 2단계: STT 완료 (~200ms)
+{"type":"progress","stage":"stt_done",
+ "query_text":"이 노래 누구 곡이야?","ts":1716297791200}
+
+// 3단계: 의도 분류 (~50ms)
+{"type":"intent","value":"song_id","confidence":0.92,
+ "ts":1716297791250}
+
+// 4단계: 핸들러 처리 진행 상태
+{"type":"progress","stage":"music_fingerprint","ts":1716297791400}
+
+// 5단계: TTS 청크 (스트리밍, 첫 청크 ~800ms)
+[binary: opus tts chunk #1]
+[binary: opus tts chunk #2]
+...
+
+// 6단계: 완료
+{"type":"done","session_id":"a1b2c3d4",
+ "response_text":"아이유의 'Love wins all'입니다",
+ "intent":"song_id","confidence":0.92,
+ "processing_ms":1820,"ts":1716297793000}</code></pre>
+    </section>
+
+    <section id="pipeline">
+      <h2>5. AI 파이프라인</h2>
+
+      <div class="diagram">[Session Message 도착]
+        │
+        ▼
+┌───────────────────────────┐
+│ Track B 분리, Opus 디코딩  │ ~20ms
+└─────────────┬─────────────┘
+              ▼
+┌───────────────────────────┐
+│ STT (Track B → 질문 텍스트)│ ~150~250ms
+└─────────────┬─────────────┘
+              ▼
+┌───────────────────────────┐
+│ 의도 분류 (Intent)         │ ~30~80ms
+└─────────────┬─────────────┘
+              │
+       ┌──────┴──────┐
+       ▼             ▼
+[Track A 필요?]  [Track A 불필요]
+       │             │
+       ▼             ▼
+[Track A 디코딩]   [LLM 바로 호출]
+   │
+   ▼
+[의도별 핸들러 실행]   ~200~2000ms
+   │
+   ▼
+[응답 텍스트 생성]
+   │
+   ▼
+[TTS 합성, 청크 출력] ~첫 청크 200ms
+   │
+   ▼
+[WebSocket으로 즉시 송신]</div>
+
+      <h3>5.1 병렬화</h3>
+      <ul>
+        <li>Track A 디코딩과 STT는 병렬 실행</li>
+        <li>의도가 결정되면 디코딩된 Track A를 해당 핸들러에 즉시 패스</li>
+        <li>TTS는 응답 텍스트가 일부만 나와도 시작 (LLM 스트리밍 출력 활용)</li>
+      </ul>
+    </section>
+
+    <section id="intent">
+      <h2>6. 의도 분류</h2>
+
+      <h3>6.1 분류 방식</h3>
+      <p>경량 LLM 기반 분류기 또는 fine-tuned 텍스트 분류 모델 사용. 입력은 STT 결과 텍스트.</p>
+
+      <h3>6.2 의도 카테고리</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Intent</th><th>예시 발화</th><th>핸들러</th><th>TrackA 필요?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>song_id</code></td><td>"이 노래 뭐야?"</td><td>music fingerprint</td><td>✅</td></tr>
+            <tr><td><code>transcribe</code></td><td>"방금 뭐라고 했어?"</td><td>STT(Track A)</td><td>✅</td></tr>
+            <tr><td><code>summarize</code></td><td>"방금 한 말 요약해줘"</td><td>STT + LLM</td><td>✅</td></tr>
+            <tr><td><code>translate</code></td><td>"한국어로 번역해줘"</td><td>STT + Translate</td><td>✅</td></tr>
+            <tr><td><code>define</code></td><td>"방금 단어 무슨 뜻?"</td><td>STT + Dictionary</td><td>✅</td></tr>
+            <tr><td><code>classify</code></td><td>"이거 새 소리야?"</td><td>Audio Classifier</td><td>✅</td></tr>
+            <tr><td><code>recommend</code></td><td>"비슷한 거 추천해줘"</td><td>곡 식별 + Recommender</td><td>✅</td></tr>
+            <tr><td><code>search</code></td><td>"이 사건 배경 알려줘"</td><td>STT + RAG/Web</td><td>✅</td></tr>
+            <tr><td><code>followup</code></td><td>"근데 가사도 알려줘"</td><td>이전 세션 컨텍스트 + LLM</td><td>❌ (선택)</td></tr>
+            <tr><td><code>general</code></td><td>"날씨 어때?" (오디오 무관)</td><td>LLM 직답</td><td>❌</td></tr>
+            <tr><td><code>unclear</code></td><td>인식 실패 / 모호</td><td>"잘 못 들었어요"</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>6.3 신뢰도 임계값</h3>
+      <ul>
+        <li>Confidence ≥ 0.7 → 해당 핸들러 실행</li>
+        <li>0.4 ≤ Confidence &lt; 0.7 → 핸들러 실행 + 응답에 "혹시 ~을 물어보신 거 맞나요?" 추가</li>
+        <li>Confidence &lt; 0.4 → 재질문 유도</li>
+      </ul>
+    </section>
+
+    <section id="handlers">
+      <h2>7. 의도별 핸들러</h2>
+
+      <h3>7.1 song_id (음악 식별)</h3>
+      <div class="card">
+        <p><strong>입력:</strong> Track A 오디오 (15~30초)</p>
+        <p><strong>처리:</strong> 오디오 fingerprint(Chromaprint, NeuralFP 등) → DB 매칭</p>
+        <p><strong>출력:</strong> 곡명, 아티스트, 앨범, 발매년도</p>
+        <p><strong>외부:</strong> ACRCloud, AudD, 자체 인덱스</p>
+      </div>
+
+      <h3>7.2 transcribe / summarize / define</h3>
+      <div class="card">
+        <p><strong>입력:</strong> Track A 오디오</p>
+        <p><strong>처리:</strong> STT(Whisper급 모델) → 의도에 따라 추가 처리</p>
+        <ul>
+          <li><code>transcribe</code>: 그대로 반환</li>
+          <li><code>summarize</code>: LLM 요약</li>
+          <li><code>define</code>: 핵심 단어 추출 → 사전 API</li>
+        </ul>
+      </div>
+
+      <h3>7.3 translate</h3>
+      <div class="card">
+        <p><strong>입력:</strong> Track A + 사용자 질문(목표 언어)</p>
+        <p><strong>처리:</strong> STT → 번역 모델(자체 LLM 또는 외부 API)</p>
+        <p><strong>외부:</strong> DeepL, Google Translate, 자체 NMT</p>
+      </div>
+
+      <h3>7.4 classify (환경음)</h3>
+      <div class="card">
+        <p><strong>입력:</strong> Track A 오디오</p>
+        <p><strong>처리:</strong> 오디오 분류 모델 (AudioSet 기반 등) → 라벨 추출</p>
+        <p><strong>출력:</strong> "직박구리 울음소리", "자동차 경적" 등</p>
+      </div>
+
+      <h3>7.5 recommend</h3>
+      <div class="card">
+        <p><strong>입력:</strong> Track A (식별된 곡)</p>
+        <p><strong>처리:</strong> 곡 식별 후 사용자 취향 + 협업 필터링/콘텐츠 기반 추천</p>
+      </div>
+
+      <h3>7.6 search (외부 정보)</h3>
+      <div class="card">
+        <p><strong>입력:</strong> Track A STT 결과 + 사용자 질문</p>
+        <p><strong>처리:</strong> RAG 또는 웹 검색 → 결과를 LLM이 요약·합성</p>
+      </div>
+
+      <h3>7.7 general (오디오 무관 질문)</h3>
+      <div class="card">
+        <p><strong>입력:</strong> 사용자 질문만</p>
+        <p><strong>처리:</strong> LLM 직답 (가벼운 비서 역할)</p>
+      </div>
+    </section>
+
+    <section id="tts">
+      <h2>8. TTS & 응답 스트리밍</h2>
+
+      <h3>8.1 TTS 요구사항</h3>
+      <ul>
+        <li><strong>저지연:</strong> 첫 청크 ~200ms 이내</li>
+        <li><strong>스트리밍:</strong> 텍스트가 토큰 단위로 들어와도 음성을 동시 생성</li>
+        <li><strong>형식:</strong> Opus 16kHz mono, ~24kbps</li>
+        <li><strong>음성 다양성:</strong> 사용자 설정 가능 (남/여, 톤, 속도)</li>
+      </ul>
+
+      <h3>8.2 LLM ↔ TTS 파이프라인</h3>
+      <div class="diagram">[LLM 토큰 스트림]
+   ┃ "아이유의"
+   ┃ " 'Love"
+   ┃ " wins all'"
+   ▼
+[문장 경계 감지 / 청크 버퍼링]
+   ▼
+[TTS 합성: 작은 단위(2~4초)로 청크 출력]
+   ▼
+[Opus 인코딩]
+   ▼
+[WebSocket binary frame 전송]</div>
+
+      <h3>8.3 첫 청크 최적화</h3>
+      <ul>
+        <li>LLM이 첫 문장을 다 만들기 전, 첫 N토큰(예: 6~8단어)이 모이면 즉시 TTS 시작</li>
+        <li>이후 토큰이 추가되면 연결되는 TTS 청크 생성</li>
+        <li>사용자 체감 응답 시간 대폭 단축</li>
+      </ul>
+    </section>
+
+    <section id="session">
+      <h2>9. 세션 & 연속 대화</h2>
+
+      <h3>9.1 세션 저장</h3>
+      <ul>
+        <li>요청/응답 메타데이터를 Redis에 30분 TTL로 저장</li>
+        <li>키: <code>session:{session_id}</code> → 사용자ID, 질문 텍스트, 응답 텍스트, 의도, TrackA 식별 결과 등</li>
+        <li>PostgreSQL에는 영구 히스토리 별도 저장 (옵션)</li>
+      </ul>
+
+      <h3>9.2 후속 질문 처리</h3>
+      <p>요청 메타데이터에 <code>PrevSessionID(0x11)</code>가 있으면:</p>
+      <ol class="steps">
+        <li>Redis에서 직전 세션 컨텍스트 로드</li>
+        <li>현재 Track B(질문)와 함께 LLM에 제공</li>
+        <li>의도가 <code>followup</code>이면 Track A 없이도 답변 가능</li>
+        <li>응답 후 같은 세션 체인에 추가</li>
+      </ol>
+
+      <pre><code>// Redis 저장 예시
+{
+  "session_id": "a1b2c3d4",
+  "user_id": "u123",
+  "prev_session_id": null,
+  "query_text": "이 노래 누구 곡이야?",
+  "intent": "song_id",
+  "track_a_summary": "music: IU - Love wins all",
+  "response_text": "아이유의 'Love wins all'입니다",
+  "created_at": 1716297791
+}
+
+// 후속 질문 도착 (PrevSessionID = a1b2c3d4)
+// LLM 입력 context:
+//   "직전 대화: 사용자가 들은 곡은 IU - Love wins all.
+//    AI 응답: 아이유의 'Love wins all'입니다.
+//    현재 질문: 가사도 알려줘"</code></pre>
+    </section>
+
+    <section id="perf">
+      <h2>10. 성능 목표 & SLA</h2>
+
+      <h3>10.1 지연 예산</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>단계</th><th>목표</th><th>비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>수신 → STT 완료</td><td>250ms</td><td>Track B 짧음 (~5초)</td></tr>
+            <tr><td>STT → 의도 분류</td><td>80ms</td><td>경량 모델</td></tr>
+            <tr><td>핸들러 처리</td><td>200~1500ms</td><td>의도별 상이</td></tr>
+            <tr><td>LLM 첫 토큰</td><td>300ms</td><td>스트리밍 시작점</td></tr>
+            <tr><td>첫 TTS 청크 송신</td><td>200ms</td><td>스트리밍</td></tr>
+            <tr><td><strong>종단(서버 입장):</strong> 수신 → 첫 청크 송신</td><td><strong>&lt;1000ms (p50)</strong></td><td></td></tr>
+            <tr><td><strong>p95</strong></td><td><strong>&lt;2000ms</strong></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>10.2 가용성</h3>
+      <ul>
+        <li>API: 99.9% (월 ~43분 다운)</li>
+        <li>리전 다중화로 일부 장애 격리</li>
+        <li>핵심 핸들러(STT/LLM/TTS) 별도 SLO</li>
+      </ul>
+    </section>
+
+    <section id="scaling">
+      <h2>11. 스케일링</h2>
+
+      <h3>11.1 부하 특성</h3>
+      <ul>
+        <li>요청당 GPU 시간: STT ~50ms, LLM ~500ms, TTS ~200ms</li>
+        <li>피크 시간대: 출퇴근, 점심 (음악·팟캐스트 청취 시간)</li>
+        <li>요청 크기: ~130KB 업로드, ~60KB 다운로드</li>
+      </ul>
+
+      <h3>11.2 스케일 전략</h3>
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>GPU 워크로드</h3>
+          <p>STT/LLM/TTS는 별도 GPU 풀, 큐 기반 배치 처리. 동적 오토스케일.</p>
+        </div>
+        <div class="feature-card">
+          <h3>CPU 워크로드</h3>
+          <p>API 게이트웨이, 의도 분류는 CPU. K8s HPA로 QPS 기반 스케일.</p>
+        </div>
+        <div class="feature-card">
+          <h3>캐싱</h3>
+          <p>음악 식별 결과(같은 곡 자주 식별됨), 자주 묻는 질문 응답.</p>
+        </div>
+        <div class="feature-card">
+          <h3>WebSocket 분산</h3>
+          <p>스티키 세션, Redis Pub/Sub로 노드 간 응답 라우팅.</p>
+        </div>
+      </div>
+
+      <h3>11.3 비용 최적화</h3>
+      <ul>
+        <li>경량 모델 우선, 필요한 경우만 대형 LLM 호출</li>
+        <li>의도 분류는 자체 경량 분류기 → 비용 0에 가까움</li>
+        <li>TTS는 자주 쓰는 짧은 응답("잘 못 들었어요" 등) 사전 캐싱</li>
+        <li>오디오는 처리 후 즉시 삭제 (저장하지 않음)</li>
+      </ul>
+    </section>
+
+    <section id="errors">
+      <h2>12. 에러 코드</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>코드</th><th>HTTP</th><th>설명</th><th>버즈 응답</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>AUTH_INVALID</code></td><td>401</td><td>mTLS 인증서 무효(버즈) 또는 JWT 만료(앱)</td><td>"인증 오류"</td></tr>
+            <tr><td><code>CERT_REVOKED</code></td><td>401</td><td>버즈 디바이스 인증서 폐기됨 (분실 신고 등)</td><td>"디바이스 인증 무효"</td></tr>
+            <tr><td><code>RATE_LIMITED</code></td><td>429</td><td>요청 너무 많음</td><td>"잠시 후 다시"</td></tr>
+            <tr><td><code>PAYLOAD_INVALID</code></td><td>400</td><td>패킷 포맷 오류</td><td>"요청 오류"</td></tr>
+            <tr><td><code>TRACK_B_EMPTY</code></td><td>400</td><td>질문 음성 없음/너무 짧음</td><td>"질문이 안 들렸어요"</td></tr>
+            <tr><td><code>STT_FAILED</code></td><td>500</td><td>STT 인식 실패</td><td>"못 알아들었어요"</td></tr>
+            <tr><td><code>INTENT_UNCLEAR</code></td><td>200*</td><td>의도 모호 (정상응답이지만 재질문 유도)</td><td>"어떤 걸 알려드릴까요?"</td></tr>
+            <tr><td><code>HANDLER_FAILED</code></td><td>500</td><td>특정 핸들러 오류</td><td>"답변을 만들지 못했어요"</td></tr>
+            <tr><td><code>TIMEOUT</code></td><td>504</td><td>처리 시간 초과</td><td>"응답이 늦어졌어요"</td></tr>
+            <tr><td><code>SERVICE_UNAVAILABLE</code></td><td>503</td><td>서비스 점검</td><td>"점검 중이에요"</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="dim">→ 종단간 지연 분해는 <a href="firmware.html#realtime">펌웨어 페이지의 실시간 제약</a>에서, Galaxy 사용자용 read API는 <a href="galaxy-ux.html">Galaxy UX</a>에서.</p>
+
+    <nav class="pager">
+      <a href="host-bridge.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">호스트 브릿지</span>
+      </a>
+      <a href="galaxy-ux.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">Galaxy UX</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">06 · SERVER API</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>범용 호스트 브릿지 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">05 · UNIVERSAL HOST BRIDGE</span>
+      <h1>범용 호스트 브릿지</h1>
+      <p class="subtitle">앱 설치 없이 폰·노트북·MP3·TV·차량 등 BT+인터넷이 되는 모든 기기를 통해 동작. OS가 이미 가지고 있는 표준 BT 프로파일을 활용.</p>
+    </section>
+
+    <div class="callout info">
+      <strong>핵심 통찰</strong>
+      모바일 OS에는 "BT 드라이버 자동 설치" 같은 개념이 없습니다. 대신 OS들은 이미
+      <strong>표준 Bluetooth 프로파일</strong>을 빌드에 포함하고 있습니다. 우리가 이미 모두에
+      퍼져 있는 표준만 쓰면, 사용자는 아무 것도 설치할 필요가 없습니다.
+    </div>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#problem">1. 왜 어려운가</a></li>
+        <li><a href="#pan">2. 정답: Bluetooth PAN (NAP)</a></li>
+        <li><a href="#analogy">3. USB CDC-NCM과의 유사성</a></li>
+        <li><a href="#arch">4. PAN 위에서의 아키텍처</a></li>
+        <li><a href="#matrix">5. OS별 지원 현황</a></li>
+        <li><a href="#fallback">6. PAN 안 되는 곳을 위한 대안</a></li>
+        <li><a href="#esim">7. eSIM in Buds — 호스트 자체가 필요 없는 경로</a></li>
+        <li><a href="#tier">8. 단계별 추천 전략</a></li>
+        <li><a href="#cost">9. 펌웨어 비용</a></li>
+        <li><a href="#compatibility">10. 기기별 호환성 매트릭스</a></li>
+      </ul>
+    </div>
+
+    <section id="problem">
+      <h2>1. 왜 어려운가</h2>
+
+      <ul>
+        <li>모바일 OS(iOS/Android)는 보안상 임의 드라이버 설치를 허용하지 않음</li>
+        <li>BT 표준은 "프로파일" 단위로 OS 빌드에 포함됨 — 후추가 불가</li>
+        <li>벤더(Apple/Google/Samsung)가 이미 구현한 프로파일만 무설치로 사용 가능</li>
+      </ul>
+
+      <p>그래서 답은 "새 드라이버를 어떻게 설치할까"가 아니라 "<strong>이미 모두가 가진 프로파일 중 인터넷 브릿지에 쓸 수 있는 게 뭐냐</strong>"입니다.</p>
+    </section>
+
+    <section id="pan">
+      <h2>2. 정답: Bluetooth PAN (Personal Area Network)</h2>
+
+      <p>Bluetooth 표준에 <strong>PAN 프로파일</strong>이 있습니다. BNEP(BT Network Encapsulation Protocol)로
+      이더넷 프레임을 BT 위에 캡슐화해서, BT 페어로 IP 네트워크를 만듭니다.</p>
+
+      <h3>2.1 역할</h3>
+      <ul>
+        <li><strong>NAP (Network Access Point):</strong> 인터넷 게이트웨이 역할 — 폰/노트북/TV 등 host</li>
+        <li><strong>PANU (PAN User):</strong> 게이트웨이를 통해 접속하는 클라이언트 — 버즈</li>
+        <li>모든 데스크톱·대부분 모바일 OS가 NAP 역할을 OS 레벨에 내장</li>
+      </ul>
+
+      <h3>2.2 무설치 동작 방식</h3>
+      <ol class="steps">
+        <li>버즈가 BT 페어링 시 PAN 프로파일을 광고 (advertised services에 NAP 클라이언트 표기)</li>
+        <li>호스트 OS가 "BT 테더링" 요청으로 인식 — 사용자가 토글 한 번 (또는 자동 승인 정책)</li>
+        <li>OS가 BNEP 채널 오픈, 버즈에 IP 주소 할당 (DHCP)</li>
+        <li>버즈 펌웨어 내 TCP/IP 스택이 즉시 동작 — DNS → TLS → HTTPS 직접</li>
+        <li>호스트는 NAT/라우터 역할만, 페이로드 안 들여다봄</li>
+      </ol>
+
+      <div class="callout">
+        <strong>중요</strong>
+        사용자 액션은 <strong>BT 테더링 토글 한 번</strong> (또는 OS 정책에 따라 자동 승인).
+        앱 설치 0, 추가 페어링 0, 별도 계정 0.
+      </div>
+    </section>
+
+    <section id="analogy">
+      <h2>3. USB CDC-NCM과의 유사성</h2>
+
+      <p>USB 세계에서는 <strong>CDC-NCM(Communications Device Class - Network Control Model)</strong>이 같은 역할을 합니다.
+      USB 동글을 꽂으면 모든 OS가 자동으로 "네트워크 어댑터"로 인식해 추가 설치 없이 인터넷 공유.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>관점</th><th>USB CDC-NCM</th><th>Bluetooth PAN</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>버스</td><td>USB</td><td>Bluetooth Classic (또는 BLE에서 IPSP)</td></tr>
+            <tr><td>OS 레벨 지원</td><td>모든 메이저 OS 빌트인</td><td>모든 데스크톱·대부분 모바일 빌트인</td></tr>
+            <tr><td>설치 필요</td><td>없음</td><td>없음</td></tr>
+            <tr><td>역할</td><td>USB 디바이스가 네트워크 어댑터처럼 보임</td><td>BT 디바이스가 네트워크 클라이언트로 들어감</td></tr>
+            <tr><td>사용처</td><td>USB 모뎀, 스마트폰 테더링</td><td>BT 테더링, IoT 게이트웨이</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>본질적으로 "<strong>PAN은 BT의 CDC-NCM</strong>"입니다.</p>
+    </section>
+
+    <section id="arch">
+      <h2>4. PAN 위에서의 아키텍처</h2>
+
+      <div class="diagram">┌─────────────────┐         ┌──────────────────┐         ┌──────────┐
+│      Buds        │         │      Host         │         │  Server  │
+│ (PANU client)    │         │ (NAP access pt)   │         │          │
+│                  │         │                   │         │          │
+│ ┌────────────┐   │  BNEP   │ ┌──────────────┐  │  IP     │          │
+│ │ App: HTTPS │   │  over   │ │ NAT / Router │  │ (Wi-Fi  │          │
+│ │ Session    │   │  L2CAP  │ │              │  │  /LTE   │          │
+│ │ Message    │◄──┼─────────┼─┤              │◄─┼─/etc)──►│          │
+│ └────────────┘   │         │ └──────────────┘  │         │          │
+│ TLS endpoint     │         │   페이로드는 봄 X  │         │ TLS endpt│
+│ TCP/IP stack     │         │   (그냥 IP 라우팅)  │         │          │
+│ BNEP            │         │  표준 OS 기능     │         │          │
+└─────────────────┘         └──────────────────┘         └──────────┘
+       ▲                                                       ▲
+       │                                                       │
+       └─────────────── End-to-End TLS (mTLS) ─────────────────┘</div>
+
+      <p>호스트는 IP 라우터일 뿐. 페이로드는 버즈 ↔ 서버 사이 mTLS로 암호화 — 호스트는 못 봄.</p>
+
+      <h3>4.1 IP 레벨에서 보이는 것</h3>
+      <ul>
+        <li>버즈는 일반 IoT 디바이스처럼 IP를 받고 인터넷에 나감 (예: <code>192.168.44.7</code>)</li>
+        <li>DNS도 호스트가 표준 DHCP로 제공한 리졸버 사용</li>
+        <li>TLS 핸드셰이크는 버즈가 직접 수행 — 호스트는 암호문 패킷만 봄</li>
+      </ul>
+    </section>
+
+    <section id="matrix">
+      <h2>5. OS별 PAN/IPSP 지원 현황</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>플랫폼</th><th>NAP 역할</th><th>활성화 방법</th><th>비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Windows 10/11</td><td>✅ 빌트인</td><td>BT 설정 → "액세스 포인트로 연결"</td><td>완전 지원</td></tr>
+            <tr><td>macOS</td><td>✅ 빌트인</td><td>공유 → 인터넷 공유 → BT</td><td>완전 지원</td></tr>
+            <tr><td>Linux (BlueZ)</td><td>✅ 빌트인</td><td><code>pand</code> / NetworkManager</td><td>완전 지원</td></tr>
+            <tr><td>ChromeOS</td><td>✅</td><td>설정에서 BT 테더링</td><td>완전 지원</td></tr>
+            <tr><td>Android</td><td>✅</td><td>"Bluetooth 테더링" 토글</td><td>완전 지원, 토글 필요</td></tr>
+            <tr><td>iOS / iPadOS</td><td>⚠️ 제한적</td><td>Personal Hotspot은 PAN 지원하지만 모든 BT 디바이스에 열어주지 않음</td><td>대안 필요 ↓</td></tr>
+            <tr><td>대부분 임베디드 Linux (TV, 차량)</td><td>✅</td><td>제조사 BT 설정</td><td>BlueZ 베이스면 지원</td></tr>
+            <tr><td>Android 기반 MP3 (Sony NW, Fiio M 등)</td><td>✅</td><td>Android 설정 동일</td><td>대부분 동작</td></tr>
+            <tr><td>저가 dumb MP3</td><td>❌</td><td>—</td><td>인터넷 자체가 없거나 BT만 있음</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.1 BLE 기반 대안 (IPSP / 6LoWPAN-BLE)</h3>
+      <p>PAN은 Classic Bluetooth이라 전력 소모가 큰 편. BLE 기반 <strong>IPSP(Internet Protocol Support Profile)</strong>가 저전력 대안이지만
+      OS 채택이 미진합니다(특히 iOS). 향후 OS 지원이 늘면 옵션으로.</p>
+    </section>
+
+    <section id="fallback">
+      <h2>6. PAN 안 되는 곳을 위한 대안</h2>
+
+      <p>주로 iOS와 일부 dumb 기기를 위한 fallback.</p>
+
+      <h3>6.1 Web Bluetooth 브릿지 페이지</h3>
+      <div class="card">
+        <p>버즈에 인쇄된 QR 코드를 폰 카메라로 스캔 → <strong>웹페이지 한 탭</strong>이 열리고
+        브라우저가 BT 페어링 → JS가 BT ↔ 서버 데이터 포워딩.</p>
+        <ul>
+          <li><strong>지원:</strong> Chrome / Edge (Win/Mac/Linux/Android/ChromeOS)</li>
+          <li><strong>미지원:</strong> iOS Safari (Web BT 미지원)</li>
+          <li><strong>장점:</strong> 앱 0, 계정 0, 탭 닫으면 끝</li>
+          <li><strong>단점:</strong> 탭이 열려 있어야 함</li>
+        </ul>
+      </div>
+
+      <h3>6.2 Generic BudsBridge App (오픈 스펙)</h3>
+      <p>이전 안 그대로. iOS처럼 PAN 막힌 곳에서 fallback. 어떤 벤더의 버즈도 같은 앱 재사용.</p>
+
+      <h3>6.3 HFP/PSTN 콜 fallback (극단)</h3>
+      <p>버즈가 HFP로 폰을 통해 전용 전화번호에 다이얼 → 서버 SIP 게이트웨이가 응답 →
+      음성 통화 자체를 데이터 채널처럼 사용. 진짜 모든 폰에서 작동하지만 비용·지연·품질 문제로 비상용.</p>
+
+      <h3>6.4 NFC/QR로 임시 토큰 받는 방식</h3>
+      <p>인터넷 없는 환경에서 사용자가 QR로 임시 응답 토큰을 받아 외부 기기에서 결과 확인. 보조 시나리오.</p>
+    </section>
+
+    <section id="esim">
+      <h2>7. eSIM in Buds — 호스트가 필요 없는 경로</h2>
+
+      <p>가장 자유로운 옵션: 버즈 자체에 <strong>eSIM</strong> 또는 NB-IoT/LTE-M 모듈을 내장.</p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>✅ 장점</h3>
+          <p>호스트 0, 어디서나 동작. 폰 두고 산책가도, 노트북 없어도, MP3가 인터넷 안 되어도 그냥 됨.</p>
+        </div>
+        <div class="feature-card">
+          <h3>❌ 단점</h3>
+          <p>모듈/안테나 추가 → 부피·배터리 부담. 데이터 플랜·요금 발생. 통신 인증/규제 부담.</p>
+        </div>
+      </div>
+
+      <h3>7.1 적용 시나리오</h3>
+      <ul>
+        <li><strong>프리미엄 모델만:</strong> Galaxy Watch LTE처럼 일부 SKU에만 탑재</li>
+        <li><strong>저전력 IoT 네트워크:</strong> LTE-M / NB-IoT (대역폭 작음, 배터리 좋음) — 데이터량이 적으면 OK</li>
+        <li><strong>요금:</strong> 통합 데이터 플랜 / Galaxy LTE 패밀리 플랜에 묶음</li>
+      </ul>
+
+      <h3>7.2 페이로드 최적화</h3>
+      <p>eSIM 비용 줄이려면 데이터를 더 압축. 30초 Track A를 Opus 16kbps로 다운샘플 → ~60KB.
+      답변 TTS도 짧게 → 한 세션 ~100KB. 한 달 100세션 = 10MB.</p>
+    </section>
+
+    <section id="tier">
+      <h2>8. 단계별 추천 전략</h2>
+
+      <p>현실적으로 한 번에 한 길로는 충분하지 않으니 계층 구성:</p>
+
+      <div class="diagram">┌─ Tier 1 (default) ────────────────────────────────────────┐
+│  Bluetooth PAN (NAP)                                       │
+│  → 거의 모든 데스크톱·Android·임베디드 Linux 호스트          │
+│  → 사용자 액션: BT 테더링 토글 한 번 (자주 자동 정책 가능)    │
+└────────────────────────────────────────────────────────────┘
+                          │ 안 되면
+                          ▼
+┌─ Tier 2 (iOS 등) ──────────────────────────────────────────┐
+│  Web Bluetooth 브릿지 (브라우저 탭)                        │
+│  → 폰 카메라로 QR 스캔 → 한 탭                              │
+│  → 앱 설치 0                                                │
+└────────────────────────────────────────────────────────────┘
+                          │ 안 되면 (iOS Safari 등)
+                          ▼
+┌─ Tier 3 (호환성 fallback) ─────────────────────────────────┐
+│  Generic BudsBridge 앱 (오픈 스펙, 모든 벤더 공용)           │
+│  → 앱 1개 설치 후 어떤 호환 버즈에도 동작                    │
+└────────────────────────────────────────────────────────────┘
+                          │ 호스트 자체 없음
+                          ▼
+┌─ Tier 4 (프리미엄) ────────────────────────────────────────┐
+│  eSIM in Buds                                              │
+│  → 호스트 필요 없음, 완전 독립                              │
+│  → 추가 비용 / 일부 SKU 한정                                │
+└────────────────────────────────────────────────────────────┘</div>
+
+      <p>버즈는 4개 path를 모두 알고 있고, 가능한 것 중 가장 효율적인 걸 자동 선택:</p>
+      <ol>
+        <li>BT 페어 직후 PAN 서비스 디스커버리 시도</li>
+        <li>실패 시 PSM 기반 GATT bridge 시도 (Web BT 또는 BudsBridge 앱)</li>
+        <li>모두 실패 시 eSIM 모듈 활성 (있을 때)</li>
+        <li>아무것도 안 되면 "인터넷 안 됨" 안내음</li>
+      </ol>
+    </section>
+
+    <section id="cost">
+      <h2>9. 펌웨어 비용</h2>
+
+      <p>버즈가 PAN 클라이언트가 되려면 펌웨어 추가 부담이 있음:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>모듈</th><th>대략 사이즈</th><th>비고</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>BNEP (PAN encap)</td><td>~8 KB</td><td>BT 스택 확장</td></tr>
+            <tr><td>lwIP (경량 TCP/IP)</td><td>~30~60 KB</td><td>이미 채택된 임베디드 표준</td></tr>
+            <tr><td>mbedTLS / WolfSSL (TLS 1.3)</td><td>~80~120 KB</td><td>핵심 — SE와 연동</td></tr>
+            <tr><td>DNS / DHCP 클라이언트</td><td>~10 KB</td><td>표준 라이브러리</td></tr>
+            <tr><td>HTTP/2 또는 HTTP/1.1 클라이언트</td><td>~20~40 KB</td><td>WebSocket 필요 시 +α</td></tr>
+            <tr><td><strong>합계</strong></td><td><strong>~150~250 KB</strong></td><td>최신 BT SoC 플래시로 수용 가능</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>9.1 전력 영향</h3>
+      <ul>
+        <li>BT Classic PAN: 송수신 시 ~20~30 mA 추가 (BLE보다 큼)</li>
+        <li>완화: 평소엔 휴면, 트리거 시에만 active</li>
+        <li>한 세션당 ~2초 active → 무시할 수준 (음악 재생보다 적음)</li>
+      </ul>
+    </section>
+
+    <section id="compatibility">
+      <h2>10. 기기별 호환성 매트릭스</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>호스트 기기</th><th>Tier 1 (PAN)</th><th>Tier 2 (Web BT)</th><th>Tier 3 (App)</th><th>최종</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Galaxy / Pixel 폰 (Android)</td><td>✅</td><td>✅</td><td>✅</td><td>완전 무설치</td></tr>
+            <tr><td>iPhone</td><td>⚠️</td><td>❌ (Safari)</td><td>✅</td><td>앱 필요 or eSIM</td></tr>
+            <tr><td>Windows 노트북</td><td>✅</td><td>✅</td><td>✅</td><td>완전 무설치</td></tr>
+            <tr><td>MacBook</td><td>✅</td><td>✅</td><td>✅</td><td>완전 무설치</td></tr>
+            <tr><td>Linux 노트북</td><td>✅</td><td>✅</td><td>—</td><td>완전 무설치</td></tr>
+            <tr><td>ChromeBook</td><td>✅</td><td>✅</td><td>—</td><td>완전 무설치</td></tr>
+            <tr><td>iPad</td><td>⚠️</td><td>❌</td><td>✅</td><td>iPhone과 동일</td></tr>
+            <tr><td>Android Tablet</td><td>✅</td><td>✅</td><td>✅</td><td>완전 무설치</td></tr>
+            <tr><td>Galaxy Watch LTE</td><td>✅ (제한적)</td><td>—</td><td>—</td><td>Tier 4(eSIM)와 사실상 동일</td></tr>
+            <tr><td>Smart TV (Android TV / Tizen)</td><td>✅</td><td>제한</td><td>—</td><td>대부분 가능</td></tr>
+            <tr><td>차량 인포테인먼트</td><td>벤더 의존</td><td>—</td><td>—</td><td>BlueZ 기반이면 ✅</td></tr>
+            <tr><td>스마트 스피커 (Echo, Nest)</td><td>벤더 의존</td><td>—</td><td>—</td><td>대부분 PAN 미지원</td></tr>
+            <tr><td>Sony/Fiio Android MP3</td><td>✅</td><td>✅</td><td>✅</td><td>완전 무설치</td></tr>
+            <tr><td>구식 dumb MP3 (BT only)</td><td>인터넷 없음</td><td>—</td><td>—</td><td>Tier 4(eSIM)만 가능</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>요약</strong>
+        실제로 대부분 시나리오에서 <strong>Tier 1(PAN) + Tier 4(eSIM)</strong> 조합으로
+        커버됩니다. iOS와 일부 폐쇄형 기기는 Tier 2/3가 보완.
+      </div>
+    </section>
+
+    <p class="dim">→ 호스트가 못 보는 페이로드가 서버에서 어떻게 처리되는지는 <a href="server-api.html">서버 API</a>, Galaxy 사용자에게만 추가되는 부가 레이어는 <a href="galaxy-ux.html">Galaxy UX</a>에서.</p>
+
+    <nav class="pager">
+      <a href="firmware.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">버즈 펌웨어</span>
+      </a>
+      <a href="server-api.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">서버 API</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">05 · HOST BRIDGE</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>
