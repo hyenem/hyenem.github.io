@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스토리 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============ Slide-style layout ============ */
+    body.is-story { background: var(--bg); }
+
+    .story-main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px 32px 96px;
+    }
+
+    .story-intro {
+      padding: 16px 0 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .story-intro h1 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+    .story-intro p {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin: 0;
+    }
+    .story-intro .hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
+
+    /* ============ Each slide ============ */
+    .slide {
+      min-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 0;
+      border-bottom: 1px dashed var(--border);
+      position: relative;
+    }
+    .slide:last-of-type { border-bottom: none; }
+
+    .slide-num {
+      position: absolute;
+      top: 32px;
+      left: 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .slide-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      align-self: flex-start;
+    }
+
+    .slide-headline {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+    .slide-headline em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .slide-subhead {
+      font-size: 22px;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 32px;
+      max-width: 780px;
+    }
+    .slide-body {
+      font-size: 18px;
+      color: var(--text);
+      line-height: 1.7;
+      max-width: 780px;
+    }
+    .slide-body p { margin-bottom: 14px; }
+    .slide-body strong { color: var(--accent); font-weight: 700; }
+
+    .slide-quote {
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+      border-left: 4px solid var(--accent);
+      padding: 12px 0 12px 28px;
+      margin: 24px 0;
+      max-width: 780px;
+    }
+    .slide-quote .small {
+      display: block;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+
+    /* Scene cards */
+    .scene-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .scene {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 20px;
+      transition: all 0.2s;
+    }
+    .scene:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
+    .scene .emoji { font-size: 32px; line-height: 1; margin-bottom: 12px; display: block; }
+    .scene h4 {
+      font-size: 15px;
+      color: var(--text);
+      margin: 0 0 4px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .scene p {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .scene .ask {
+      font-size: 13px;
+      color: var(--accent);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    /* Big comparison */
+    .vs-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin: 28px 0;
+    }
+    .vs-block > div {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+    }
+    .vs-block .label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .vs-block h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+    .vs-block p { margin: 0; color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+    .vs-block .you {
+      border-color: var(--accent-dim);
+      background: linear-gradient(135deg, var(--accent-soft) 0%, var(--bg-card) 100%);
+    }
+    .vs-block .you h3 { color: var(--accent); }
+    @media (max-width: 640px) { .vs-block { grid-template-columns: 1fr; } }
+
+    /* Steps row */
+    .three-step {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .three-step > div {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 22px;
+      text-align: center;
+    }
+    .three-step .step-num {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+    .three-step h4 {
+      font-size: 17px;
+      margin: 0 0 6px;
+      color: var(--text);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .three-step p { font-size: 13px; color: var(--text-dim); margin: 0; line-height: 1.55; }
+    @media (max-width: 640px) { .three-step { grid-template-columns: 1fr; } }
+
+    /* Flywheel diagram */
+    .flywheel {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 24px;
+      align-items: center;
+      margin: 40px 0;
+    }
+    .flywheel-side {
+      background: var(--bg-card);
+      border: 1px solid var(--accent-dim);
+      border-radius: var(--radius);
+      padding: 28px;
+      text-align: center;
+    }
+    .flywheel-side .icon { font-size: 48px; line-height: 1; margin-bottom: 12px; display: block; }
+    .flywheel-side h4 { font-size: 18px; color: var(--accent); margin: 0 0 6px; text-transform: none; letter-spacing: 0; }
+    .flywheel-side p { font-size: 14px; color: var(--text-dim); margin: 0; line-height: 1.5; }
+    .flywheel-arrow {
+      font-size: 36px;
+      color: var(--accent);
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+    @media (max-width: 700px) {
+      .flywheel { grid-template-columns: 1fr; }
+      .flywheel-arrow { flex-direction: row; transform: rotate(90deg); }
+    }
+
+    /* Closing slide */
+    .slide-closing {
+      text-align: center;
+      align-items: center;
+    }
+    .slide-closing .slide-headline {
+      font-size: 72px;
+      max-width: 900px;
+    }
+    .slide-closing .slide-subhead { margin-left: auto; margin-right: auto; }
+    .slide-closing .cta-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    /* Smaller emphasis line for visuals */
+    .visual-line {
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+      margin-top: 18px;
+    }
+    .visual-line .arrow { color: var(--accent); }
+
+    /* Responsive headline scaling */
+    @media (max-width: 900px) {
+      .slide { min-height: auto; padding: 56px 0; }
+      .slide-headline { font-size: 44px; }
+      .slide-closing .slide-headline { font-size: 48px; }
+      .slide-subhead { font-size: 18px; }
+      .slide-quote { font-size: 22px; padding-left: 20px; }
+    }
+    @media (max-width: 600px) {
+      .slide-headline { font-size: 34px; }
+      .slide-closing .slide-headline { font-size: 38px; }
+      .slide-body { font-size: 16px; }
+    }
+
+    /* ============ Presentation / print ============ */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .site-header, .site-footer, .sim-fab, .story-intro, .nav-toggle { display: none !important; }
+      .slide {
+        page-break-after: always;
+        min-height: 100vh;
+        border: none !important;
+        padding: 40px 32px !important;
+      }
+      .slide:last-of-type { page-break-after: auto; }
+      .slide-headline { color: black !important; }
+      .slide-headline em { -webkit-text-fill-color: black !important; color: black !important; background: none !important; }
+      .slide-subhead, .slide-body, .slide-body p { color: #333 !important; }
+      .scene, .vs-block > div, .three-step > div, .flywheel-side {
+        background: white !important; border: 1px solid #ccc !important; color: black !important;
+      }
+      .scene h4, .three-step h4, .flywheel-side h4 { color: black !important; }
+      .scene p, .three-step p, .flywheel-side p, .vs-block p { color: #555 !important; }
+      .slide-quote { color: black !important; border-left-color: #888 !important; }
+    }
+
+    /* ============ Body presentation mode (?present in URL) ============ */
+    body.is-present .site-header,
+    body.is-present .site-footer,
+    body.is-present .sim-fab,
+    body.is-present .story-intro { display: none; }
+    body.is-present .slide { display: none; min-height: 100vh; padding: 80px 64px; }
+    body.is-present .slide.is-current { display: flex; }
+    body.is-present .story-main { max-width: 1200px; padding: 0 32px; }
+    .present-controls {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      gap: 8px;
+      z-index: 200;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    body.is-present .present-controls { display: inline-flex; align-items: center; }
+    .present-controls button {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .present-controls button:hover { border-color: var(--accent); color: var(--accent); }
+    .present-controls .counter { padding: 0 8px; }
+    .present-controls a {
+      color: var(--text-muted);
+      padding: 0 6px;
+    }
+  </style>
+</head>
+<body class="is-story">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html" class="active">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="story-main">
+
+    <div class="story-intro">
+      <h1>BudsAI 스토리 — 발표용 12장</h1>
+      <p>한 슬라이드 = 한 메시지. 스크롤로 이어 읽거나, 발표 모드로 한 장씩 넘길 수 있습니다.</p>
+      <p class="hint">
+        발표 모드 → <a href="?present">?present 로 진입</a> · 방향키 ← → 또는 PgUp/PgDn ·
+        Esc 로 종료 · 인쇄 시 슬라이드당 한 페이지로 출력
+      </p>
+    </div>
+
+    <!-- ============ Slide 01 — HOOK ============ -->
+    <section class="slide">
+      <span class="slide-num">01 / 12</span>
+      <span class="slide-tag">HOOK</span>
+      <h1 class="slide-headline">"방금 그거 <em>뭐였지?</em>"</h1>
+      <p class="slide-subhead">
+        하루에도 몇 번씩 우리는 이 질문을 마음속으로 한다.
+      </p>
+      <p class="slide-body">
+        그런데 그 질문이 입 밖에 나오기도 전에, 그 순간은 이미 지나가 있다.
+      </p>
+    </section>
+
+    <!-- ============ Slide 02 — Problem (scenes) ============ -->
+    <section class="slide">
+      <span class="slide-num">02 / 12</span>
+      <span class="slide-tag">PROBLEM</span>
+      <h1 class="slide-headline">매일 흘려보내는 순간들</h1>
+      <p class="slide-subhead">우리는 평균 하루 6시간 이상 소리를 듣고 산다. 그중 얼마나 많은 순간을 그냥 놓치는가.</p>
+
+      <div class="scene-grid">
+        <div class="scene">
+          <span class="emoji">☕</span>
+          <h4>카페</h4>
+          <p>흘러나오는 음악이 좋다.</p>
+          <p class="ask">"이 노래 누구지?"</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">🎙️</span>
+          <h4>팟캐스트</h4>
+          <p>모르는 단어 하나가 스친다.</p>
+          <p class="ask">"방금 그 단어 뜻?"</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">📺</span>
+          <h4>드라마</h4>
+          <p>한 대사가 멋있게 들린다.</p>
+          <p class="ask">"방금 대사 번역?"</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">💼</span>
+          <h4>회의</h4>
+          <p>딴 생각하다 한마디 놓쳤다.</p>
+          <p class="ask">"부장님 뭐라 그랬지?"</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">📚</span>
+          <h4>강의</h4>
+          <p>한 개념이 너무 빨리 지나갔다.</p>
+          <p class="ask">"방금 그거 다시 쉽게."</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">📰</span>
+          <h4>뉴스</h4>
+          <p>처음 듣는 사건이 흘러간다.</p>
+          <p class="ask">"이 사건 배경이 뭐야?"</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Slide 03 — Friction ============ -->
+    <section class="slide">
+      <span class="slide-num">03 / 12</span>
+      <span class="slide-tag">FRICTION</span>
+      <h1 class="slide-headline">폰을 꺼내는 순간,<br/>그 순간은 <em>사라진다.</em></h1>
+
+      <div class="slide-body">
+        <p>이어폰을 한 손으로 잡고,</p>
+        <p>주머니에서 폰을 꺼내고,</p>
+        <p>잠금을 풀고,</p>
+        <p>앱을 켜고,</p>
+        <p>검색어를 입력하고...</p>
+      </div>
+
+      <p class="slide-quote">
+        다 끝났을 때, 이미 다음 맥락이 흐르고 있다.
+        <span class="small">— 우리는 매일 이걸 반복한다. 그리고 매일 진다.</span>
+      </p>
+    </section>
+
+    <!-- ============ Slide 04 — Reveal ============ -->
+    <section class="slide">
+      <span class="slide-num">04 / 12</span>
+      <span class="slide-tag">REVEAL</span>
+      <h1 class="slide-headline">그런데<br/>누군가는 그 순간을<br/><em>정확히 듣고 있었다.</em></h1>
+
+      <p class="slide-subhead" style="margin-top:40px;">
+        당신의 귀에서, 매일 함께 있던 — <strong style="color:var(--accent);">버즈.</strong>
+      </p>
+    </section>
+
+    <!-- ============ Slide 05 — WHY BUDS (the key) ============ -->
+    <section class="slide">
+      <span class="slide-num">05 / 12</span>
+      <span class="slide-tag">왜 버즈인가</span>
+      <h1 class="slide-headline">당신의 귀에만<br/>있는 것.</h1>
+      <p class="slide-subhead">왜 버즈가 핵심인가. 폰 마이크가 아닌 이유.</p>
+
+      <div class="vs-block">
+        <div>
+          <div class="label">폰 마이크</div>
+          <h3>방 전체를 듣는다</h3>
+          <p>옆 사람의 통화, 에어컨 소리, 누가 켜놓은 TV — 그 방에 있는 모든 소리. 당신이 무엇을 듣고 있었는지는 모른다.</p>
+        </div>
+        <div class="you">
+          <div class="label">버즈</div>
+          <h3>당신만을 듣는다</h3>
+          <p>오직 당신의 귀에 전달되는 그 사운드. 당신이 고른 음악, 당신이 켠 팟캐스트, 당신이 통화 중인 그 사람의 목소리.</p>
+        </div>
+      </div>
+
+      <p class="slide-quote" style="margin-top:32px;">
+        폰은 <strong style="color:var(--text-dim); font-weight:600;">공간</strong>을 듣고,<br/>
+        버즈는 <em>당신</em>을 듣는다.
+      </p>
+    </section>
+
+    <!-- ============ Slide 06 — Interaction (3 step) ============ -->
+    <section class="slide">
+      <span class="slide-num">06 / 12</span>
+      <span class="slide-tag">HOW</span>
+      <h1 class="slide-headline">한 번 누르고,<br/>한 번 묻고,<br/><em>답을 듣는다.</em></h1>
+      <p class="slide-subhead">폰을 꺼내지 않아도 된다. 앱을 켜지 않아도 된다.</p>
+
+      <div class="three-step">
+        <div>
+          <span class="step-num">STEP 1</span>
+          <h4>버즈를 살짝</h4>
+          <p>듣다가 궁금해진 그 순간, 버즈를 한 번 길게 누른다.</p>
+        </div>
+        <div>
+          <span class="step-num">STEP 2</span>
+          <h4>그냥 묻는다</h4>
+          <p>"이 노래 뭐야?" "방금 그 단어 뜻?" 사람한테 묻듯이.</p>
+        </div>
+        <div>
+          <span class="step-num">STEP 3</span>
+          <h4>답이 들린다</h4>
+          <p>3초 안에, 당신 귀로 답이 돌아온다.</p>
+        </div>
+      </div>
+
+      <p class="visual-line" style="margin-top:36px;">
+        🎧 듣다가 <span class="arrow">→</span> 🟢 살짝 누르고 <span class="arrow">→</span> 🗣️ 묻고 <span class="arrow">→</span> 🎧 답을 듣는다
+      </p>
+    </section>
+
+    <!-- ============ Slide 07 — Universal scenarios ============ -->
+    <section class="slide">
+      <span class="slide-num">07 / 12</span>
+      <span class="slide-tag">EVERYDAY</span>
+      <h1 class="slide-headline">매일의<br/>모든 순간에.</h1>
+      <p class="slide-subhead">출근길 카페부터 잠들기 전 팟캐스트까지. BudsAI는 늘 그 자리에 있다.</p>
+
+      <div class="scene-grid">
+        <div class="scene">
+          <span class="emoji">🎵</span>
+          <h4>"이 노래 누구야?"</h4>
+          <p class="ask">→ "아이유의 'Love wins all'입니다."</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">📖</span>
+          <h4>"quintessential 뜻?"</h4>
+          <p class="ask">→ "전형적인, 본질적인이란 뜻이에요."</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">🌐</span>
+          <h4>"방금 대사 번역해줘"</h4>
+          <p class="ask">→ "'그가 그럴 줄 알았어'라는 뜻이에요."</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">📝</span>
+          <h4>"부장님이 뭐라 그랬어?"</h4>
+          <p class="ask">→ "다음 주 화요일까지 보고서 달라고 하셨어요."</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">💡</span>
+          <h4>"엔트로피 다시 쉽게"</h4>
+          <p class="ask">→ "쉽게 말해 무질서도인데…"</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">🎶</span>
+          <h4>"같은 가수 다른 곡"</h4>
+          <p class="ask">→ "'Blueming', 'Celebrity'…"</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Slide 08 — Transition to Galaxy ============ -->
+    <section class="slide">
+      <span class="slide-num">08 / 12</span>
+      <span class="slide-tag">TURN</span>
+      <h1 class="slide-headline">그런데 —<br/>갤럭시가 옆에 있을 때<br/><em>더 재밌어지는 게 있다.</em></h1>
+
+      <p class="slide-subhead" style="margin-top:32px;">
+        지금까지 답은 음성으로만 흘렀다.
+        한 번 듣고 사라졌다.
+      </p>
+      <p class="slide-subhead">
+        하지만 갤럭시가 옆에 있으면 — 그 답이 <strong style="color:var(--accent);">눈에도 남는다.</strong>
+      </p>
+    </section>
+
+    <!-- ============ Slide 09 — What Galaxy adds ============ -->
+    <section class="slide">
+      <span class="slide-num">09 / 12</span>
+      <span class="slide-tag">갤럭시를 가지고 있다면</span>
+      <h1 class="slide-headline">음성으로 흘러간 것을<br/>갤럭시가 <em>붙잡아 준다.</em></h1>
+
+      <div class="scene-grid">
+        <div class="scene">
+          <span class="emoji">🕒</span>
+          <h4>오늘의 타임라인</h4>
+          <p>오늘 들은 노래, 외운 단어, 요약한 강의가 폰에 시간순으로 쌓인다.</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">🔍</span>
+          <h4>지난 주를 검색</h4>
+          <p>"지난 주에 들었던 그 잔잔한 곡" — 자연어로 찾는다.</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">📲</span>
+          <h4>락스크린 위젯</h4>
+          <p>방금 받은 답을 폰을 켜지 않고도 본다.</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">⌚</span>
+          <h4>워치에서 다시</h4>
+          <p>워치를 두드려 답을 다시 듣는다. 폰 없이.</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">🤖</span>
+          <h4>Bixby와 합심</h4>
+          <p>"오늘 본 단어로 단어장 만들어줘" — 자동으로.</p>
+        </div>
+        <div class="scene">
+          <span class="emoji">🏠</span>
+          <h4>SmartThings 연동</h4>
+          <p>"이 곡 거실 스피커로 마저 들어볼래." — 한 마디로.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Slide 10 — What Buds gives Galaxy ============ -->
+    <section class="slide">
+      <span class="slide-num">10 / 12</span>
+      <span class="slide-tag">버즈를 가지고 있다면</span>
+      <h1 class="slide-headline">갤럭시가 답할 수 있는<br/>질문이 <em>달라진다.</em></h1>
+
+      <div class="vs-block">
+        <div>
+          <div class="label">갤럭시 단독</div>
+          <h3>"방에 있는 것"까지</h3>
+          <p>Bixby는 폰이 보고 듣는 것까지만 안다. 당신이 이어폰으로 무얼 들었는지는 모른다.</p>
+        </div>
+        <div class="you">
+          <div class="label">갤럭시 + 버즈</div>
+          <h3>"당신이 들은 것"까지</h3>
+          <p>당신의 청취 경험 그 자체가 갤럭시의 컨텍스트가 된다. 폰 단독으로는 할 수 없던 질문이 가능해진다.</p>
+        </div>
+      </div>
+
+      <p class="slide-quote" style="margin-top:32px;">
+        버즈가 듣고,<br/>
+        갤럭시가 <em>기억한다.</em>
+      </p>
+    </section>
+
+    <!-- ============ Slide 11 — Flywheel ============ -->
+    <section class="slide">
+      <span class="slide-num">11 / 12</span>
+      <span class="slide-tag">FLYWHEEL</span>
+      <h1 class="slide-headline">버즈 + 갤럭시 =<br/>새로운 카테고리.</h1>
+      <p class="slide-subhead">각자 단독으로도 충분히 강력하다. 그런데 함께일 때 완전해진다.</p>
+
+      <div class="flywheel">
+        <div class="flywheel-side">
+          <span class="icon">🎧</span>
+          <h4>버즈를 먼저 산 사람</h4>
+          <p>"이 답이 폰 화면에도 남으면 좋을 텐데…"<br/>→ <strong style="color:var(--accent);">갤럭시가 끌린다.</strong></p>
+        </div>
+        <div class="flywheel-arrow">
+          <span>⇄</span>
+          <span style="font-size:12px; font-family:var(--mono); color:var(--text-muted); font-weight:400;">SERVE EACH OTHER</span>
+        </div>
+        <div class="flywheel-side">
+          <span class="icon">📱</span>
+          <h4>갤럭시를 먼저 산 사람</h4>
+          <p>"내가 듣던 것까지 Bixby가 알면 좋을 텐데…"<br/>→ <strong style="color:var(--accent);">버즈가 끌린다.</strong></p>
+        </div>
+      </div>
+
+      <p class="slide-body" style="text-align:center; margin-top:24px;">
+        한쪽을 산 사람은 자연스럽게 다른 쪽도 갖고 싶어진다.<br/>
+        이것이 진짜 생태계의 정의다.
+      </p>
+    </section>
+
+    <!-- ============ Slide 12 — Closing ============ -->
+    <section class="slide slide-closing">
+      <span class="slide-num">12 / 12</span>
+      <span class="slide-tag">CLOSING</span>
+      <h1 class="slide-headline">스펙 비교의 시대가 끝나고,<br/><em>경험 통합의 시대가</em><br/>시작된다.</h1>
+      <p class="slide-subhead">
+        BudsAI는 그 첫 신호다.<br/>
+        버즈는 듣고, 갤럭시는 기억하고, 사용자는 흐름을 잃지 않는다.
+      </p>
+
+      <div class="cta-row">
+        <a href="simulation.html" class="cta-button">▶ 시뮬레이션 보기 <span class="arrow">→</span></a>
+        <a href="proposal.html" class="cta-button" style="background:var(--bg-card); color:var(--accent); box-shadow:none; border:1px solid var(--accent-dim);">📄 제안서 읽기</a>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="present-controls" id="presentControls">
+    <button id="prevSlide" aria-label="이전">‹</button>
+    <span class="counter"><span id="curSlide">1</span> / <span id="totalSlides">12</span></span>
+    <button id="nextSlide" aria-label="다음">›</button>
+    <a href="story.html" id="exitPresent" title="발표 모드 종료">✕</a>
+  </div>
+
+  <footer class="site-footer">
+    <span class="page-mark">STORY · 12 SLIDES</span>
+    <span class="doc-tag">BudsAI Design Doc · 발표용 스토리덱</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+  <script>
+    // Presentation mode (?present)
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has('present')) return;
+
+      document.body.classList.add('is-present');
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      let current = 0;
+
+      const curEl = document.getElementById('curSlide');
+      const totalEl = document.getElementById('totalSlides');
+      totalEl.textContent = slides.length;
+
+      function show(i) {
+        if (i < 0) i = 0;
+        if (i >= slides.length) i = slides.length - 1;
+        current = i;
+        slides.forEach((s, idx) => s.classList.toggle('is-current', idx === i));
+        curEl.textContent = i + 1;
+        window.scrollTo(0, 0);
+      }
+      show(0);
+
+      document.getElementById('prevSlide').addEventListener('click', () => show(current - 1));
+      document.getElementById('nextSlide').addEventListener('click', () => show(current + 1));
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          e.preventDefault(); show(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault(); show(current - 1);
+        } else if (e.key === 'Home') {
+          show(0);
+        } else if (e.key === 'End') {
+          show(slides.length - 1);
+        } else if (e.key === 'Escape') {
+          window.location.href = 'story.html';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
