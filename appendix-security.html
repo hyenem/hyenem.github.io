@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Dive 3 · 보안 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">APPENDIX · DEEP DIVE 3</span>
+      <h1>보안 — mTLS, Secure Element, JWT, E2E</h1>
+      <p class="subtitle">디바이스 인증서 발급부터 키 어테스테이션까지. 비전공자 요약은 <a href="appendix.html#security">부록 인덱스</a>로.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#threat">1. 위협 모델</a></li>
+        <li><a href="#tls">2. TLS 1.3 기본기</a></li>
+        <li><a href="#mtls">3. mTLS (Mutual TLS) 깊이</a></li>
+        <li><a href="#pki">4. PKI 계층 & 인증서 발급</a></li>
+        <li><a href="#se">5. Secure Element 깊이</a></li>
+        <li><a href="#jwt">6. JWT 깊이</a></li>
+        <li><a href="#e2e">7. End-to-End 암호화 보장</a></li>
+        <li><a href="#rotation">8. 키 로테이션 / 폐기</a></li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <section id="threat">
+      <h2>1. 위협 모델</h2>
+
+      <p>BudsAI 시스템에서 우리가 방어해야 할 적과 자산을 명시합니다.</p>
+
+      <h3>1.1 자산</h3>
+      <ul>
+        <li><strong>오디오 페이로드</strong> — 사용자가 듣던 사운드, 사용자가 한 질문 음성</li>
+        <li><strong>사용자 신원</strong> — 디바이스 ↔ 계정 매핑</li>
+        <li><strong>디바이스 비밀키</strong> — 시스템 신뢰의 루트</li>
+        <li><strong>세션 히스토리</strong> — 서버 측 사용자 기록</li>
+      </ul>
+
+      <h3>1.2 위협 행위자</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>적</th><th>능력</th><th>주된 위협</th><th>대응</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>네트워크 도청자</td>
+              <td>호스트 → 서버 트래픽 sniff</td>
+              <td>오디오 페이로드 노출</td>
+              <td>TLS 암호화 (BNEP 위 TCP/TLS)</td>
+            </tr>
+            <tr>
+              <td>악성 호스트</td>
+              <td>버즈가 페어된 폰/노트북이 악성</td>
+              <td>페이로드 가로채기 / 변조</td>
+              <td>버즈가 mTLS 종단점 (호스트는 못 봄)</td>
+            </tr>
+            <tr>
+              <td>가짜 서버 (MITM)</td>
+              <td>DNS 하이재킹 / 라우트 조작</td>
+              <td>버즈가 가짜 서버로 전송</td>
+              <td>인증서 핀닝 + 서버 인증서 검증</td>
+            </tr>
+            <tr>
+              <td>물리 공격자</td>
+              <td>버즈 분해, 칩 디캡</td>
+              <td>디바이스 비밀키 추출</td>
+              <td>Secure Element (탬퍼 저항)</td>
+            </tr>
+            <tr>
+              <td>리플레이 공격자</td>
+              <td>이전 mTLS 세션 재전송</td>
+              <td>가짜 요청 위장</td>
+              <td>TLS 핸드셰이크의 random nonce + JWT exp</td>
+            </tr>
+            <tr>
+              <td>봇넷 / 대량 자동화</td>
+              <td>API 무한 호출</td>
+              <td>서비스 거부 / 비용 폭발</td>
+              <td>rate limit + 디바이스별 quota</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="tls">
+      <h2>2. TLS 1.3 기본기 (배경)</h2>
+
+      <p>mTLS를 이해하기 전, TLS 1.3 일반 흐름을 짧게 정리합니다. (TLS 1.3, RFC 8446)</p>
+
+      <div class="diagram">Client                                                Server
+  |  ClientHello (key_share, cipher_suites, sni)          |
+  |─────────────────────────────────────────────────────▶ |
+  |                                                       |
+  |  ServerHello (key_share, selected_cipher)             |
+  |  {EncryptedExtensions}                                |
+  |  {Certificate}     ←─ 서버 인증서 체인                 |
+  |  {CertificateVerify}                                  |
+  |  {Finished}                                           |
+  |◀──────────────────────────────────────────────────── |
+  |                                                       |
+  |  {Finished}                                           |
+  |─────────────────────────────────────────────────────▶ |
+  |                                                       |
+  |  ===== Application Data (AEAD encrypted) ===========  |
+  |◀═════════════════════════════════════════════════════▶|
+
+{...} = AEAD 암호화된 핸드셰이크 메시지
+TLS 1.3은 1-RTT 핸드셰이크 (0-RTT 옵션은 보안 트레이드오프)</div>
+
+      <h3>2.1 핵심 차이 (TLS 1.2 대비)</h3>
+      <ul>
+        <li>전방위 비밀성(Forward Secrecy) 의무 — ECDHE만 허용, RSA key exchange 폐기</li>
+        <li>AEAD 의무(AES-GCM, ChaCha20-Poly1305) — CBC + MAC 제거</li>
+        <li>핸드셰이크 메시지 암호화 (Server Cert까지 암호화 → 신원 노출 최소)</li>
+        <li>1-RTT 기본 — 라운드 트립 1번에 핸드셰이크 완료</li>
+      </ul>
+
+      <h3>2.2 cipher suite 선택 (BudsAI)</h3>
+      <pre><code>TLS_AES_128_GCM_SHA256          // 디폴트, MCU AES 가속기 사용
+TLS_CHACHA20_POLY1305_SHA256    // AES 가속기 없는 폴백</code></pre>
+
+      <p>키 교환은 X25519(Curve25519 ECDHE) 단일 — 작은 코드, 빠른 연산, 안전.</p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="mtls">
+      <h2>3. mTLS (Mutual TLS) 깊이</h2>
+
+      <h3>3.1 일반 TLS와의 차이</h3>
+      <p>
+        일반 TLS는 클라이언트가 서버를 검증합니다(서버 인증서로). mTLS는 그 반대도 합니다 —
+        <strong>서버도 클라이언트의 인증서를 요구·검증</strong>합니다. 결과적으로 양쪽이 서로 신원을 증명.
+      </p>
+
+      <h3>3.2 mTLS 핸드셰이크</h3>
+      <div class="diagram">Buds                                                  Server
+  |  ClientHello                                         |
+  |─────────────────────────────────────────────────────▶|
+  |  ServerHello                                         |
+  |  {EncryptedExtensions}                               |
+  |  {CertificateRequest}  ←─ 클라 인증서 요구!           |
+  |  {Certificate}         ←─ 서버 자기 인증서            |
+  |  {CertificateVerify}                                 |
+  |  {Finished}                                          |
+  |◀─────────────────────────────────────────────────────|
+  |  {Certificate}         ←─ Buds 자기 인증서            |
+  |  {CertificateVerify}   ←─ private key 서명 증명       |
+  |  {Finished}                                          |
+  |─────────────────────────────────────────────────────▶|
+  |  === Application Data ===                            |
+  |◀════════════════════════════════════════════════════▶|</div>
+
+      <h3>3.3 BudsAI에서 사용하는 인증서 형식</h3>
+      <pre><code>// 디바이스 인증서 (X.509 v3, DER 인코딩)
+Subject:        CN=buds-3a7f2e91-c4d8, O=Samsung Electronics
+SerialNumber:   12345678901234567890
+Issuer:         CN=BudsAI Device Sub-CA G1
+Validity:       2026-01-01 ~ 2036-01-01 (10년)
+
+SubjectPublicKeyInfo:
+  Algorithm:    ECDSA P-256
+  Public Key:   04 6f 8e 12 ...
+
+X509v3 Extensions:
+  Subject Alternative Name: buds-3a7f2e91-c4d8.devices.budsai
+  Key Usage:                Digital Signature
+  Extended Key Usage:       TLS Client Authentication
+  Authority Key Identifier: ...
+
+Signature Algorithm:        ecdsa-with-SHA256
+Signature:                  30 45 02 21 ...</code></pre>
+
+      <h3>3.4 검증 단계 (서버 측)</h3>
+      <ol class="steps">
+        <li>버즈가 보낸 인증서 체인을 받는다 (Leaf + Sub-CA, Root는 서버가 보유)</li>
+        <li>체인 검증 — 각 단계 서명 확인, 만료 확인, 폐기 확인(CRL/OCSP)</li>
+        <li>Leaf 인증서의 CN/SAN을 디바이스 등록 DB와 매칭</li>
+        <li>CertificateVerify의 서명을 Leaf 공개키로 검증 — "이 인증서를 든 자가 진짜 개인키를 가졌는지" 증명</li>
+        <li>JWT 같은 추가 인증과 매칭 — 디바이스 ID ↔ 계정 매핑 확인</li>
+      </ol>
+
+      <h3>3.5 mbedTLS 통합</h3>
+      <pre><code>// 클라(버즈) 측 — mbedTLS 설정
+mbedtls_ssl_conf_authmode(&amp;conf, MBEDTLS_SSL_VERIFY_REQUIRED);
+mbedtls_ssl_conf_min_tls_version(&amp;conf, MBEDTLS_SSL_VERSION_TLS1_3);
+
+// 서버 루트 CA 적재 (펌웨어에 임베드)
+mbedtls_x509_crt_parse(&amp;server_ca,
+                       server_root_ca_pem,
+                       sizeof(server_root_ca_pem));
+mbedtls_ssl_conf_ca_chain(&amp;conf, &amp;server_ca, NULL);
+
+// 디바이스 자기 인증서 + private key (SE에서 핸들로 받음)
+mbedtls_pk_setup_opaque(&amp;device_pk, se_key_handle);
+mbedtls_ssl_conf_own_cert(&amp;conf, &amp;device_cert, &amp;device_pk);
+
+// 핸드셰이크 진행 — SE가 ECDSA sign 호출을 가로채 칩 내부에서 서명
+mbedtls_ssl_handshake(&amp;ssl);</code></pre>
+
+      <p>핵심은 <code>mbedtls_pk_setup_opaque</code> — 개인키가 RAM에 노출되지 않고 SE 안에서만 사용됩니다.</p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="pki">
+      <h2>4. PKI 계층 & 인증서 발급</h2>
+
+      <h3>4.1 인증서 체인</h3>
+      <div class="diagram">                  ┌──────────────────────────────────┐
+                  │  BudsAI Root CA                  │
+                  │  - 오프라인 HSM 보관              │
+                  │  - 25년 유효                      │
+                  │  - 1회 발급 후 봉인               │
+                  └──────────┬───────────────────────┘
+                             │ 서명
+              ┌──────────────┴───────────────┐
+              ▼                              ▼
+  ┌───────────────────────┐      ┌────────────────────────┐
+  │  Device Sub-CA G1     │      │  Server Sub-CA         │
+  │  (현재 발급 중)        │      │  (서버용)               │
+  │  10년 유효             │      │                         │
+  └──────────┬────────────┘      └────────────┬───────────┘
+             │ 서명 (제조 라인에서)              │ 서명
+             ▼                                  ▼
+  ┌──────────────────────┐         ┌──────────────────────┐
+  │  Buds Device Cert    │         │  api.budsai.example  │
+  │  - 디바이스마다 고유   │         │  - 서버 인증서        │
+  │  - 10년 유효          │         │  - 90일 자동 갱신     │
+  └──────────────────────┘         └──────────────────────┘</div>
+
+      <h3>4.2 제조 라인 발급 시퀀스</h3>
+      <ol class="steps">
+        <li>버즈 ATE(자동 테스트 장비) 단계에서 SE에 키페어 생성 명령 — 개인키는 칩에서 안 나옴</li>
+        <li>SE가 CSR(Certificate Signing Request) 출력 — 공개키 + 디바이스 시리얼</li>
+        <li>제조 라인 HSM이 Device Sub-CA로 CSR 서명 → 디바이스 인증서 생성</li>
+        <li>인증서를 SE의 별도 슬롯에 저장 (인증서는 공개 정보, RAM 노출 무방)</li>
+        <li>SE Key Attestation — 키가 진짜 SE 안에서 생성됐는지 인증서로 증명 (Google AOSP 표준)</li>
+        <li>제조 데이터베이스에 디바이스 시리얼 ↔ 공개키 매핑 등록</li>
+      </ol>
+
+      <h3>4.3 폐기 메커니즘</h3>
+      <ul>
+        <li><strong>CRL (Certificate Revocation List)</strong> — 매주 갱신, S3/CDN에 게시</li>
+        <li><strong>OCSP Stapling</strong> — 서버가 핸드셰이크 시 OCSP 응답 동봉 → 버즈가 별도 OCSP 쿼리 안 해도 됨</li>
+        <li><strong>긴급 폐기</strong> — 분실/도난 신고 시 시리얼을 즉시 CRL에 추가, 모든 mTLS 핸드셰이크 거부</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="se">
+      <h2>5. Secure Element 깊이</h2>
+
+      <h3>5.1 SE란</h3>
+      <p>
+        Secure Element(SE)는 탬퍼 저항(tamper resistant) 마이크로컨트롤러로,
+        외부에서 키를 읽거나 추출할 수 없는 격리된 환경에서 암호 연산을 수행합니다.
+        SIM 카드, 신용카드 IC칩, 폰의 Titan/SEP 모두 같은 카테고리.
+      </p>
+
+      <h3>5.2 후보 SE</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>제품</th><th>제조사</th><th>인증</th><th>특징</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SE050 / SE051</td>
+              <td>NXP</td>
+              <td>CC EAL 6+</td>
+              <td>I²C, 풍부한 사례, 저전력</td>
+            </tr>
+            <tr>
+              <td>ATECC608B</td>
+              <td>Microchip</td>
+              <td>JIL High</td>
+              <td>저렴, 작은 패키지(8-pin)</td>
+            </tr>
+            <tr>
+              <td>OPTIGA Trust M</td>
+              <td>Infineon</td>
+              <td>CC EAL 6+</td>
+              <td>풍부한 RSA/ECC</td>
+            </tr>
+            <tr>
+              <td>SoC 내장 SE</td>
+              <td>(예: Samsung S3K)</td>
+              <td>CC EAL 5+</td>
+              <td>패키지 통합, BOM 절감</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>BudsAI는 SoC 내장 SE를 1순위, 외부 SE를 2순위로 검토 — BOM 비용 및 회로 면적 절감.</p>
+
+      <h3>5.3 SE 인터페이스</h3>
+      <pre><code>// I²C 또는 SPI로 SE와 통신, APDU 프로토콜
+// 키 생성
+apdu_send(CMD_GENERATE_KEY, ECDSA_P256, slot=0x01);
+// 응답: 공개키 65 바이트 (uncompressed P-256)
+
+// CSR 생성 (또는 외부 CSR 빌더)
+apdu_send(CMD_SIGN, slot=0x01, csr_tbs_data);
+// 응답: ECDSA 서명
+
+// TLS 핸드셰이크 중
+apdu_send(CMD_SIGN, slot=0x01, certificate_verify_data);
+// 응답: 서명 (mbedTLS opaque key API에 결과 반환)</code></pre>
+
+      <h3>5.4 측면 채널 공격 (Side Channel)</h3>
+      <ul>
+        <li><strong>전력 분석 (DPA)</strong> — SE는 마스킹/셔플링으로 방어</li>
+        <li><strong>전자기 방사 (EMA)</strong> — 패키지 차폐</li>
+        <li><strong>레이저/글리치</strong> — 오류 주입 시 자가 락다운</li>
+        <li><strong>온도 공격</strong> — 동작 온도 범위 밖에서 키 무효화</li>
+      </ul>
+
+      <p>CC EAL 6+ 인증 SE는 위 모든 공격에 검증된 방어를 갖춥니다.</p>
+
+      <h3>5.5 키 어테스테이션</h3>
+      <p>
+        SE 안에서 생성된 키임을 외부에 증명하려면 어테스테이션 인증서가 필요합니다.
+        Google AOSP의 KeyMint 표준을 채택할 경우, 키 생성 시 SE 제조사 루트 인증서로 서명된
+        어테스테이션 체인을 함께 받아 서버에 제출 — "이 키는 진짜 SE 안에서 생성됐고 절대 추출 안 됨"을 증명.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="jwt">
+      <h2>6. JWT 깊이</h2>
+
+      <h3>6.1 왜 mTLS 위에 JWT를 또 쓰나</h3>
+      <p>mTLS는 <strong>디바이스를 인증</strong>합니다. JWT는 <strong>그 디바이스에 묶인 사용자/세션</strong>을 인증합니다.</p>
+      <ul>
+        <li>한 디바이스가 여러 사용자에게 양도될 수 있음 (가족, 중고 거래)</li>
+        <li>세션 만료/회수가 인증서 폐기보다 빨라야 함</li>
+        <li>스코프/권한을 토큰에 담을 수 있음</li>
+      </ul>
+
+      <h3>6.2 JWT 구조</h3>
+      <pre><code>// JWT = base64url(header) . base64url(payload) . base64url(signature)
+
+// Header
+{
+  "alg": "ES256",     // ECDSA + SHA-256
+  "typ": "JWT",
+  "kid": "k-2026-01"  // 서버 키 ID (로테이션용)
+}
+
+// Payload (claims)
+{
+  "iss": "https://auth.budsai.example",
+  "sub": "user_8f3a92c1",        // 사용자 ID
+  "aud": "api.budsai.example",
+  "iat": 1762636800,
+  "exp": 1762640400,             // 1시간 후 만료
+  "jti": "tok_9e2f7b6a1",        // 토큰 고유 ID
+  "device_id": "buds-3a7f2e91",  // 묶인 디바이스
+  "scope": "audio:upload session:create",
+  "tier": "free"                  // 비용 제어용
+}
+
+// Signature
+ECDSA_sign(SHA256(header . "." . payload), server_private_key)</code></pre>
+
+      <h3>6.3 토큰 발급 흐름</h3>
+      <ol class="steps">
+        <li>최초 1회 — 사용자가 폰/웹에서 BudsAI 계정 가입</li>
+        <li>버즈 페어링 시 폰이 디바이스 시리얼 ↔ 계정 매핑 등록 API 호출</li>
+        <li>버즈가 mTLS로 <code>/v1/token</code> 호출 → 디바이스 인증서로 사용자 확인 → JWT 발급</li>
+        <li>버즈 RAM에만 보관, 만료 5분 전 자동 갱신</li>
+        <li>모든 후속 API 호출의 Authorization 헤더에 포함</li>
+      </ol>
+
+      <h3>6.4 토큰 회수</h3>
+      <p>
+        분실 신고 / 계정 탈퇴 / 비밀번호 변경 시 서버 측 deny-list에 <code>jti</code> 추가 — 만료 전이라도 거부.
+        Deny-list는 redis로 운영, 토큰 만료 시간(보통 1시간) 후 자동 청소.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="e2e">
+      <h2>7. End-to-End 암호화 보장</h2>
+
+      <h3>7.1 무엇이 누구에게 보이는가</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>관찰자</th><th>볼 수 있는 것</th><th>볼 수 없는 것</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Buds (자신)</td>
+              <td>모든 평문</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>호스트 (폰/노트북)</td>
+              <td>L2/L3 헤더 (출발지/목적지 IP, 트래픽 양)</td>
+              <td>TLS 페이로드 (오디오, 응답 텍스트)</td>
+            </tr>
+            <tr>
+              <td>ISP / 라우터</td>
+              <td>호스트 ↔ 서버 IP, SNI(api.budsai.example)</td>
+              <td>TLS 페이로드</td>
+            </tr>
+            <tr>
+              <td>서버 (정당)</td>
+              <td>모든 평문 (필요해서)</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>가짜 서버 (불법)</td>
+              <td>핸드셰이크 시 거부됨</td>
+              <td>아무 것도</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.2 BT 링크 자체 암호화</h3>
+      <p>
+        BT 페어링 시 LE Secure Connections(Bluetooth 4.2+)를 강제 — ECDH 키 교환 + AES-CCM 암호화.
+        BT 레이어가 한 번 더 암호화하지만, 우리는 그것을 신뢰하지 않고 위에 TLS를 또 씌웁니다 (defense in depth).
+      </p>
+
+      <h3>7.3 메타데이터 최소화</h3>
+      <ul>
+        <li>호스트는 TLS SNI를 통해 도메인만 볼 수 있음 → ESNI/ECH (Encrypted Client Hello) 활성화로 도메인까지 숨김</li>
+        <li>패킷 길이 패딩 — 트래픽 분석 방어 (페이로드 크기로 콘텐츠 추측 차단)</li>
+        <li>전송 타이밍 dithering — 짧은 랜덤 딜레이</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="rotation">
+      <h2>8. 키 로테이션 / 폐기</h2>
+
+      <h3>8.1 로테이션 정책</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>대상</th><th>주기</th><th>방식</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Root CA</td>
+              <td>25년</td>
+              <td>새 Root 사전 배포 후 cross-sign 점진 전환</td>
+            </tr>
+            <tr>
+              <td>Sub-CA</td>
+              <td>10년</td>
+              <td>Root로 새 Sub-CA 서명, 신규 디바이스부터 적용</td>
+            </tr>
+            <tr>
+              <td>Device Cert</td>
+              <td>10년</td>
+              <td>제조 시 발급, 만료 임박 시 OTA로 재발급</td>
+            </tr>
+            <tr>
+              <td>Server Cert</td>
+              <td>90일</td>
+              <td>ACME 자동 갱신</td>
+            </tr>
+            <tr>
+              <td>JWT 서명키</td>
+              <td>6개월</td>
+              <td>키 ID(kid)로 다중 활성 키 운영, 점진 전환</td>
+            </tr>
+            <tr>
+              <td>TLS 세션키</td>
+              <td>세션마다</td>
+              <td>ECDHE로 매번 새로 (Forward Secrecy)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>8.2 침해 사고 대응</h3>
+      <p>
+        Sub-CA 침해 시 해당 Sub-CA의 모든 디바이스 인증서를 CRL에 추가 — 새 Sub-CA로 OTA 재발급.
+        Root 침해는 25년 안에 1회도 없어야 하지만, 발생 시 비상 Root를 cross-sign으로 인계.
+      </p>
+
+      <div class="callout warn">
+        <strong>운영 노트</strong>
+        Root CA HSM은 에어갭(공기 차단) + 듀얼 컨트롤(2인 동시 인증) 환경에서만 깨어남.
+        Sub-CA 발급도 키 의식(key ceremony)으로 진행 — 비디오 녹화, 다중 입회.
+      </div>
+
+      <div class="callout info">
+        <strong>관련 문서</strong>
+        엔드포인트별 인증 흐름은 <a href="server-api.html">서버 API 페이지</a>에서 다룹니다.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix-network.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">Deep Dive 2 · 네트워킹</span>
+      </a>
+      <a href="appendix-protocol.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">Deep Dive 4 · 패킷 / 프로토콜</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · DEEP DIVE 3</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

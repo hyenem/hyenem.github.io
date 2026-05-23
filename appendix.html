@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기술 부록 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">APPENDIX</span>
+      <h1>기술 부록 — 비전공자도 이해하는 한 페이지</h1>
+      <p class="subtitle">
+        BudsAI에 쓰인 핵심 기술을 한 문장씩 직관적으로 설명합니다.
+        깊이 알고 싶은 카테고리는 카드를 눌러 전공자용 페이지로.
+      </p>
+    </section>
+
+    <div class="callout info">
+      <strong>읽는 법</strong>
+      이 페이지는 비전공자 가족에게 자랑할 때 쓰는 한 페이지 요약입니다.
+      각 기술을 비유 한 줄로 설명하고, 더 깊은 내용은 카드의 "→ 전공자용 자세히" 링크로 이어집니다.
+    </div>
+
+    <div class="toc">
+      <div class="toc-title">카테고리</div>
+      <ul>
+        <li><a href="#audio">🎧 카테고리 1 · 오디오 캡처 & 압축</a></li>
+        <li><a href="#network">📡 카테고리 2 · 무선 통신 & 네트워킹</a></li>
+        <li><a href="#security">🔐 카테고리 3 · 보안</a></li>
+        <li><a href="#protocol">📦 카테고리 4 · 패킷 / 프로토콜</a></li>
+        <li><a href="#ai">🤖 카테고리 5 · AI 처리</a></li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <section id="audio">
+      <h2>🎧 카테고리 1 · 오디오 캡처 & 압축</h2>
+      <p class="dim">버즈가 사운드를 어떻게 "지금부터 30초 전까지" 가지고 있다가, 필요한 순간에 작게 만들어 보내는가.</p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>🔁 Ring Buffer (링버퍼)</h3>
+          <p><strong>한 줄</strong> : 30초 길이의 회전 칠판. 새 소리가 들어오면 가장 오래된 소리를 지우고 위에 덧씌움. 트리거 순간 칠판을 통째로 사진 찍어 보냄.</p>
+          <p><strong>비유</strong> : 30초짜리 CCTV 녹화 테이프가 계속 덮어쓰기로 돌고 있다고 생각하면 됨.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🗜️ Opus 코덱</h3>
+          <p><strong>한 줄</strong> : 음악·음성을 작게 압축해주는 "오디오용 ZIP". 30초 오디오를 약 150KB로 줄여 BT로 빠르게 보낼 수 있게 함.</p>
+          <p><strong>비유</strong> : 30분짜리 영화를 USB에 담으려고 MP4로 압축하는 것과 비슷한데, Opus는 음악과 말 둘 다 잘 됨.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎙️ VAD (음성 활동 감지)</h3>
+          <p><strong>한 줄</strong> : "지금 사람이 말하고 있나?"를 0.01초 단위로 판단하는 작은 두뇌. 침묵 0.5초가 지나면 "말 끝났네" 하고 녹음을 자동 종료.</p>
+          <p><strong>비유</strong> : 자동문 센서가 사람이 지나가는 걸 감지하듯, VAD는 "목소리가 지나가는지"를 감지함.</p>
+        </div>
+      </div>
+
+      <a href="appendix-audio.html" class="page-card" style="margin-top:16px;">
+        <span class="page-card-number">DEEP DIVE 1</span>
+        <h3>→ 전공자용 자세히 : 오디오 캡처 & 압축</h3>
+        <p>링버퍼의 메모리 레이아웃, Opus의 SILK/CELT 하이브리드 구조, VAD의 GMM/DNN 모델까지.</p>
+        <span class="page-card-arrow">자세히 보기 →</span>
+      </a>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="network">
+      <h2>📡 카테고리 2 · 무선 통신 & 네트워킹</h2>
+      <p class="dim">버즈가 어떻게 폰뿐 아니라 노트북·TV·차량을 거쳐 인터넷에 연결되는가.</p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>📶 Bluetooth PAN</h3>
+          <p><strong>한 줄</strong> : 블루투스를 "Wi-Fi처럼" 쓰는 모드. 기기끼리 IP 주소를 주고받아 인터넷을 공유함. 모든 OS에 이미 깔려 있어 앱 설치 0.</p>
+          <p><strong>비유</strong> : 폰의 핫스팟이 Wi-Fi로 인터넷 공유하는 거라면, PAN은 블루투스로 같은 일을 하는 것.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🌉 BNEP</h3>
+          <p><strong>한 줄</strong> : 블루투스 위에 인터넷(이더넷) 패킷을 실어 보내는 "포장지". PAN이 동작하게 만드는 안쪽 메커니즘.</p>
+          <p><strong>비유</strong> : 컨테이너선이 자동차를 싣고 바다를 건너는 것 — 컨테이너(BNEP) 안에 자동차(IP 패킷)가 들어있음.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🌐 TCP/IP · DNS · DHCP</h3>
+          <p><strong>한 줄</strong> : 인터넷을 동작하게 만드는 3대장. 주소 받기(DHCP) → 이름 찾기(DNS) → 신뢰성 있게 보내기(TCP/IP).</p>
+          <p><strong>비유</strong> : 호텔 체크인(DHCP) → 전화번호부 찾기(DNS) → 등기우편 보내기(TCP).</p>
+        </div>
+      </div>
+
+      <a href="appendix-network.html" class="page-card" style="margin-top:16px;">
+        <span class="page-card-number">DEEP DIVE 2</span>
+        <h3>→ 전공자용 자세히 : 무선 통신 & 네트워킹</h3>
+        <p>BT Classic/BLE 비교, BNEP 프레임 구조, OS별 PAN 지원 매트릭스, 펌웨어 내장 TCP/IP 스택까지.</p>
+        <span class="page-card-arrow">자세히 보기 →</span>
+      </a>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="security">
+      <h2>🔐 카테고리 3 · 보안</h2>
+      <p class="dim">버즈에서 서버까지 가는 동안 호스트(폰·노트북 등)가 페이로드를 못 보게 막는 방법.</p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>🔒 mTLS (Mutual TLS)</h3>
+          <p><strong>한 줄</strong> : 일반 https가 "은행만 신분증 보여주는" 거라면, mTLS는 "은행과 손님이 서로 신분증을 보여주는" 양방향 인증.</p>
+          <p><strong>비유</strong> : 입국 심사 때 직원이 여권을 확인하면서 나도 직원증을 확인하는 것.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🪪 Secure Element</h3>
+          <p><strong>한 줄</strong> : 버즈 안에 박힌 "금고 칩". 디바이스 비밀키가 여기에만 보관되고, 절대 밖으로 나오지 않음.</p>
+          <p><strong>비유</strong> : 신용카드 IC칩이나 폰의 지문 인증 칩과 같은 원리. 칩을 뜯어도 키가 안 나옴.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎫 JWT</h3>
+          <p><strong>한 줄</strong> : "이 사람이 누군지" 적힌 위변조 불가능한 도장 찍힌 종이. mTLS와 함께 이중 인증으로 사용.</p>
+          <p><strong>비유</strong> : 콘서트 손목띠 — 입장 후에도 화장실 갔다 올 때 손목띠만 보여주면 됨.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🔐 E2E 암호화 (종단간 암호화)</h3>
+          <p><strong>한 줄</strong> : 버즈에서 서버까지 가는 길에 있는 누구도(폰조차도) 내용을 못 봄. 양 끝의 두 명만 풀 수 있음.</p>
+          <p><strong>비유</strong> : 카카오톡 비밀채팅처럼, 중간 서버도 못 보고 받는 사람만 풀 수 있는 자물쇠 편지.</p>
+        </div>
+      </div>
+
+      <a href="appendix-security.html" class="page-card" style="margin-top:16px;">
+        <span class="page-card-number">DEEP DIVE 3</span>
+        <h3>→ 전공자용 자세히 : 보안</h3>
+        <p>X.509 인증서 체인, ECDHE 핸드셰이크, SE의 키 어테스테이션, JWT 클레임 구조, 키 로테이션 전략.</p>
+        <span class="page-card-arrow">자세히 보기 →</span>
+      </a>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="protocol">
+      <h2>📦 카테고리 4 · 패킷 / 프로토콜</h2>
+      <p class="dim">"직전 사운드 + 음성 질문" 두 트랙을 하나의 메시지로 묶어 보내는 자체 포맷.</p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>📑 Session Message · Frame 2-레이어</h3>
+          <p><strong>한 줄</strong> : 큰 봉투(Session) 안에 작은 봉투(Frame) 여러 개가 들어있는 구조. 큰 봉투엔 "누가/언제/뭐 묶음", 작은 봉투엔 실제 오디오 조각.</p>
+          <p><strong>비유</strong> : 택배 박스(Session) 안에 부풀림완충재로 감싼 개별 물건(Frame)들.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🏷️ TLV (Type-Length-Value)</h3>
+          <p><strong>한 줄</strong> : 메타데이터를 적는 표준 양식. "이건 뭐(Type) · 몇 글자(Length) · 값(Value)" 세 칸으로 적음. 모르는 항목이 와도 길이를 보고 건너뛸 수 있음.</p>
+          <p><strong>비유</strong> : 택배 송장의 "품명/수량/내용" 칸이 항상 같은 위치에 있어, 모르는 품명이 와도 무시하고 다음으로 넘어갈 수 있는 것.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎬 멀티트랙 패킷</h3>
+          <p><strong>한 줄</strong> : Track A(직전 사운드)와 Track B(질문 음성)를 동시에 담는 영상 편집 타임라인 같은 구조.</p>
+          <p><strong>비유</strong> : 영화 편집 SW의 영상 트랙 + 음성 트랙 + 자막 트랙처럼, 한 묶음 안에 여러 동시 흐름.</p>
+        </div>
+      </div>
+
+      <a href="appendix-protocol.html" class="page-card" style="margin-top:16px;">
+        <span class="page-card-number">DEEP DIVE 4</span>
+        <h3>→ 전공자용 자세히 : 패킷 / 프로토콜</h3>
+        <p>바이트 정확한 헤더 레이아웃, 버전 협상, TLV 카탈로그, 청크 분할, ProtoBuf vs 자체 포맷 트레이드오프.</p>
+        <span class="page-card-arrow">자세히 보기 →</span>
+      </a>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="ai">
+      <h2>🤖 카테고리 5 · AI 처리</h2>
+      <p class="dim">서버가 두 트랙을 어떻게 분석해 "정확한 답"을 만들어내는가.</p>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>📝 STT (Speech-to-Text)</h3>
+          <p><strong>한 줄</strong> : 사람 목소리(웨이브)를 글자(텍스트)로 받아쓰기 해주는 AI. "방금 뭐였지" → <code>"방금 뭐였지"</code>.</p>
+          <p><strong>비유</strong> : 회의 속기사가 사람들 말을 받아 적는 것의 AI 버전.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎯 의도 분류 (Intent Classification)</h3>
+          <p><strong>한 줄</strong> : 받아쓴 텍스트가 "어떤 종류의 질문인지" 분류하는 AI. "이 노래 뭐야?" → 음악 식별 의도.</p>
+          <p><strong>비유</strong> : 우체국 분류 기계가 편지 주소를 보고 "서울행", "부산행"으로 나누는 것.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎵 Audio Fingerprinting</h3>
+          <p><strong>한 줄</strong> : 음악의 "지문"을 추출해 데이터베이스와 비교하는 방식. Shazam이 같은 기술을 씀.</p>
+          <p><strong>비유</strong> : 사람 지문이 모두 다르듯, 음악도 1초 안에 고유 패턴이 있고 그걸 비교해 곡을 알아냄.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🗣️ TTS (Text-to-Speech)</h3>
+          <p><strong>한 줄</strong> : 글자를 사람 목소리로 읽어주는 AI. STT의 정반대.</p>
+          <p><strong>비유</strong> : 책 읽어주는 사람을 컴퓨터가 대신하는 것. 요즘은 진짜 사람 목소리와 구별이 안 될 정도.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🧠 LLM (대형언어모델)</h3>
+          <p><strong>한 줄</strong> : ChatGPT 같은 거대 AI. 의도 분류부터 요약·번역·자유 답변까지 다 할 수 있는 만능 텍스트 두뇌.</p>
+          <p><strong>비유</strong> : "모든 책을 다 읽은 도서관 사서"가 질문에 답해주는 셈.</p>
+        </div>
+      </div>
+
+      <a href="appendix-ai.html" class="page-card" style="margin-top:16px;">
+        <span class="page-card-number">DEEP DIVE 5</span>
+        <h3>→ 전공자용 자세히 : AI 처리</h3>
+        <p>Whisper/Conformer 아키텍처, intent classifier 학습 데이터, 오디오 핑거프린팅(Wang 2003 알고리즘), neural TTS(VITS), LLM 라우팅 전략.</p>
+        <span class="page-card-arrow">자세히 보기 →</span>
+      </a>
+    </section>
+
+    <hr/>
+
+    <section>
+      <h2>전체 deep dive 페이지 목록</h2>
+      <div class="page-grid">
+        <a href="appendix-audio.html" class="page-card">
+          <span class="page-card-number">DEEP DIVE 1</span>
+          <h3>오디오 캡처 & 압축</h3>
+          <p>Ring Buffer · Opus 코덱 · VAD</p>
+          <span class="page-card-arrow">→ 자세히</span>
+        </a>
+        <a href="appendix-network.html" class="page-card">
+          <span class="page-card-number">DEEP DIVE 2</span>
+          <h3>무선 통신 & 네트워킹</h3>
+          <p>Bluetooth PAN · BNEP · TCP/IP / DNS / DHCP</p>
+          <span class="page-card-arrow">→ 자세히</span>
+        </a>
+        <a href="appendix-security.html" class="page-card">
+          <span class="page-card-number">DEEP DIVE 3</span>
+          <h3>보안</h3>
+          <p>mTLS · Secure Element · JWT · E2E</p>
+          <span class="page-card-arrow">→ 자세히</span>
+        </a>
+        <a href="appendix-protocol.html" class="page-card">
+          <span class="page-card-number">DEEP DIVE 4</span>
+          <h3>패킷 / 프로토콜</h3>
+          <p>Session/Frame · TLV · 멀티트랙</p>
+          <span class="page-card-arrow">→ 자세히</span>
+        </a>
+        <a href="appendix-ai.html" class="page-card">
+          <span class="page-card-number">DEEP DIVE 5</span>
+          <h3>AI 처리</h3>
+          <p>STT · Intent · Fingerprint · TTS · LLM</p>
+          <span class="page-card-arrow">→ 자세히</span>
+        </a>
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="proposal.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">제안서</span>
+      </a>
+      <a href="appendix-audio.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">Deep Dive 1 · 오디오 캡처 & 압축</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · INDEX</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

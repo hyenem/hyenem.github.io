@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>제안서 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="proposal.html" class="active">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">PROPOSAL</span>
+      <h1>BudsAI 제안서</h1>
+      <p class="subtitle">"방금 뭐였지?"를 듣자마자 묻는, 직전 사운드 + 음성 질의 결합형 AI 이어버드 시스템.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#title">1. 아이디어 제목</a></li>
+        <li><a href="#overview">2. 개요 (10초 설명)</a></li>
+        <li><a href="#background">3. 제안 배경</a></li>
+        <li><a href="#content">4. 제안 내용</a></li>
+        <li><a href="#diff">5. 차별화 포인트</a></li>
+        <li><a href="#impact">6. 기대효과</a></li>
+        <li><a href="#appendix-link">7. 기술 부록</a></li>
+      </ul>
+    </div>
+
+    <section id="title">
+      <h2>1. 아이디어 제목</h2>
+      <div class="card">
+        <p style="font-size:20px; font-weight:600; color:var(--text); margin-bottom:8px;">
+          BudsAI
+        </p>
+        <p style="color:var(--text-dim); margin-bottom:0;">
+          "방금 뭐였지?"를 듣자마자 묻는, <strong>직전 사운드 + 음성 질의 결합형</strong> AI 이어버드 시스템
+        </p>
+      </div>
+    </section>
+
+    <section id="overview">
+      <h2>2. 개요 (10초 설명)</h2>
+      <p>
+        버즈가 들려주던 <strong>직전 N초의 사운드</strong>와 사용자가 트리거 직후 말한
+        <strong>음성 질문</strong>을 한 패킷으로 묶어 서버 AI에 전송 → AI가 두 트랙을 결합해
+        의도에 맞는 답을 TTS로 다시 버즈로 들려주는 시스템.
+      </p>
+
+      <div class="diagram">[Buds 청취] → [터치 트리거] → [음성 질문] → [AI: 직전 오디오 + 질문 결합 분석] → [TTS 응답]
+   ↑                                                                              │
+   └──────────────────────────── TTS 음성으로 다시 재생 ←─────────────────────────┘</div>
+
+      <p class="dim">→ 한 장표용 다이어그램. 흐름을 애니메이션으로 보려면 <a href="simulation.html">시뮬레이션</a>으로.</p>
+    </section>
+
+    <section id="background">
+      <h2>3. 제안 배경 (Painpoint / 필요성)</h2>
+
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>"방금 그거 뭐였지?" 문제</h3>
+          <p>카페 음악, 영어 팟캐스트, 회의 대화, 강의 등 매일 흘려보내는 오디오에 즉시 묻고 답받을 방법이 없음. 폰을 꺼내 검색하면 이미 다음 맥락이 흘러감.</p>
+        </div>
+        <div class="feature-card">
+          <h3>기존 AI 비서의 한계</h3>
+          <p>Bixby·Siri·Alexa는 "내가 방금 듣던 사운드"를 컨텍스트로 가지지 못함. "이 노래 뭐야?"라고 물어도 디바이스는 그 사운드를 모름.</p>
+        </div>
+        <div class="feature-card">
+          <h3>단일 기능 솔루션</h3>
+          <p>Shazam은 음악 식별만, 통역 이어버드는 번역만. 청취 중 발생하는 다양한 의도(식별·번역·요약·사전·검색·추천)를 하나의 인터랙션으로 못 다룸.</p>
+        </div>
+        <div class="feature-card">
+          <h3>앱 종속의 마찰</h3>
+          <p>기존 스마트 이어버드는 제조사 폰·전용 앱 설치를 강제 → 타사 호스트(노트북·MP3·TV·차량) 호환 불가.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="content">
+      <h2>4. 제안 내용</h2>
+
+      <h3>핵심 동작 흐름</h3>
+      <ol class="steps">
+        <li><strong>상시 버퍼링</strong> — 버즈 출력 PCM의 마지막 30초를 Opus로 압축해 링버퍼 보관 (~150KB).</li>
+        <li><strong>제스처 트리거</strong> — 터치패드 롱프레스 → ARMED 효과음 → 마이크 ON.</li>
+        <li><strong>음성 질의 녹음</strong> — 자연어 질문(≈5초), VAD가 침묵 감지 시 자동 종료.</li>
+        <li><strong>2-트랙 패킷 생성</strong> — Track A(직전 사운드) + Track B(사용자 질문)을 한 세션 메시지로 묶음.</li>
+        <li><strong>서버 AI 처리</strong> — Track B를 STT → 의도 분류 → 해당 핸들러(song_id / transcribe / summarize / define / translate / classify / search / recommend)가 Track A에 적용.</li>
+        <li><strong>TTS 응답 재생</strong> — ~3초 내 버즈로 음성 응답.</li>
+      </ol>
+
+      <h3>v3 호스트 무관 아키텍처 <span class="badge">FINAL</span></h3>
+      <ul>
+        <li><strong>버즈가 mTLS 종단점</strong> — 디바이스 인증서(Secure Element 보관) + 서버와 직접 mTLS 핸드셰이크.</li>
+        <li><strong>호스트는 Dumb Pipe</strong> — 폰/노트북/MP3/TV/차량은 표준 BT PAN(NAP) 위 IP 라우터 역할만, 페이로드 못 봄.</li>
+        <li><strong>앱 설치 0</strong> — OS 빌트인 BT 테더링 토글 한 번이면 동작.</li>
+        <li><strong>Galaxy 특화 레이어 (옵션)</strong> — Galaxy 폰 사용 시 컴패니언 앱이 서버 read API로 히스토리·위젯·Bixby 라우팅·SmartThings 연동 추가. 타사 호환성 그대로 유지.</li>
+      </ul>
+
+      <div class="diagram">[Buds(mTLS 종단)] ──BT PAN──> [Host (라우터 only)] ──IP──> [Server(mTLS)]
+       ↑ 디바이스 인증서                  ↑ 페이로드 못 봄
+       E2E 암호화 ─────────────────────────────────────────────►</div>
+
+      <h3>대표 활용 시나리오</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>듣던 것</th>
+              <th>질문</th>
+              <th>AI 응답</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>카페에서 흘러나오는 음악</td>
+              <td>"이 노래 누구 곡이야?"</td>
+              <td>"아이유의 'Love wins all'입니다"</td>
+            </tr>
+            <tr>
+              <td>영어 팟캐스트</td>
+              <td>"방금 quintessential 무슨 뜻?"</td>
+              <td>"전형적인, 본질적인이란 뜻이에요"</td>
+            </tr>
+            <tr>
+              <td>미국 드라마 시청</td>
+              <td>"방금 대사 한국어로 번역해줘"</td>
+              <td>"'그가 그럴 줄 알았어'라는 뜻이에요"</td>
+            </tr>
+            <tr>
+              <td>회의 통화</td>
+              <td>"방금 부장님이 뭐라고 했어?"</td>
+              <td>"다음 주 화요일까지 보고서 달라고 하셨어요"</td>
+            </tr>
+            <tr>
+              <td>강의 청취</td>
+              <td>"방금 엔트로피 다시 쉽게 풀어줘"</td>
+              <td>"엔트로피는 쉽게 말해 무질서도인데…"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="diff">
+      <h2>5. 차별화 포인트</h2>
+      <p>유사 아이디어 및 제품/서비스를 비교한 결과, BudsAI는 다음과 같은 본질적 차별점을 가집니다.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>비교 대상</th>
+              <th>그쪽의 한계</th>
+              <th>BudsAI의 차별점</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Shazam류 음악 식별 앱</strong></td>
+              <td>음악 한 종류만, 사용자가 앱 켜고 마이크 들이대야 함</td>
+              <td>모든 청취 사운드(음악·대사·강의·뉴스) 대상, 듣고 있던 트랙 자체를 컨텍스트로 사용</td>
+            </tr>
+            <tr>
+              <td><strong>Bixby / Siri / Alexa</strong></td>
+              <td>"내가 방금 듣던 사운드"를 컨텍스트로 못 가짐</td>
+              <td>직전 N초 오디오 + 질의 음성 두 트랙을 함께 보내 의도 모호성 제거</td>
+            </tr>
+            <tr>
+              <td><strong>Pixel Buds / Timekettle 통역 이어버드</strong></td>
+              <td>번역 단일 기능</td>
+              <td>8+ 의도(식별·전사·요약·사전·번역·분류·검색·추천)를 같은 인터랙션으로 처리</td>
+            </tr>
+            <tr>
+              <td><strong>AirPods + Apple Intelligence</strong></td>
+              <td>iPhone 종속, 제조사 잠금</td>
+              <td>표준 BT PAN만 쓰면 어떤 호스트(노트북·MP3·TV·차량·eSIM 동글)에서도 동작 — 앱 설치 0</td>
+            </tr>
+            <tr>
+              <td><strong>v1형 "AI 자동 추측"</strong></td>
+              <td>"이게 노래인지 단어인지 번역인지" 의도 추측 실패</td>
+              <td>사용자가 직접 음성으로 질의 → 같은 오디오에 무한히 다른 질문 가능</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>핵심 기술적 차별</h3>
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>2-트랙 결합 컨텍스트</h3>
+          <p>청취 오디오 + 질의 음성을 동일 세션 메시지로 묶는 패킷 포맷 (Session Message · Frame 2-레이어 + TLV 메타).</p>
+        </div>
+        <div class="feature-card">
+          <h3>호스트 무관 + Zero-Install</h3>
+          <p>표준 BT PAN(BNEP) 활용, OS 빌드 내장 프로파일만 사용 → 새 드라이버·앱 설치 불필요.</p>
+        </div>
+        <div class="feature-card">
+          <h3>버즈 종단 mTLS</h3>
+          <p>호스트 메모리에 비밀정보 0, 보안 표면 최소화. 디바이스 인증서는 Secure Element에 보관.</p>
+        </div>
+        <div class="feature-card">
+          <h3>세션 컨텍스트 유지</h3>
+          <p><code>PrevSessionID</code> 메타로 "근데 그 곡 가사도" 같은 연속 대화 지원.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="impact">
+      <h2>6. 기대효과</h2>
+
+      <h3>A. 사용성 개선 효과</h3>
+      <ul>
+        <li><strong>"방금 그거?" → 3초 안에 답</strong> : 폰 꺼냄·앱 실행·검색어 입력 흐름을 한 번의 롱프레스로 대체</li>
+        <li><strong>청취 흐름 단절 최소화</strong> : 강의·회의·미디어 시청 중 흐름을 끊지 않고 즉시 보강 정보 획득</li>
+        <li><strong>자연어 그대로</strong> : "방금 뭐였지?"처럼 사람이 사람에게 묻듯이 사용. 학습 곡선 0</li>
+        <li><strong>연속 대화</strong> : 같은 오디오에 추가 질문(가사/번역/추천 등) 무제한</li>
+      </ul>
+
+      <h3>B. 당사 제품군 확대 적용 효과</h3>
+      <div class="card-grid">
+        <div class="feature-card">
+          <h3>Buds 라인업 가치 상승</h3>
+          <p>Buds3/Buds Pro 후속 모델의 핵심 차별화 기능으로 탑재 가능 → 단순 무선 이어폰을 "AI 청취 어시스턴트"로 포지셔닝 전환.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Galaxy 생태계 락인 강화</h3>
+          <p>Galaxy 폰·워치·태블릿·TV·차량(One UI Auto)에 컴패니언 레이어 확장 시 "삼성을 쓰면 BudsAI가 더 똑똑하게 동작" 차별점 확보 → Galaxy 구매 동인.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Bixby·SmartThings 재활성화</h3>
+          <p>기존 자산(Bixby NLU, SmartThings, Wearable) 재사용 → 신규 인프라 투자 최소.</p>
+        </div>
+        <div class="feature-card">
+          <h3>타사 호환을 통한 저변 확대</h3>
+          <p>비-Galaxy 호스트도 동작 → 진입 마찰 0, 호환 버즈 확산 시 즉시 활용. 이후 Galaxy 특화 UX로 자연스러운 업셀.</p>
+        </div>
+        <div class="feature-card">
+          <h3>새 호환 기기 즉시 적용</h3>
+          <p>표준 BT PAN 기반이라 향후 출시되는 갤럭시 차량·TV·웨어러블 등 BT+인터넷 가능한 모든 신제품에 추가 개발 없이 적용 가능.</p>
+        </div>
+        <div class="feature-card">
+          <h3>데이터 자산화</h3>
+          <p>(사용자 동의 하) 음성 의도 분류·환경음 인식 데이터 축적 → 향후 온디바이스 AI 모델 학습 자원.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="appendix-link">
+      <h2>7. 기술 부록</h2>
+      <p>BudsAI에 사용된 핵심 기술을 비전공자용 한 페이지 요약과 전공자용 deep dive로 분리해 정리했습니다.</p>
+
+      <a href="appendix.html" class="cta-banner" style="display:flex; text-decoration:none; cursor:pointer;">
+        <div class="cta-text">
+          <h2>📚 기술 부록 (Appendix) 바로가기</h2>
+          <p>오디오 캡처 / 무선 통신 / 보안 / 패킷 프로토콜 / AI 처리 — 5개 카테고리, 비전공자용 카드 + 깊이 있는 전공자용 페이지.</p>
+        </div>
+        <span class="cta-button">부록 열기 <span class="arrow">→</span></span>
+      </a>
+    </section>
+
+    <nav class="pager">
+      <a href="index.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">개요</span>
+      </a>
+      <a href="appendix.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">기술 부록</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">PROPOSAL</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Dive 2 · 무선 통신 & 네트워킹 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">APPENDIX · DEEP DIVE 2</span>
+      <h1>무선 통신 & 네트워킹</h1>
+      <p class="subtitle">Bluetooth PAN · BNEP · 펌웨어 내장 TCP/IP — 비전공자 요약은 <a href="appendix.html#network">부록 인덱스</a>로.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#bt-overview">1. Bluetooth 스택 전체 구조</a></li>
+        <li><a href="#pan">2. PAN (Personal Area Network) 프로파일</a></li>
+        <li><a href="#bnep">3. BNEP 깊이</a></li>
+        <li><a href="#tcpip">4. 임베디드 TCP/IP 스택</a></li>
+        <li><a href="#dhcp-dns">5. DHCP / DNS 클라이언트</a></li>
+        <li><a href="#os-matrix">6. OS별 지원 매트릭스</a></li>
+        <li><a href="#fallback">7. PAN 안 되는 환경 대응</a></li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <section id="bt-overview">
+      <h2>1. Bluetooth 스택 전체 구조</h2>
+
+      <p>Bluetooth는 Classic(BR/EDR)과 LE(Low Energy) 두 가지 무선 모드를 가지며, 그 위에 여러 "프로파일"이 표준화되어 있습니다.</p>
+
+      <div class="diagram">┌─────────────────── Application Profiles ────────────────────┐
+│  A2DP    HFP    AVRCP    HID    GATT    PAN(NAP/PANU)        │
+│  (오디오) (전화) (제어)   (HID)  (BLE 표준) (네트워크)         │
+└──────────┬──────────────┬──────────────┬──────────────┬──────┘
+           │              │              │              │
+        L2CAP          RFCOMM         BNEP            ATT
+       (다중 채널)     (시리얼)       (네트워크)      (속성)
+           │              │              │              │
+─────────────────── HCI (Host Controller Interface) ──────────
+                          │
+        ┌─────────────────┴──────────────────┐
+        │ BT Controller (Radio + Baseband)   │
+        │  - Classic BR/EDR  /  LE PHY       │
+        └────────────────────────────────────┘</div>
+
+      <h3>1.1 BudsAI가 쓰는 프로파일</h3>
+      <ul>
+        <li><strong>A2DP</strong> : 호스트 → 버즈 오디오 스트리밍 (기존 기능, 사용자 음악 재생)</li>
+        <li><strong>AVRCP</strong> : 트랙 컨트롤 메타데이터 (제어용)</li>
+        <li><strong>PAN (NAP/PANU)</strong> : 핵심 — 인터넷 브릿지</li>
+        <li><strong>GATT</strong> : (선택) Galaxy 컴패니언 앱과의 메타 채널</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="pan">
+      <h2>2. PAN (Personal Area Network) 프로파일</h2>
+
+      <h3>2.1 표준 정의</h3>
+      <p>
+        Bluetooth SIG가 정의한 PAN 프로파일은 BT 디바이스를 <strong>이더넷 네트워크 노드</strong>로 만듭니다.
+        IEEE 802.3 이더넷 프레임을 BNEP로 캡슐화해 BT 위에서 IP 라우팅을 가능하게 합니다.
+      </p>
+
+      <h3>2.2 3가지 역할</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>역할</th><th>약어</th><th>기능</th><th>BudsAI에서</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Network Access Point</td>
+              <td>NAP</td>
+              <td>외부 네트워크(인터넷)로 게이트웨이</td>
+              <td>호스트(폰/노트북/TV/차량)</td>
+            </tr>
+            <tr>
+              <td>Group Ad-hoc Network</td>
+              <td>GN</td>
+              <td>BT 디바이스끼리만의 LAN</td>
+              <td>사용 안 함</td>
+            </tr>
+            <tr>
+              <td>PAN User</td>
+              <td>PANU</td>
+              <td>NAP/GN을 통해 접속하는 클라이언트</td>
+              <td>버즈</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.3 페어링 & 연결 시퀀스</h3>
+      <ol class="steps">
+        <li>버즈가 SDP(Service Discovery Protocol)로 NAP 서비스 광고 — <code>UUID = 0x1116 (NAP)</code></li>
+        <li>호스트 OS가 "BT 테더링 요청" UI 표시 (또는 정책에 따라 자동 승인)</li>
+        <li>사용자 토글 ON → 호스트가 BT L2CAP 채널 오픈, PSM = 0x000F (BNEP)</li>
+        <li>BNEP 핸드셰이크 — 사용자/네트워크 타입 협상 (IPv4 = 0x0800)</li>
+        <li>호스트가 DHCP 서버 역할 시작 — 버즈에 <code>192.168.44.x</code> 같은 사설 IP 할당</li>
+        <li>버즈가 ARP로 호스트(게이트웨이) MAC 학습 → IP 라우팅 시작</li>
+      </ol>
+
+      <h3>2.4 데이터 율</h3>
+      <ul>
+        <li><strong>BT Classic 5.0 EDR</strong> : 이론 ~2.1 Mbps, 실효 ~1.4 Mbps</li>
+        <li><strong>BT 5.0 LE 2M PHY</strong> : 이론 2 Mbps, 실효 ~1.4 Mbps</li>
+        <li><strong>BudsAI 페이로드</strong> : 30s Opus 음악 트랙 ~150KB → 약 0.9초 전송</li>
+        <li><strong>충돌</strong> : A2DP 활성 시 대역폭 공유 — A2DP가 우선되므로 PAN 전송이 잠시 슬로우다운</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>A2DP와의 상호 영향</strong>
+        호스트 → 버즈 A2DP 스트림이 동작 중일 때 PAN 업로드는 가용 대역 중 ~30%만 사용 가능.
+        실측 30s 페이로드 전송 시간 약 2.5초 발생 → 의도 분류 응답 시간 SLA에 반영.
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="bnep">
+      <h2>3. BNEP (Bluetooth Network Encapsulation Protocol) 깊이</h2>
+
+      <h3>3.1 역할</h3>
+      <p>
+        BNEP는 L2CAP 위에서 동작하며, 이더넷 프레임을 BT 패킷으로 캡슐화합니다.
+        OSI 모델로 보면 데이터 링크 계층(L2)에 해당.
+      </p>
+
+      <h3>3.2 패킷 포맷</h3>
+      <div class="diagram">┌─────────────┬─────────────┬─────────────────────────────────┐
+│ BNEP Header │ Ethernet    │ IP Payload                       │
+│ (1–14 byte) │ Addresses   │ (TCP/UDP/...)                    │
+└─────────────┴─────────────┴─────────────────────────────────┘
+
+BNEP Header types:
+  0x00 : GENERAL_ETHERNET           (full 6+6+2 byte addresses)
+  0x01 : COMPRESSED_ETHERNET        (no addresses — 이미 알고 있음)
+  0x02 : COMPRESSED_SRC_ONLY
+  0x03 : COMPRESSED_DST_ONLY
+  0x04 : CONTROL                    (handshake)
+
+Type 0x01 사용 시 14 바이트 절약 — 매 프레임마다 효율 ↑</div>
+
+      <h3>3.3 핸드셰이크</h3>
+      <pre><code>L2CAP_Connect (PSM=0x000F)
+  ↓
+BNEP_SETUP_CONNECTION_REQUEST
+  Destination UUID: 0x1116 (NAP)
+  Source UUID:      0x1115 (PANU)
+  ↓
+BNEP_SETUP_CONNECTION_RESPONSE
+  Status: 0x00 (Operation Successful)
+  ↓
+[ data frames flow ]</code></pre>
+
+      <h3>3.4 필터링</h3>
+      <p>
+        BNEP는 두 가지 필터를 협상할 수 있습니다.
+      </p>
+      <ul>
+        <li><strong>Network Type Filter</strong> — IPv4 0x0800, IPv6 0x86DD, ARP 0x0806 등만 통과</li>
+        <li><strong>Multicast Address Filter</strong> — 특정 멀티캐스트 그룹만 통과</li>
+      </ul>
+      <p>BudsAI는 IPv4 + ARP만 화이트리스트해서 호스트 LAN의 노이즈 트래픽이 버즈 펌웨어로 안 들어오게 합니다.</p>
+
+      <h3>3.5 MTU 협상</h3>
+      <p>
+        BNEP 표준 MTU는 1691 바이트(이더넷 MTU 1500 + BNEP 헤더 여유).
+        BudsAI는 BT L2CAP MTU를 1024로 협상 — RAM 제약 때문에 더 작은 버퍼로 동작.
+        IP 레이어에서 fragment 처리.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="tcpip">
+      <h2>4. 임베디드 TCP/IP 스택</h2>
+
+      <h3>4.1 왜 펌웨어에 TCP/IP가 있어야 하나</h3>
+      <p>
+        버즈가 mTLS 종단점이 되려면, BT 위에 IP 패킷을 직접 만들고 받아야 합니다.
+        호스트는 단순 라우터 역할만 하므로 TCP 연결 자체는 버즈 펌웨어 안에서 끝납니다.
+        이를 위해 <strong>임베디드 TCP/IP 스택</strong>이 필요합니다.
+      </p>
+
+      <h3>4.2 후보 비교</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>스택</th><th>라이센스</th><th>코드 크기</th><th>RAM</th><th>BudsAI 적합도</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>lwIP</strong></td>
+              <td>BSD</td>
+              <td>~40 KB</td>
+              <td>~25 KB</td>
+              <td>★★★ 채택</td>
+            </tr>
+            <tr>
+              <td>uIP</td>
+              <td>BSD</td>
+              <td>~6 KB</td>
+              <td>~2 KB</td>
+              <td>TLS 핸들 어려움</td>
+            </tr>
+            <tr>
+              <td>FreeRTOS+TCP</td>
+              <td>MIT</td>
+              <td>~50 KB</td>
+              <td>~30 KB</td>
+              <td>FreeRTOS 종속</td>
+            </tr>
+            <tr>
+              <td>NXP NetX Duo</td>
+              <td>독점 (현재 Azure RTOS 일부 무료)</td>
+              <td>~80 KB</td>
+              <td>~40 KB</td>
+              <td>RTOS 매칭 시 고려</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>lwIP를 채택</strong>한 이유 : 가장 널리 검증됨, TLS 라이브러리(mbedTLS) 통합 사례 풍부, RAM 제약(64–128 KB) 안에서 동작.</p>
+
+      <h3>4.3 lwIP 설정</h3>
+      <pre><code>// lwipopts.h
+#define LWIP_TCP                1
+#define LWIP_UDP                1   // DNS 위함
+#define LWIP_DHCP               1
+#define LWIP_DNS                1
+#define LWIP_ARP                1
+#define LWIP_NETIF_API          1
+
+#define MEM_SIZE                32768   // heap
+#define TCP_MSS                 1024
+#define TCP_WND                 (4 * TCP_MSS)   // 4 KB receive window
+#define TCP_SND_BUF             (4 * TCP_MSS)
+#define PBUF_POOL_SIZE          16
+#define PBUF_POOL_BUFSIZE       1280
+
+#define LWIP_ALTCP              1
+#define LWIP_ALTCP_TLS          1   // mbedTLS 연결</code></pre>
+
+      <h3>4.4 BT → lwIP 통합 — netif driver</h3>
+      <p>
+        BNEP 레이어 위에 lwIP <code>netif</code> 드라이버를 작성. 송신은 <code>linkoutput</code>에서
+        이더넷 헤더를 만들어 BNEP로 넘기고, 수신은 BNEP 콜백에서 <code>tcpip_input()</code> 호출.
+      </p>
+
+      <pre><code>err_t bnep_netif_output(struct netif *netif, struct pbuf *p) {
+    uint8_t buf[1518];
+    pbuf_copy_partial(p, buf, p->tot_len, 0);
+    bnep_send_compressed(buf, p->tot_len);
+    return ERR_OK;
+}
+
+void bnep_rx_callback(uint8_t *data, size_t len) {
+    struct pbuf *p = pbuf_alloc(PBUF_RAW, len, PBUF_POOL);
+    pbuf_take(p, data, len);
+    tcpip_input(p, &amp;bnep_netif);
+}</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="dhcp-dns">
+      <h2>5. DHCP / DNS 클라이언트</h2>
+
+      <h3>5.1 DHCP 동작</h3>
+      <ol class="steps">
+        <li>BNEP 채널 OPEN 직후 lwIP <code>dhcp_start()</code> 호출</li>
+        <li>DISCOVER 브로드캐스트 (DST = ff:ff:ff:ff:ff:ff)</li>
+        <li>호스트 OS 내장 DHCP 서버가 OFFER 응답 — 사설 대역(예: 192.168.44.2/24)</li>
+        <li>REQUEST → ACK 후 IP 주소 확정</li>
+        <li>옵션 6 (DNS 서버 주소), 옵션 3 (Gateway) 수신 → lwIP 라우팅 테이블 설정</li>
+      </ol>
+
+      <h3>5.2 DNS resolver</h3>
+      <p>lwIP DNS는 UDP 53 기반 단순 resolver. 캐시는 8 엔트리, TTL 준수.</p>
+      <p>BudsAI 서버는 단일 도메인(<code>api.budsai.example</code>)이므로 부팅 시 1회 해석 후 IP 캐싱. 인증서 SAN 검증과 별도.</p>
+
+      <h3>5.3 IPv6 정책</h3>
+      <p>현재 IPv4 only. 호스트가 IPv6 only인 경우는 거의 없으나, 추후 IPv6 지원 시 lwIP의 SLAAC 활성화 + NDP만 추가 코드 ~3KB.</p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="os-matrix">
+      <h2>6. OS별 PAN 지원 매트릭스</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>OS</th><th>NAP 내장</th><th>사용자 액션</th><th>비고</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Windows 10/11</td>
+              <td>✅</td>
+              <td>설정 → 장치 → "Bluetooth 테더링"</td>
+              <td>안정적</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td>✅</td>
+              <td>시스템 설정 → 공유 → "인터넷 공유" + Bluetooth PAN</td>
+              <td>약간 숨겨진 UI</td>
+            </tr>
+            <tr>
+              <td>Linux (BlueZ)</td>
+              <td>✅</td>
+              <td><code>nmcli</code> 또는 데스크톱 GUI</td>
+              <td>NetworkManager 통합</td>
+            </tr>
+            <tr>
+              <td>Android 9+</td>
+              <td>✅</td>
+              <td>설정 → 네트워크 → 테더링 → "블루투스 테더링"</td>
+              <td>Galaxy/Pixel/Sony 모두 동일</td>
+            </tr>
+            <tr>
+              <td>iOS / iPadOS</td>
+              <td>❌ (제한)</td>
+              <td>iOS는 PAN을 클라이언트로만 지원, NAP 제한</td>
+              <td>차량/노트북 fallback 필요</td>
+            </tr>
+            <tr>
+              <td>HarmonyOS / 화웨이</td>
+              <td>✅</td>
+              <td>Android 호환 UI</td>
+              <td>중국 시장 지원</td>
+            </tr>
+            <tr>
+              <td>Android Auto / CarPlay</td>
+              <td>부분</td>
+              <td>차량 제조사 의존</td>
+              <td>핸드오프 fallback</td>
+            </tr>
+            <tr>
+              <td>스마트 TV (Tizen/WebOS)</td>
+              <td>모델별</td>
+              <td>일부 모델만</td>
+              <td>2024+ 모델 대부분 지원</td>
+            </tr>
+            <tr>
+              <td>차량 인포테인먼트</td>
+              <td>대부분 ❌</td>
+              <td>—</td>
+              <td>BT 핸즈프리만 지원, fallback</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="fallback">
+      <h2>7. PAN 안 되는 환경 대응</h2>
+
+      <h3>7.1 iOS — Companion App via BLE-IP Proxy</h3>
+      <p>
+        iOS는 NAP 미지원이지만 BLE GATT 위에 <strong>IP-over-GATT</strong>를 자체 구현할 수 있습니다.
+        Apple은 IPSP(IP Support Profile, BT 4.2+)를 지원하지 않지만, custom service로 IP 프레임을 GATT
+        characteristic write로 보낼 수 있습니다.
+        다만 이 경로는 백그라운드 동작 제약이 있어 사용자가 BudsAI 앱을 켜 둔 상태에서만 동작 — 따라서 이 fallback은
+        선택적 옵션.
+      </p>
+
+      <h3>7.2 eSIM in Buds — 호스트 자체 제거</h3>
+      <p>
+        궁극의 fallback은 버즈에 eSIM을 내장해 셀룰러 모뎀으로 직접 인터넷 접속. 호스트가 필요 없어집니다.
+        단점은 배터리(셀룰러 RF가 BT의 10배 이상 소모), 단가, 통신 요금. 향후 BudsAI Pro Max 같은 모델에서 검토.
+      </p>
+
+      <h3>7.3 차량 BT 핸즈프리만 지원 시</h3>
+      <p>
+        차량은 BT HFP(핸즈프리)만 지원하는 경우가 많음. 이 경우 차량을 호스트로 못 씀.
+        대신 운전자의 폰을 호스트로 동시 페어링(Multi-Point Bluetooth)해서 PAN을 폰으로 라우팅.
+        Buds3+가 이미 지원하는 Multi-Point을 활용.
+      </p>
+
+      <h3>7.4 호환성 매트릭스 정리</h3>
+      <div class="diagram">시나리오                    →    호스트 채널          최종 인터넷 경로
+─────────────────────────────────────────────────────────────────────
+폰(Android/Galaxy) 곁에 있음 →    BT PAN to 폰          폰의 4G/5G/WiFi
+노트북 곁에 있음             →    BT PAN to 노트북       노트북의 LAN
+MP3/PMP                      →    BT PAN to MP3         MP3의 WiFi
+스마트 TV (2024+)            →    BT PAN to TV          TV의 LAN
+차량 (PAN 지원)              →    BT PAN to 차량        차량의 LTE
+차량 (PAN 미지원) + 폰        →    BT Multi-Point        폰의 4G/5G
+iPhone 곁에 있음              →    BLE-IP Proxy (앱 ON)   iPhone의 셀룰러
+혼자 외출 (호스트 없음)       →    eSIM 직결 (Pro 모델)   버즈 셀룰러</div>
+
+      <div class="callout info">
+        <strong>관련 문서</strong>
+        호스트 선택 우선순위, 멀티-호스트 핸드오프 로직은
+        <a href="host-bridge.html">호스트 브릿지 페이지</a>에서 다룹니다.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix-audio.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">Deep Dive 1 · 오디오 캡처</span>
+      </a>
+      <a href="appendix-security.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">Deep Dive 3 · 보안</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · DEEP DIVE 2</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

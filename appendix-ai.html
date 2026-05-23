@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Dive 5 · AI 처리 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">APPENDIX · DEEP DIVE 5</span>
+      <h1>AI 처리 — STT · Intent · Fingerprint · TTS · LLM</h1>
+      <p class="subtitle">서버 AI 파이프라인 각 컴포넌트의 깊은 내용. 비전공자 요약은 <a href="appendix.html#ai">부록 인덱스</a>로.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#pipeline">1. 전체 AI 파이프라인</a></li>
+        <li><a href="#stt">2. STT (Speech-to-Text) 깊이</a></li>
+        <li><a href="#intent">3. Intent Classification 깊이</a></li>
+        <li><a href="#fingerprint">4. Audio Fingerprinting (음악 식별) 깊이</a></li>
+        <li><a href="#tts">5. TTS (Text-to-Speech) 깊이</a></li>
+        <li><a href="#llm">6. LLM 라우팅 & 컨텍스트</a></li>
+        <li><a href="#latency">7. 종단간 지연 예산 (3초 SLA)</a></li>
+        <li><a href="#cost">8. 비용 모델</a></li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <section id="pipeline">
+      <h2>1. 전체 AI 파이프라인</h2>
+
+      <div class="diagram">                           [Session 도착]
+                                  │
+                                  ▼
+                   ┌────────────────────────────┐
+                   │  Authenticator / Quota     │
+                   │  (mTLS + JWT 검증)         │
+                   └─────────────┬──────────────┘
+                                 ▼
+                    ┌────────────────────────┐
+                    │  Demux: Track A / B    │
+                    │  (Opus decode 병렬)     │
+                    └─────┬──────────────┬───┘
+                          │              │
+                Track A   │              │   Track B (질의 음성)
+                          ▼              ▼
+              ┌─────────────────┐  ┌──────────────────┐
+              │ Audio Analysis  │  │ STT (Whisper)    │
+              │ - VAD/loudness  │  │ → query_text     │
+              │ - 음악/말 분류   │  └────────┬─────────┘
+              │ - Fingerprint   │           ▼
+              └────────┬────────┘  ┌──────────────────┐
+                       │           │ Intent Classifier│
+                       │           │ → intent + slots │
+                       │           └────────┬─────────┘
+                       │                    │
+                       └─────────┬──────────┘
+                                 ▼
+                  ┌──────────────────────────────┐
+                  │  Intent Router               │
+                  │  - song_id   → Music DB      │
+                  │  - transcribe→ Track A STT   │
+                  │  - translate → MT model      │
+                  │  - define    → 사전 + LLM    │
+                  │  - search    → Web + LLM     │
+                  │  - summarize → LLM           │
+                  │  - classify  → AudioClass    │
+                  │  - recommend → Reco engine   │
+                  └──────────────┬───────────────┘
+                                 ▼
+                       ┌─────────────────┐
+                       │ Response Builder│
+                       │ (LLM, 자연어 만듦)│
+                       └────────┬────────┘
+                                ▼
+                       ┌─────────────────┐
+                       │ TTS (Neural)    │
+                       └────────┬────────┘
+                                ▼
+                        [Buds로 응답 스트리밍]</div>
+
+      <p>핵심 설계 원칙은 다음과 같습니다.</p>
+      <ul>
+        <li><strong>병렬 처리</strong> — Track A 분석과 Track B STT는 독립이라 동시 진행</li>
+        <li><strong>조기 시작</strong> — Track B의 첫 ~500ms만 도착해도 STT 시작 (streaming STT)</li>
+        <li><strong>의도 라우팅</strong> — 의도 분류 결과로 최소 모델만 호출 (LLM 호출 회피)</li>
+        <li><strong>응답 스트리밍</strong> — TTS 첫 청크 즉시 전송, 전체 합성 대기 안 함</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="stt">
+      <h2>2. STT (Speech-to-Text) 깊이</h2>
+
+      <h3>2.1 후보 모델 비교</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>모델</th><th>아키텍처</th><th>다국어</th><th>지연</th><th>WER (한국어)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Whisper Large v3</td>
+              <td>Encoder-Decoder Transformer</td>
+              <td>99개</td>
+              <td>1-2s/30s</td>
+              <td>~7%</td>
+            </tr>
+            <tr>
+              <td>Whisper Medium</td>
+              <td>동일, 작은 크기</td>
+              <td>99개</td>
+              <td>~0.5s/30s</td>
+              <td>~10%</td>
+            </tr>
+            <tr>
+              <td>Conformer-CTC</td>
+              <td>CNN + Transformer + CTC</td>
+              <td>훈련 의존</td>
+              <td>스트리밍 가능</td>
+              <td>~6% (한국어 특화 시)</td>
+            </tr>
+            <tr>
+              <td>Riva (NVIDIA)</td>
+              <td>Conformer + RNNT</td>
+              <td>제공</td>
+              <td>스트리밍</td>
+              <td>~8%</td>
+            </tr>
+            <tr>
+              <td>Google Cloud STT</td>
+              <td>독점</td>
+              <td>제공</td>
+              <td>스트리밍</td>
+              <td>~5%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.2 BudsAI의 선택</h3>
+      <p>
+        Track B(짧은 질의, ~5초)에는 <strong>Conformer-CTC 한국어/영어 멀티</strong> 자체 호스팅 모델.
+        스트리밍 가능 + 짧은 발화에 강함 + 비용 통제.
+      </p>
+      <p>
+        Track A에 STT가 필요한 의도(transcribe, summarize, define 등)는 <strong>Whisper Large v3</strong> —
+        오프라인 배치 처리 가능, 다양한 환경음 강함.
+      </p>
+
+      <h3>2.3 Conformer 아키텍처 요약</h3>
+      <div class="diagram">Input: log-mel spectrogram (80 mels, 10ms hop)
+   │
+   ▼
+[Subsampling conv] (4× 다운샘플)
+   │
+   ▼
+[Conformer Block × 17]
+  ┌─────────────────────────────────┐
+  │ FeedForward (½)                  │
+  │ Multi-Head Self-Attention        │
+  │ Convolution Module (depth-wise)  │
+  │ FeedForward (½)                  │
+  │ LayerNorm                        │
+  └─────────────────────────────────┘
+   │
+   ▼
+[Linear projection → CTC vocab]
+   │
+   ▼
+CTC decoding (beam search, beam=10)
+   │
+   ▼
+Output: 문자/서브워드 시퀀스</div>
+
+      <h3>2.4 스트리밍 디코딩</h3>
+      <p>
+        Conformer를 <strong>chunk-attention</strong>으로 설정 — 미래 정보를 제한적으로만 봐서 스트리밍 가능.
+        Chunk size 640ms, look-ahead 80ms.
+        결과는 partial transcript로 매 chunk마다 갱신.
+      </p>
+
+      <h3>2.5 후처리</h3>
+      <ul>
+        <li><strong>ITN (Inverse Text Normalization)</strong> — "이천이십육년" → "2026년"</li>
+        <li><strong>구두점 복원</strong> — 별도 작은 BERT 모델</li>
+        <li><strong>대문자화</strong> — 영어 부분</li>
+        <li><strong>이모티콘 제거</strong> — Track A가 음악이면 가사 STT 시 강조 표현 제거</li>
+      </ul>
+
+      <h3>2.6 한국어 특화 처리</h3>
+      <ul>
+        <li>외래어 음역 정규화 (e.g. "쿠앙" → "Kuang" or 그대로)</li>
+        <li>존댓말 어미 유지 — "였습니다" 같은 형태 보존</li>
+        <li>코드 스위칭 — "방금 quintessential 뜻" 같은 한영 혼합 문장 인식</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="intent">
+      <h2>3. Intent Classification 깊이</h2>
+
+      <h3>3.1 의도 체계</h3>
+      <p>
+        BudsAI는 8개 최상위 의도 + 각 의도별 slot을 정의합니다.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Intent</th><th>의미</th><th>주요 slot</th><th>핸들러</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>song_id</code></td><td>곡 식별</td><td>—</td><td>Audio Fingerprint</td></tr>
+            <tr><td><code>transcribe</code></td><td>받아쓰기</td><td>language, range</td><td>Track A STT</td></tr>
+            <tr><td><code>summarize</code></td><td>요약</td><td>length, style</td><td>STT + LLM</td></tr>
+            <tr><td><code>define</code></td><td>단어 뜻</td><td>target_word, lang</td><td>STT + 사전 API</td></tr>
+            <tr><td><code>translate</code></td><td>번역</td><td>src_lang, tgt_lang</td><td>STT + MT 모델</td></tr>
+            <tr><td><code>classify</code></td><td>환경음 분류</td><td>—</td><td>AudioCLIP</td></tr>
+            <tr><td><code>search</code></td><td>외부 검색</td><td>query</td><td>STT + Search + LLM</td></tr>
+            <tr><td><code>recommend</code></td><td>추천</td><td>seed_type</td><td>Reco 시스템</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.2 분류 모델 비교</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>접근</th><th>정확도</th><th>지연</th><th>유연성</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>키워드 매칭 (정규식)</td>
+              <td>~75%</td>
+              <td>1ms</td>
+              <td>매우 낮음</td>
+            </tr>
+            <tr>
+              <td>경량 BERT (DistilBERT)</td>
+              <td>~92%</td>
+              <td>30ms</td>
+              <td>중간 (재학습 필요)</td>
+            </tr>
+            <tr>
+              <td>SetFit (few-shot)</td>
+              <td>~90%</td>
+              <td>20ms</td>
+              <td>높음 (적은 데이터로 추가)</td>
+            </tr>
+            <tr>
+              <td><strong>LLM zero-shot</strong></td>
+              <td>~95%</td>
+              <td>150ms</td>
+              <td>매우 높음 (프롬프트만)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.3 캐스케이드 라우팅</h3>
+      <p>지연 예산을 지키기 위해 캐스케이드로 동작.</p>
+      <ol class="steps">
+        <li><strong>레벨 1 — 키워드 게이트</strong> : "이 노래 뭐야" / "번역해줘" 등 명백한 케이스를 5ms에 라우팅</li>
+        <li><strong>레벨 2 — DistilBERT</strong> : 게이트 실패 시 30ms 안에 의도 분류</li>
+        <li><strong>레벨 3 — LLM 보강</strong> : DistilBERT 신뢰도 &lt; 0.7일 때만 LLM 호출 (전체의 ~5%)</li>
+      </ol>
+      <p>평균 의도 분류 지연 = 약 12ms.</p>
+
+      <h3>3.4 slot 추출</h3>
+      <p>
+        Slot은 BIO-tagging으로 추출. 예: "<u>한국어</u>로 번역해줘" → <code>tgt_lang=ko</code>.
+        한국어 BERT의 토큰 단위 NER 헤드로 처리.
+      </p>
+
+      <h3>3.5 학습 데이터</h3>
+      <ul>
+        <li>자체 수집 발화: 의도당 ~500 표본</li>
+        <li>합성 데이터 (LLM으로 paraphrase): 의도당 ~2000 표본</li>
+        <li>실제 사용 로그 (사용자 동의 하): 매주 능동학습 사이클로 추가</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="fingerprint">
+      <h2>4. Audio Fingerprinting (음악 식별) 깊이</h2>
+
+      <h3>4.1 기본 원리 — Wang 2003 알고리즘</h3>
+      <p>
+        Shazam의 핵심 논문 (Wang 2003)이 정한 패러다임. 오디오의 시간-주파수 도메인에서
+        <strong>peak point</strong>를 뽑아 그 페어로 해시를 만듭니다.
+      </p>
+
+      <div class="diagram">1) 오디오 → STFT (Short-Time Fourier Transform)
+       → 스펙트로그램
+
+2) 스펙트로그램에서 local maxima (peak) 추출
+       → 시간/주파수 좌표 (t, f)
+
+3) Peak 페어로 fingerprint 해시 생성:
+       hash = (f1, f2, Δt)
+       이 hash는 anchor=(t1, f1) → target=(t2, f2)의 관계
+
+4) 데이터베이스 형태:
+       hash → [(song_id, t1), (song_id, t1), ...]
+
+5) 쿼리 시:
+       쿼리 hash들을 DB에 lookup
+       매칭된 (song_id, song_t - query_t) offset 히스토그램 만들기
+       특정 offset에 강하게 집중된 song_id가 정답</div>
+
+      <h3>4.2 왜 Peak Pair 인가</h3>
+      <ul>
+        <li><strong>잡음 강건</strong> — 절대값이 아닌 상대적 peak 위치만 사용</li>
+        <li><strong>시간 시프트 무관</strong> — 곡 어디서 들었어도 매칭</li>
+        <li><strong>저장 효율</strong> — 곡 1초당 ~10-20 hash만 필요</li>
+        <li><strong>쿼리 효율</strong> — DB는 단순 해시 lookup</li>
+      </ul>
+
+      <h3>4.3 BudsAI 구현 디테일</h3>
+      <pre><code>// 1. PCM (Track A) → resample to 16kHz mono
+// 2. STFT
+//    window = 1024 (Hann)
+//    hop    = 64    (overlap 94%, 시간 해상도 4ms)
+//    nfft   = 1024
+// 3. Power spectrogram log scale
+// 4. Local maxima detection
+//    구역 검사: 21 (freq) × 11 (time)
+//    threshold: power > avg + 2*std
+// 5. Anchor selection
+//    1초당 평균 10 anchors
+// 6. Target zone
+//    anchor 기준 +50 frame (200ms) 내 가까운 3 peaks와 페어링
+// 7. Hash
+//    h = (f1 :: f2 :: Δt) — 32-bit fingerprint
+// 8. DB lookup
+//    Redis cluster, hash → posting list</code></pre>
+
+      <h3>4.4 매칭 점수 산정</h3>
+      <p>
+        쿼리에서 N개 해시를 뽑아 DB에서 매칭된 곡별로 (song_t - query_t) 히스토그램.
+        가장 높은 bin의 점수가 임계값 초과 + 2등과의 마진이 충분하면 confident match.
+      </p>
+
+      <h3>4.5 라이브러리 / 데이터셋</h3>
+      <ul>
+        <li><strong>음악 카탈로그</strong> — Melon/지니 등 라이센스 계약, 1억곡+ fingerprint DB</li>
+        <li><strong>오픈소스 비교</strong> — Dejavu, Chromaprint(MusicBrainz), Olaf</li>
+        <li><strong>저작권 메타</strong> — ISRC + 아티스트 + 앨범 + 발매일</li>
+      </ul>
+
+      <h3>4.6 단점 / 한계</h3>
+      <ul>
+        <li>커버곡/리믹스는 다른 곡으로 인식 (정확히 같은 마스터만 매칭)</li>
+        <li>매우 시끄러운 환경(SNR &lt; -10dB)에서 정확도 저하</li>
+        <li>10초 미만의 매우 짧은 샘플은 false positive 증가</li>
+        <li>최근 발매 곡은 DB 인덱싱 시간차로 인해 일부 미인식</li>
+      </ul>
+
+      <h3>4.7 환경음 분류와의 분기</h3>
+      <p>
+        Track A를 먼저 "음악인가 환경음인가 말소리인가" 분류 후, 음악일 때만 fingerprint.
+        분류기는 YAMNet (Google) 또는 자체 PANNs 모델 사용 — 1초 안에 521 클래스 분류.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="tts">
+      <h2>5. TTS (Text-to-Speech) 깊이</h2>
+
+      <h3>5.1 Neural TTS 시대</h3>
+      <p>
+        2018년 이전 concatenative TTS는 부자연스러웠으나, neural TTS는 사람 목소리와 구별 어려운 수준에 도달했습니다.
+        BudsAI는 <strong>VITS / Bark / XTTS</strong> 계열 neural TTS 활용.
+      </p>
+
+      <h3>5.2 후보 모델</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>모델</th><th>아키텍처</th><th>다국어</th><th>RTF</th><th>품질</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>VITS</td>
+              <td>VAE + Flow + GAN</td>
+              <td>훈련별</td>
+              <td>0.05</td>
+              <td>높음</td>
+            </tr>
+            <tr>
+              <td>XTTS-v2</td>
+              <td>GPT + Tortoise</td>
+              <td>16개</td>
+              <td>0.3</td>
+              <td>매우 높음 (보이스 클로닝)</td>
+            </tr>
+            <tr>
+              <td>Bark</td>
+              <td>GPT 계열</td>
+              <td>여러</td>
+              <td>1.0+</td>
+              <td>표현력 매우 높음</td>
+            </tr>
+            <tr>
+              <td>StyleTTS 2</td>
+              <td>Diffusion</td>
+              <td>훈련별</td>
+              <td>0.2</td>
+              <td>매우 높음</td>
+            </tr>
+            <tr>
+              <td>Google WaveNet</td>
+              <td>독점</td>
+              <td>여러</td>
+              <td>실시간</td>
+              <td>매우 높음</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dim">RTF (Real Time Factor) = 합성 시간 / 출력 길이. 0.1 이하면 실시간 가능.</p>
+
+      <h3>5.3 VITS 아키텍처 요약</h3>
+      <div class="diagram">Text → Phonemizer → Phoneme sequence
+   │
+   ▼
+[Text Encoder Transformer]
+   │
+   ▼
+[Stochastic Duration Predictor]  ← 음소별 길이 결정
+   │
+   ▼
+[Normalizing Flow]   ← Latent space 인코딩
+   │
+   ▼
+[HiFi-GAN Vocoder]   ← 파형 합성
+   │
+   ▼
+24kHz audio waveform</div>
+
+      <h3>5.4 스트리밍 합성</h3>
+      <p>
+        VITS 자체는 비스트리밍이지만, 문장 경계 또는 구두점에서 chunk 분할 후 병렬 합성으로 첫 청크를 빠르게 전송.
+        평균 첫 음 출력 지연 ~200ms.
+      </p>
+
+      <h3>5.5 음성 캐릭터 선택</h3>
+      <ul>
+        <li>한국어: 여성 차분, 남성 활기, 어린이, 노년 — 4가지 디폴트</li>
+        <li>영어: 미국 표준, 영국, 호주</li>
+        <li>사용자 보이스 클로닝(옵션, 30초 샘플) — XTTS-v2 경로</li>
+      </ul>
+
+      <h3>5.6 응답 출력 형식</h3>
+      <p>합성 결과는 24kHz 16-bit PCM → 다시 Opus 인코딩 → BudsAI 자체 패킷으로 스트리밍.</p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="llm">
+      <h2>6. LLM 라우팅 & 컨텍스트</h2>
+
+      <h3>6.1 LLM은 언제 호출되나</h3>
+      <p>모든 의도가 LLM을 부르는 건 아닙니다. 비용/지연 때문에 필요한 경우만 호출.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Intent</th><th>LLM 호출?</th><th>이유</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>song_id</td><td>❌</td><td>fingerprint + DB lookup만</td></tr>
+            <tr><td>transcribe</td><td>❌</td><td>STT 결과 그대로</td></tr>
+            <tr><td>summarize</td><td>✅</td><td>LLM이 유일한 솔루션</td></tr>
+            <tr><td>define</td><td>옵션</td><td>사전 1차, 의미 모호 시 LLM 보강</td></tr>
+            <tr><td>translate</td><td>전용 MT 모델 1차, 어려운 케이스만 LLM</td><td>비용</td></tr>
+            <tr><td>classify</td><td>❌</td><td>AudioCLIP만</td></tr>
+            <tr><td>search</td><td>✅</td><td>검색 결과 통합 + 답변 작문</td></tr>
+            <tr><td>recommend</td><td>옵션</td><td>Reco 1차, 이유 설명 시 LLM</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>6.2 LLM 모델 선택 (티어드)</h3>
+      <ul>
+        <li><strong>경량</strong> (자체 호스팅 Llama 3.1 8B / Qwen2.5 7B) — 단순 요약·답변, 응답 1초 이내</li>
+        <li><strong>중량</strong> (Claude Sonnet / GPT-4o-mini API) — 복잡한 추론, 응답 2-3초</li>
+        <li><strong>대형</strong> (Claude Opus / GPT-4o API) — 정말 어려운 케이스, 응답 3-5초</li>
+      </ul>
+
+      <p>의도 분류 결과 + 사용자 티어 + 신뢰도로 라우터가 모델 선택.</p>
+
+      <h3>6.3 컨텍스트 윈도우 구성</h3>
+      <pre><code>System prompt:
+  당신은 BudsAI 어시스턴트입니다. 사용자가 방금 듣던 오디오와
+  그에 대한 질문을 받습니다. 간결하고 자연스러운 한국어로 1-2문장
+  답변하세요. 음성으로 출력될 것이므로 마크다운 사용 금지.
+
+Context:
+  - locale: ko-KR
+  - device: Buds3 Pro
+  - prev_session_summary: (있다면) "이전 대화: 아이유 곡 식별"
+
+Track A 정보:
+  - kind: music | speech | ambient
+  - (음악) song: 아이유 - Love wins all
+  - (말소리) transcript: "..."
+  - (환경음) class: "bird singing", "rain", ...
+
+User query (Track B STT):
+  "이 노래 누구 곡이야?"
+
+Response:</code></pre>
+
+      <h3>6.4 세션 컨텍스트 유지</h3>
+      <p>
+        <code>PrevSessionID</code>가 있으면 이전 세션의 요약을 짧게 포함 → "근데 이 가수 다른 곡도 추천해줘" 같은 후속 질문 처리.
+        전체 이전 대화를 다 넣지 않고 LLM이 만든 1-2문장 요약만 사용 (컨텍스트 비용 제어).
+      </p>
+
+      <h3>6.5 안전 / 환각 방지</h3>
+      <ul>
+        <li><strong>출처 강제</strong> — search intent는 검색 결과 인용 외 답변 금지</li>
+        <li><strong>거절 케이스</strong> — 의료/법률/혐오 질문은 정중히 거절</li>
+        <li><strong>저작권</strong> — 가사/책 본문은 부분만 인용, 전체 재생산 금지</li>
+        <li><strong>개인정보</strong> — Track A에 실명/주민번호가 있어도 응답에 노출 안 함</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="latency">
+      <h2>7. 종단간 지연 예산 (3초 SLA)</h2>
+
+      <p>"트리거 후 답변 첫 음" 3초 SLA를 어떻게 구성하는가.</p>
+
+      <div class="diagram">단계                          예산   누적    비고
+─────────────────────────────────────────────────────────────────
+사용자 발화 종료 → VAD 인식     0.6s   0.6s    펌웨어 내
+BT PAN 패킷 전송                0.7s   1.3s    음악 트랙 포함 시
+서버 mTLS handshake (재사용)   0.05s   1.35s   세션 재사용 시
+Track B STT 첫 결과            0.1s   1.45s   스트리밍
+Intent 분류                     0.02s  1.47s   캐스케이드
+Handler 처리 (avg)              0.6s   2.07s   intent별 다름
+LLM 응답 빌더 (필요 시)         0.3s   2.37s   스트리밍
+TTS 첫 청크                     0.2s   2.57s   부분 합성
+응답 전송 첫 청크 (BT)          0.3s   2.87s
+재생 시작                       —     ✅ 2.87s
+
+목표: ≤ 3.00s ─ 충족</div>
+
+      <h3>7.1 최악 케이스</h3>
+      <p>
+        대형 LLM 호출(search intent + Opus 4 API) 시 +1.5초. 사용자에게 "잠시만요"
+        Earcon 후 결과 도착 시 응답 — 진행 표시.
+      </p>
+
+      <h3>7.2 캐싱 전략</h3>
+      <ul>
+        <li>같은 곡에 대한 같은 질문은 LLM 응답 캐시 (24h)</li>
+        <li>자주 묻는 단어 정의는 사전 결과 캐시 (영구)</li>
+        <li>STT 결과는 캐시 안 함 (개인정보)</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="cost">
+      <h2>8. 비용 모델</h2>
+
+      <p>요청당 평균 비용 추정 (자체 인프라 + 외부 API 혼합).</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>컴포넌트</th><th>호출률</th><th>요청당 비용</th><th>가중 비용</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>STT (Conformer, 자체)</td><td>100%</td><td>$0.0005</td><td>$0.0005</td></tr>
+            <tr><td>Intent 분류 (DistilBERT)</td><td>100%</td><td>$0.0001</td><td>$0.0001</td></tr>
+            <tr><td>Intent LLM 보강</td><td>5%</td><td>$0.002</td><td>$0.0001</td></tr>
+            <tr><td>Fingerprint (자체 DB)</td><td>30%</td><td>$0.0003</td><td>$0.0001</td></tr>
+            <tr><td>Track A STT (Whisper)</td><td>40%</td><td>$0.003</td><td>$0.0012</td></tr>
+            <tr><td>응답 LLM (티어드 평균)</td><td>50%</td><td>$0.008</td><td>$0.004</td></tr>
+            <tr><td>TTS (VITS, 자체)</td><td>100%</td><td>$0.0005</td><td>$0.0005</td></tr>
+            <tr><td>스토리지 / 네트워크</td><td>100%</td><td>$0.001</td><td>$0.001</td></tr>
+            <tr><td colspan="3"><strong>요청당 평균 비용</strong></td><td><strong>~$0.0075</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>일 100회 사용 * 30일 = 3000 요청/월 * $0.0075 = <strong>약 $22.5/월/사용자</strong> (heavy user).</p>
+
+      <h3>8.1 수익 모델 옵션</h3>
+      <ul>
+        <li><strong>무료 티어</strong> — 일 20회 제한, Galaxy 디바이스에 기본 포함</li>
+        <li><strong>구독</strong> — 월 $4.99 무제한 (One UI Premium 번들)</li>
+        <li><strong>기업/교육</strong> — 시트 단가 + 가족 공유</li>
+      </ul>
+
+      <div class="callout info">
+        <strong>관련 문서</strong>
+        엔드포인트별 비용/지연 SLA는 <a href="server-api.html">서버 API 페이지</a>의 운영 섹션에서.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix-protocol.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">Deep Dive 4 · 패킷 / 프로토콜</span>
+      </a>
+      <a href="appendix.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">부록 인덱스로 돌아가기</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · DEEP DIVE 5</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

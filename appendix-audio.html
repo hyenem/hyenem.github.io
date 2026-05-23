@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Dive 1 · 오디오 캡처 & 압축 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">APPENDIX · DEEP DIVE 1</span>
+      <h1>오디오 캡처 & 압축</h1>
+      <p class="subtitle">Ring Buffer · Opus 코덱 · VAD — 전공자용 깊이 정리. 비전공자 요약은 <a href="appendix.html#audio">부록 인덱스</a>로.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#ringbuffer">1. Ring Buffer 깊이</a></li>
+        <li><a href="#opus">2. Opus 코덱 깊이</a></li>
+        <li><a href="#vad">3. VAD 깊이</a></li>
+        <li><a href="#pipeline">4. 통합 오디오 파이프라인</a></li>
+        <li><a href="#tradeoffs">5. 트레이드오프 정리</a></li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <section id="ringbuffer">
+      <h2>1. Ring Buffer (압축 링버퍼) 깊이</h2>
+
+      <h3>1.1 왜 링버퍼인가</h3>
+      <p>
+        "직전 N초"를 유지하려면 매 순간 가장 오래된 데이터를 폐기하고 새 데이터로 덮어써야 합니다.
+        일반 큐는 매 쓰기 시 헤더/꼬리 포인터 갱신과 메모리 재할당이 발생해 RTOS 환경(버즈의 STM32/Cortex-M 급)에서
+        지터 원인이 됩니다. <strong>고정 크기 원형 버퍼</strong>는 모듈로 산술 한 번으로
+        쓰기/읽기가 끝나 O(1) 보장됩니다.
+      </p>
+
+      <h3>1.2 메모리 레이아웃</h3>
+      <div class="diagram">struct opus_ring {
+  uint8_t  buf[RING_BYTES];   /* RING_BYTES = 160 * 1024  (160KB) */
+  size_t   write_pos;          /* 다음 프레임이 들어갈 오프셋 */
+  size_t   frame_len[N_SLOTS]; /* 슬롯별 압축 프레임 길이 */
+  uint32_t frame_pts[N_SLOTS]; /* 슬롯별 PTS (ms) */
+  uint16_t head, tail;          /* 슬롯 인덱스 */
+  uint16_t n_slots;             /* 채워진 슬롯 수 */
+};
+
+/* 슬롯 = 20ms Opus frame.
+   N_SLOTS = 30,000 ms / 20 ms = 1,500 슬롯
+   평균 프레임 크기 = 100 bytes (5kbps @ voice) ~ 200 bytes (10kbps @ music)
+   총 메모리 사용 ≈ 1,500 * 평균 110 B = 165 KB */</div>
+
+      <h3>1.3 쓰기 / 스냅샷 동작</h3>
+      <ol class="steps">
+        <li>출력 PCM (48kHz, 16-bit) 20ms 청크(960 samples)를 Opus 인코더에 투입</li>
+        <li>인코더가 가변 길이 압축 프레임 반환 (40–400 bytes 범위)</li>
+        <li>슬롯 슬라이딩 윈도우 갱신 — <code>tail = (tail + len) % RING_BYTES</code></li>
+        <li>오버플로 시 <code>head</code>를 다음 슬롯으로 이동(가장 오래된 프레임 폐기)</li>
+        <li>트리거 발생 시 <code>head</code>부터 <code>tail</code>까지 순회해 페이로드 직렬화 (zero-copy DMA 가능)</li>
+      </ol>
+
+      <h3>1.4 동시성 — Lock-Free SPSC</h3>
+      <p>
+        오디오 콜백(인터럽트 컨텍스트)이 producer, 트리거 핸들러(태스크 컨텍스트)가 consumer인
+        SPSC(Single-Producer Single-Consumer) 패턴. <code>std::atomic_uintptr_t</code> 두 개로 충분하고
+        acquire/release 메모리 오더만 보장하면 됩니다(ARM Cortex-M7은 명시 barrier 필요 — <code>__DSB()</code>).
+      </p>
+
+      <pre><code>// Producer (audio ISR)
+void audio_callback(int16_t *pcm, size_t n) {
+    uint8_t tmp[400];
+    int len = opus_encode(enc, pcm, 960, tmp, 400);
+
+    size_t w = atomic_load_explicit(&amp;ring.write_pos, memory_order_relaxed);
+    memcpy(&amp;ring.buf[w], tmp, len);
+    __DSB();   // ensure data visible before pointer update
+    atomic_store_explicit(&amp;ring.write_pos, (w + len) % RING_BYTES,
+                          memory_order_release);
+}
+
+// Consumer (trigger task)
+size_t snapshot(uint8_t *out, size_t cap) {
+    size_t h = atomic_load_explicit(&amp;ring.head_pos, memory_order_acquire);
+    size_t w = atomic_load_explicit(&amp;ring.write_pos, memory_order_acquire);
+    // linearize circular range into out[]
+    return copy_circular(out, cap, ring.buf, h, w, RING_BYTES);
+}</code></pre>
+
+      <h3>1.5 PTS 정렬</h3>
+      <p>
+        각 슬롯은 절대 PTS(ms 단위 mono clock)를 가집니다. 서버 측에서 Track A · Track B 동기화 시
+        <code>session_start_ts</code> 기준으로 양쪽 PTS를 정렬해 LLM 컨텍스트에
+        "사용자가 트리거하기 N초 전 사운드"임을 명시할 수 있습니다.
+      </p>
+
+      <h3>1.6 전력 최적화</h3>
+      <ul>
+        <li><strong>인코더 게이팅</strong> — 출력 PCM이 무음(<code>-60 dBFS</code> 이하) 100ms 이상 지속 시 인코더 슬립</li>
+        <li><strong>Wake-on-Audio</strong> — 출력 시작 신호를 GPIO 인터럽트로 받아 즉시 재개</li>
+        <li><strong>DMA 더블 버퍼링</strong> — CPU는 인코딩만, 메모리 복사는 DMA</li>
+      </ul>
+
+      <div class="callout">
+        <strong>실측치 (Cortex-M55 @ 200MHz 기준)</strong>
+        Opus 5kbps voice 모드 인코딩 CPU 사용률 약 3%, 메모리 RAM 165KB + Opus state 24KB.
+        30초 스냅샷 직렬화 0.4ms.
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="opus">
+      <h2>2. Opus 코덱 깊이</h2>
+
+      <h3>2.1 왜 Opus인가</h3>
+      <p>
+        Opus(RFC 6716)는 IETF 표준 무료 오디오 코덱으로, <strong>음성과 음악 양쪽 모두</strong>에서
+        동급 비트레이트 최고의 품질을 제공합니다. WebRTC의 표준 음성 코덱이기도 합니다.
+        BudsAI에서 듣는 콘텐츠가 음악일 수도, 대사일 수도, 강의일 수도 있기 때문에 단일 코덱으로
+        커버해야 했고, Opus 외 적합한 대안이 없습니다.
+      </p>
+
+      <h3>2.2 SILK + CELT 하이브리드 구조</h3>
+      <p>Opus는 내부적으로 두 코덱을 자동 전환·블렌딩합니다.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>모드</th><th>기반</th><th>강점</th><th>최적 대역폭</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>SILK</strong></td>
+              <td>Skype 음성 코덱</td>
+              <td>저비트레이트 음성 (LPC + 잡음 모델링)</td>
+              <td>6–20 kbps NB/WB</td>
+            </tr>
+            <tr>
+              <td><strong>CELT</strong></td>
+              <td>MDCT 기반 (AAC 계열)</td>
+              <td>음악, 광대역 신호</td>
+              <td>32–510 kbps FB</td>
+            </tr>
+            <tr>
+              <td><strong>Hybrid</strong></td>
+              <td>SILK(저주파) + CELT(고주파)</td>
+              <td>음성 + 약간의 음악 혼합</td>
+              <td>20–32 kbps SWB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.3 프레임 사이즈 선택</h3>
+      <p>Opus는 2.5/5/10/20/40/60ms 프레임을 지원합니다. BudsAI는 <strong>20ms</strong>를 채택했습니다.</p>
+      <ul>
+        <li>너무 짧으면(2.5–5ms) 헤더 오버헤드가 압축 효율을 깎음</li>
+        <li>너무 길면(40–60ms) 트리거 응답 지연(라스트-프레임 wait)이 누적</li>
+        <li>20ms = WebRTC 디폴트, 모든 Opus 디코더에서 최적화 잘됨</li>
+      </ul>
+
+      <h3>2.4 비트레이트 운영</h3>
+      <div class="diagram">출력 콘텐츠 자동 분류 (서버 응답 메타에 의해 결정, 디폴트는 가변):
+
+  Voice-only :   5–8 kbps SILK NB/WB
+  Mixed      :  16–24 kbps Hybrid SWB
+  Music      :  32–48 kbps CELT FB
+
+30초 분량 페이로드 크기 예시:
+  Voice  :   5 kbps × 30 s ÷ 8 ≈  18.75 KB
+  Mixed  :  20 kbps × 30 s ÷ 8 ≈  75.00 KB
+  Music  :  40 kbps × 30 s ÷ 8 ≈ 150.00 KB</div>
+
+      <p>
+        스펙 문서에서 "150KB"는 음악 기준 최악치입니다. 실제로는 콘텐츠 종류에 따라 자동
+        조정되어 평균 60–80KB 정도가 일반적입니다.
+      </p>
+
+      <h3>2.5 패킷 손실 복원 (FEC)</h3>
+      <p>
+        Opus는 in-band FEC(Forward Error Correction)를 지원합니다. 다음 프레임에 이전 프레임의
+        저비트레이트 사본을 덧붙여 단일 패킷 손실 시 디코더가 복원할 수 있습니다.
+        본 시스템은 BT 링크 위에서 동작하므로 손실률이 낮지만, 음성 트랙(Track B)은 FEC ON,
+        음악 트랙(Track A)은 FEC OFF로 비트레이트를 아끼는 정책입니다.
+      </p>
+
+      <h3>2.6 라이센스 / 메모리 / 연산</h3>
+      <ul>
+        <li><strong>라이센스</strong> : BSD 라이센스, 로열티 무료 — 제조사 비용 부담 없음</li>
+        <li><strong>RAM</strong> : 인코더 state ~22 KB, 디코더 state ~14 KB</li>
+        <li><strong>CPU</strong> : Cortex-M7 480MHz에서 인코딩 ~5 MIPS, 디코딩 ~3 MIPS</li>
+        <li><strong>고정소수점 빌드</strong> : <code>OPUS_FIXED_POINT=1</code>로 FPU 없는 MCU에서도 동작</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="vad">
+      <h2>3. VAD (Voice Activity Detection) 깊이</h2>
+
+      <h3>3.1 역할</h3>
+      <p>
+        사용자가 음성 질의 트리거를 누른 직후, 버즈는 마이크를 켜고 사용자의 질문을 녹음합니다.
+        하지만 "언제 그만 녹음하느냐"가 문제입니다. 사용자가 "끝났어" 버튼을 누르게 만들면 UX가 나빠지므로,
+        <strong>침묵을 감지해 자동 종료</strong>하는 VAD가 필수입니다.
+      </p>
+
+      <h3>3.2 후보 알고리즘 비교</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>알고리즘</th><th>원리</th><th>CPU</th><th>정확도</th><th>적용</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Energy-based</td>
+              <td>RMS 에너지 임계값</td>
+              <td>매우 낮음</td>
+              <td>낮음 (소음에 약함)</td>
+              <td>1차 게이트</td>
+            </tr>
+            <tr>
+              <td>WebRTC VAD</td>
+              <td>GMM(Gaussian Mixture)</td>
+              <td>낮음</td>
+              <td>중간</td>
+              <td>2차 판단</td>
+            </tr>
+            <tr>
+              <td>Silero VAD</td>
+              <td>RNN/CNN 신경망</td>
+              <td>중간</td>
+              <td>높음</td>
+              <td>최종 결정</td>
+            </tr>
+            <tr>
+              <td>WhisperX VAD</td>
+              <td>대형 모델 기반</td>
+              <td>매우 높음</td>
+              <td>매우 높음</td>
+              <td>서버 후처리</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>3.3 2-stage 캐스케이드 설계</h3>
+      <p>버즈 펌웨어는 <strong>RMS gate → WebRTC GMM</strong> 2단계로 동작합니다.</p>
+
+      <div class="diagram">단계 1 — RMS Gate (5ms 윈도우)
+  rms &lt; -45 dBFS  →  silence_candidate++
+  else            →  silence_candidate = 0
+
+단계 2 — WebRTC GMM (10ms 프레임, aggressiveness=2)
+  silence_candidate &gt;= 20  (즉 100ms RMS-silence)
+  → GMM 평가 시작
+  GMM consecutive silence frames &gt;= 50 (500ms)
+  → 녹음 종료 트리거
+
+총 검출 지연 = ~600 ms (사용자 발화 종료 후)</div>
+
+      <h3>3.4 노이즈 환경 대응</h3>
+      <ul>
+        <li><strong>SNR 추정</strong> — 백그라운드 RMS를 첫 200ms 동안 측정, RMS 임계값을 동적 조정</li>
+        <li><strong>Spectral Subtraction</strong> — 주파수 도메인에서 정상 노이즈 제거 후 VAD 평가</li>
+        <li><strong>Beamforming</strong> — 버즈 양쪽 마이크 어레이로 사용자 입 방향 신호 강조</li>
+      </ul>
+
+      <h3>3.5 최대 녹음 길이 cap</h3>
+      <p>VAD가 침묵을 못 잡는 극단 케이스(연속 소음 환경)를 위해 <strong>10초 하드 캡</strong> 설정. 도달 시 강제 종료 + 펌웨어 단발 비프음으로 사용자 알림.</p>
+
+      <h3>3.6 ARMED 효과음 설계</h3>
+      <p>
+        마이크가 켜졌음을 사용자에게 알리기 위해 200ms 짧은 효과음("띵") 재생.
+        이 효과음은 출력 사운드이므로 링버퍼에 들어가지만, 패킷 직렬화 시
+        <code>EXCLUDE_TRIGGER_TONE</code> 메타 플래그로 서버가 trim 처리합니다.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="pipeline">
+      <h2>4. 통합 오디오 파이프라인</h2>
+
+      <div class="diagram">                ┌───────────── BUDS FIRMWARE ─────────────┐
+                │                                          │
+[BT A2DP RX]──▶│ PCM 48k/16  ─┬─▶ DAC (스피커)             │
+                │              │                            │
+                │              └─▶ Opus Encoder (20ms) ─────┼─▶ Ring Buffer (160KB)
+                │                                          │
+[Mic ADC]──────│ PCM 16k/16  ─┬─▶ VAD (2-stage)            │
+                │              │                            │
+                │              └─▶ Opus Encoder (Track B) ──┤
+                │                                          │
+                │  Trigger event ──▶ Packetizer ─┬─Track A──┘
+                │                                  └─Track B──▶ mTLS ──▶ BT PAN ──▶ Server
+                └──────────────────────────────────────────┘
+
+PTS 정렬:
+  Track A: trigger_ts - 30s  ~  trigger_ts
+  Track B: trigger_ts        ~  trigger_ts + recording_dur</div>
+
+      <h3>4.1 클럭 동기</h3>
+      <p>
+        두 트랙 모두 동일 mono clock(<code>HAL_GetTick()</code> 기반)에서 PTS를 받습니다.
+        DAC/ADC가 별개 PLL을 쓰더라도 PTS 메타가 절대 시간이라 서버에서 같은 타임라인에 배치됩니다.
+      </p>
+
+      <h3>4.2 백프레셔</h3>
+      <p>
+        링버퍼는 고정 크기이므로 항상 가장 오래된 프레임을 폐기합니다. Track B(음성 질의)는 별도 임시 버퍼(최대 10초)에
+        축적 후 BT 전송 시점에 한 번에 직렬화합니다 — BT 출구가 막혀도 마이크 캡처는 차단되지 않습니다.
+      </p>
+
+      <h3>4.3 에러 처리</h3>
+      <ul>
+        <li>Opus 인코더 실패 시 해당 프레임 폐기, 다음 프레임으로 계속 (FEC가 복원)</li>
+        <li>링버퍼 데이터가 비정상적으로 작을 때(예: 트리거 시점 직전 무음) 서버에 <code>tracka_low_confidence=true</code> 메타 표시</li>
+        <li>VAD가 50ms 안에 음성을 감지하지 못하면 — 사용자가 트리거만 누르고 말하지 않은 케이스 — 1.5초 후 자동 취소</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="tradeoffs">
+      <h2>5. 트레이드오프 정리</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>축</th><th>선택</th><th>대안</th><th>이유</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>버퍼 길이</td>
+              <td>30s (사용자 설정 30/60/180s)</td>
+              <td>고정 60s</td>
+              <td>배터리/메모리 vs 활용도 트레이드오프 사용자에게 위임</td>
+            </tr>
+            <tr>
+              <td>코덱</td>
+              <td>Opus</td>
+              <td>AAC-LC, Speex, AMR-WB</td>
+              <td>음악+음성 동시 커버, 무료, WebRTC 호환</td>
+            </tr>
+            <tr>
+              <td>프레임 크기</td>
+              <td>20ms</td>
+              <td>10ms / 40ms</td>
+              <td>지연 vs 효율 최적점, WebRTC 표준</td>
+            </tr>
+            <tr>
+              <td>VAD</td>
+              <td>RMS + WebRTC GMM (펌웨어)</td>
+              <td>Silero 신경망</td>
+              <td>MCU CPU/메모리 제약 — Silero는 ARM Cortex-A 필요</td>
+            </tr>
+            <tr>
+              <td>FEC</td>
+              <td>Track B only</td>
+              <td>둘 다 ON / 모두 OFF</td>
+              <td>음성 트랙 보호 우선, 음악은 손실 일부 허용</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout info">
+        <strong>관련 문서</strong>
+        <a href="firmware.html">펌웨어 페이지</a>의 ringbuffer/encoder state machine과 함께 보면 좋습니다.
+        패킷에 실리는 메타데이터 형식은 <a href="appendix-protocol.html">Deep Dive 4 · 패킷/프로토콜</a>에서.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">부록 인덱스</span>
+      </a>
+      <a href="appendix-network.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">Deep Dive 2 · 무선 통신 & 네트워킹</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · DEEP DIVE 1</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>

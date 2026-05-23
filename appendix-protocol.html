@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Dive 4 · 패킷 / 프로토콜 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">APPENDIX · DEEP DIVE 4</span>
+      <h1>패킷 / 프로토콜</h1>
+      <p class="subtitle">Session/Frame 2-레이어 · TLV 메타 · 멀티트랙. 비전공자 요약은 <a href="appendix.html#protocol">부록 인덱스</a>로.</p>
+    </section>
+
+    <div class="toc">
+      <div class="toc-title">목차</div>
+      <ul>
+        <li><a href="#why">1. 자체 포맷이 왜 필요한가</a></li>
+        <li><a href="#layer">2. 2-레이어 구조</a></li>
+        <li><a href="#session">3. Session Message 바이트 레이아웃</a></li>
+        <li><a href="#frame">4. Frame 바이트 레이아웃</a></li>
+        <li><a href="#tlv">5. TLV 카탈로그</a></li>
+        <li><a href="#multitrack">6. 멀티트랙 정합성</a></li>
+        <li><a href="#chunking">7. 청크 분할 & 스트리밍</a></li>
+        <li><a href="#tradeoff">8. 자체 포맷 vs Protobuf vs CBOR</a></li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <section id="why">
+      <h2>1. 자체 포맷이 왜 필요한가</h2>
+
+      <p>표준 포맷(Protobuf / JSON / CBOR / Matroska / MP4)을 그대로 쓰지 않은 이유:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>대안</th><th>장점</th><th>BudsAI에서 단점</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>JSON</td>
+              <td>사람이 읽음</td>
+              <td>오디오를 base64로 박아야 함 → 33% 오버헤드, 파싱 느림</td>
+            </tr>
+            <tr>
+              <td>Protobuf</td>
+              <td>강력한 스키마, 효율</td>
+              <td>스트리밍 어려움 (전체 길이 선결정), 라이브러리 무거움 (~30KB)</td>
+            </tr>
+            <tr>
+              <td>CBOR</td>
+              <td>바이너리 JSON</td>
+              <td>스트리밍 가능하지만 멀티트랙 의미 못 표현</td>
+            </tr>
+            <tr>
+              <td>Matroska/MP4</td>
+              <td>멀티트랙 표준</td>
+              <td>컨테이너 오버헤드, MOOV/MDAT 분리 등 복잡, 인증서 메타 자리 없음</td>
+            </tr>
+            <tr>
+              <td><strong>자체 포맷</strong></td>
+              <td>스트리밍 + 멀티트랙 + 메타 통합, MCU에서 가벼움</td>
+              <td>다른 진영과 호환 안 됨 (우리만 씀)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>요구사항을 정리하면:</p>
+      <ul>
+        <li><strong>스트리밍 가능</strong> — 전체 길이를 미리 모르고도 시작</li>
+        <li><strong>멀티트랙</strong> — Track A · Track B를 한 메시지에</li>
+        <li><strong>확장 가능</strong> — 새 메타데이터 추가 시 기존 디코더 안 깨짐</li>
+        <li><strong>가벼움</strong> — MCU에서 코드 ~5KB, RAM ~2KB로 구현 가능</li>
+        <li><strong>인증서/서명 자리</strong> — 무결성 검증을 위한 슬롯</li>
+      </ul>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="layer">
+      <h2>2. 2-레이어 구조</h2>
+
+      <div class="diagram">┌────────────────────────────────────────────────────────────┐
+│                   Session Message                          │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │ Session Header (TLV)                                  │ │
+│  │  - SessionID, Schema Version, Timestamp,              │ │
+│  │  - Track count, Capabilities                          │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │ Track Descriptors (TLV)                               │ │
+│  │  Track A: kind=audio_buffered, codec=opus, dur=30s    │ │
+│  │  Track B: kind=audio_query,    codec=opus, dur=5s     │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │ Frame Stream (interleaved)                            │ │
+│  │   [Frame: track=0 pts=0    payload=opus_frame_A0]    │ │
+│  │   [Frame: track=0 pts=20   payload=opus_frame_A1]    │ │
+│  │   ...                                                  │ │
+│  │   [Frame: track=1 pts=0    payload=opus_frame_B0]    │ │
+│  │   ...                                                  │ │
+│  └──────────────────────────────────────────────────────┘ │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐ │
+│  │ Trailer (TLV) — optional                              │ │
+│  │  - 디바이스 서명, 통계, 종료 메타                       │ │
+│  └──────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘</div>
+
+      <p>
+        Session Message는 "이 한 번의 트리거에서 발생한 전체 묶음"입니다.
+        Frame은 그 안의 작은 오디오 조각 단위 — 20ms Opus 프레임이 그대로 들어갑니다.
+        Track은 의미적 단위 (직전 사운드 / 사용자 음성).
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="session">
+      <h2>3. Session Message 바이트 레이아웃</h2>
+
+      <div class="diagram">Offset  Size  Field             설명
+─────────────────────────────────────────────────────────────────
+  0       4    MAGIC             ASCII "BAI1" (0x42 0x41 0x49 0x31)
+  4       1    VERSION           스키마 메이저 버전 (현재 1)
+  5       1    FLAGS             bit0: streaming, bit1: signed, ...
+  6       2    HEADER_LEN        TLV 헤더 영역 길이 (LE)
+  8       N    HEADER_TLV[]      Session 메타 TLV 시퀀스
+ 8+N     2    TRACK_COUNT       트랙 수 (LE)
+ ...     M    TRACK_DESC[]      Track Descriptor 배열
+ ...     —    FRAME_STREAM     [Frame...]  (TRAILER 만날 때까지)
+ ...     2    TRAILER_MARKER    0xFFFF (TRAILER 시작 표시)
+ ...     2    TRAILER_LEN
+ ...     L    TRAILER_TLV[]    종료 메타 + 서명</div>
+
+      <h3>3.1 MAGIC + VERSION</h3>
+      <p>
+        디코더가 가장 먼저 보는 4바이트. <code>"BAI1"</code>이 아니면 즉시 거부.
+        VERSION은 메이저만 사용 — 마이너 변경은 TLV 확장으로 처리.
+        VERSION이 디코더가 모르는 값이면 거부 또는 fallback 처리.
+      </p>
+
+      <h3>3.2 FLAGS</h3>
+      <pre><code>bit 0: STREAMING       전체 길이가 헤더에 없고, TRAILER로 끝
+bit 1: SIGNED          TRAILER에 디바이스 ECDSA 서명 포함
+bit 2: COMPRESSED_META TLV 영역 zlib 압축
+bit 3: ENCRYPTED       이미 TLS 위에 있지만, 이중 암호 옵션
+bit 4-7: reserved</code></pre>
+
+      <h3>3.3 HEADER_TLV 예시</h3>
+      <pre><code>// 16진수 dump, LE encoding
+TYPE   LEN    VALUE
+0x01   0x10   16바이트 SessionID (UUID v7)
+0x02   0x08   ms 단위 unix epoch (uint64)
+0x03   0x02   schema minor (uint16)
+0x04   0x14   DeviceID 문자열 "buds-3a7f2e91-c4d8"
+0x05   0x10   Capabilities bitmap
+0x06   0x08   prev_session_id (연속 대화 시)
+0x07   0x04   network_rtt_hint (ms)
+...</code></pre>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="frame">
+      <h2>4. Frame 바이트 레이아웃</h2>
+
+      <div class="diagram">Offset  Size  Field          설명
+──────────────────────────────────────────────────────────
+  0       2    FRAME_MARKER   0xAA55  (다음 frame 시작 표시)
+  2       1    TRACK_ID       0-127 (트랙 인덱스)
+  3       1    FRAME_FLAGS    bit0: keyframe, bit1: end_of_track
+  4       4    PTS_MS         프레임 PTS (uint32 LE, ms)
+  8       2    PAYLOAD_LEN    페이로드 길이 (uint16 LE)
+ 10       L    PAYLOAD        Opus 프레임 (또는 메타 frame)
+ 10+L     2    CRC16          페이로드 CRC-16/CCITT
+ ───────────────────────────────────────────────────────────
+ 총 헤더 오버헤드: 14 bytes per frame
+
+ 평균 Opus 프레임 ~110 bytes → 헤더 오버헤드 ~12.7%
+ 압축 효율을 위해 짧은 프레임 모드(2.5ms)는 사용 금지 → 20ms 고정</div>
+
+      <h3>4.1 FRAME_MARKER</h3>
+      <p>
+        스트리밍 디코더가 손실 후 재동기화하기 위한 sync byte.
+        <code>0xAA55</code>가 페이로드 중간에 나타나도 길이 필드로 건너뛰므로 모호성 없음.
+      </p>
+
+      <h3>4.2 keyframe 의미</h3>
+      <p>
+        Opus는 모든 프레임이 독립 디코딩 가능하지만, 우리는 <strong>매 첫 프레임</strong>에 keyframe 비트를
+        설정해 디코더 초기화 위치를 명시. 손실 복원 시 keyframe 뒤로 점프 가능.
+      </p>
+
+      <h3>4.3 end_of_track</h3>
+      <p>
+        스트리밍 모드에서 트랙별 종료를 표시. Track B(음성 질의)의 VAD가 침묵 감지하면 마지막 프레임에 이 비트를 세팅 →
+        서버는 그 시점부터 즉시 STT 처리를 시작할 수 있음 (전체 Session 끝까지 기다리지 않고).
+      </p>
+
+      <h3>4.4 CRC16</h3>
+      <p>
+        TLS가 이미 무결성을 보장하지만, BNEP/L2CAP 사이의 메모리 오류·DMA 버그 같은 비악의적 변조를 잡기 위한 빠른 체크.
+        CRC-16/CCITT, 다항식 <code>0x1021</code>.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="tlv">
+      <h2>5. TLV 카탈로그</h2>
+
+      <h3>5.1 TLV 인코딩 규칙</h3>
+      <pre><code>// Type (1 byte) | Length (1 또는 2 byte) | Value (N bytes)
+// Length 인코딩:
+//   bit 7 = 0  → 단일 바이트 length (0-127)
+//   bit 7 = 1  → 다음 1바이트와 합쳐 2-byte length (0-32767)
+//
+// Type 0x00-0x7F : standard (스펙 고정)
+// Type 0x80-0xFE : extension (실험/벤더)
+// Type 0xFF      : sentinel (TLV 영역 끝)</code></pre>
+
+      <h3>5.2 Session 헤더 TLV (표준)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Type</th><th>이름</th><th>형식</th><th>필수</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>0x01</code></td><td>session_id</td><td>uuid_v7 (16B)</td><td>✅</td></tr>
+            <tr><td><code>0x02</code></td><td>timestamp_ms</td><td>uint64 LE</td><td>✅</td></tr>
+            <tr><td><code>0x03</code></td><td>schema_minor</td><td>uint16 LE</td><td>—</td></tr>
+            <tr><td><code>0x04</code></td><td>device_id</td><td>utf8 string</td><td>✅</td></tr>
+            <tr><td><code>0x05</code></td><td>capabilities</td><td>bitmap 16B</td><td>—</td></tr>
+            <tr><td><code>0x06</code></td><td>prev_session_id</td><td>uuid_v7 (16B)</td><td>—</td></tr>
+            <tr><td><code>0x07</code></td><td>network_rtt_hint</td><td>uint32 LE ms</td><td>—</td></tr>
+            <tr><td><code>0x08</code></td><td>battery_pct</td><td>uint8</td><td>—</td></tr>
+            <tr><td><code>0x09</code></td><td>locale</td><td>utf8 string (e.g. "ko-KR")</td><td>—</td></tr>
+            <tr><td><code>0x0A</code></td><td>geo_hint</td><td>utf8 string (city, optional)</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.3 Track Descriptor TLV</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Type</th><th>이름</th><th>형식</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>0x20</code></td><td>track_kind</td><td>enum: audio_buffered / audio_query / metadata</td></tr>
+            <tr><td><code>0x21</code></td><td>codec</td><td>enum: opus / pcm16 / aac</td></tr>
+            <tr><td><code>0x22</code></td><td>sample_rate</td><td>uint32 LE (Hz)</td></tr>
+            <tr><td><code>0x23</code></td><td>channels</td><td>uint8</td></tr>
+            <tr><td><code>0x24</code></td><td>duration_ms</td><td>uint32 LE</td></tr>
+            <tr><td><code>0x25</code></td><td>start_offset_ms</td><td>int32 LE (Trigger 기준 상대 시각)</td></tr>
+            <tr><td><code>0x26</code></td><td>exclude_trigger_tone</td><td>flag (length=0)</td></tr>
+            <tr><td><code>0x27</code></td><td>low_confidence</td><td>flag (TrackA가 무음 등)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5.4 Trailer TLV</h3>
+      <pre><code>0xF0  signature        72 bytes (ECDSA-P256)
+0xF1  stats            JSON-like binary (전송 시작 ms, 평균 RTT 등)
+0xF2  abort_reason     enum (사용자 취소, VAD 미감지 등)
+0xFF  end_marker       (length=0, TLV 영역 종료)</code></pre>
+
+      <h3>5.5 Forward-Compatibility 원칙</h3>
+      <p>
+        디코더가 <strong>모르는 Type</strong>을 만나면 Length만큼 건너뛰고 계속 진행.
+        새 기능 추가 시 새 Type만 정의하면 기존 디코더 안 깨짐.
+        Skip 시 unknown TLV 카운터를 텔레메트리에 기록 — 운영 중 새 TLV가 얼마나 무시되는지 가시화.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="multitrack">
+      <h2>6. 멀티트랙 정합성</h2>
+
+      <h3>6.1 인터리브 vs 분리</h3>
+      <p>
+        선택지는 두 가지: (a) 모든 Track A 프레임 먼저, 그 뒤 Track B 프레임. (b) 트랙 인터리브 (시간순).
+      </p>
+      <p>BudsAI는 <strong>(b) 인터리브</strong>를 선택. 이유:</p>
+      <ul>
+        <li>스트리밍 디코더가 Track B의 첫 프레임을 빨리 받아 STT 파이프라인을 일찍 시작</li>
+        <li>전체 PTS 타임라인이 단조 증가 → 디코더 메모리 적음</li>
+        <li>네트워크 장애 시 부분 회복 가능 (전체 Track A를 기다리지 않음)</li>
+      </ul>
+
+      <h3>6.2 PTS 일관성 규칙</h3>
+      <pre><code>// 같은 Session 내에서:
+//  Track A의 PTS는 음수 (트리거 이전)
+//  Track B의 PTS는 양수 (트리거 이후)
+//  PTS = 0 시점이 정확히 사용자 트리거 순간
+
+// 예: Track A duration=30s, Track B duration=5s
+//   Track A PTS:  -30000 ~ -20  (ms)
+//   Track B PTS:       0 ~ 5000 (ms)</code></pre>
+
+      <h3>6.3 서버 측 정렬</h3>
+      <p>
+        서버는 Session을 받는 즉시 Track별 PTS-정렬 큐를 만들어 디코딩.
+        Track A가 다 도착하기 전이라도 Track B가 도착한 만큼 STT 시작 — 의도 분류가 1초 빨라짐.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="chunking">
+      <h2>7. 청크 분할 & 스트리밍</h2>
+
+      <h3>7.1 TLS 위 청크 전송</h3>
+      <p>
+        Session Message 전체를 한 번에 보내지 않고, HTTP/1.1 chunked transfer 또는 HTTP/2 DATA 프레임으로 쪼개 보냄.
+        Trailer는 마지막에 별도 청크.
+      </p>
+
+      <h3>7.2 HTTP/2 vs HTTP/3 vs WebSocket</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>프로토콜</th><th>장점</th><th>단점</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>HTTP/1.1 chunked</td>
+              <td>구현 단순</td>
+              <td>1-RTT 추가, 헤더 부담</td>
+            </tr>
+            <tr>
+              <td><strong>HTTP/2</strong></td>
+              <td>스트림 멀티플렉싱, HPACK 헤더 압축</td>
+              <td>TCP HoL 블로킹 가능</td>
+            </tr>
+            <tr>
+              <td>HTTP/3 (QUIC)</td>
+              <td>UDP 위에서 HoL 없음, 0-RTT</td>
+              <td>임베디드 라이브러리 미성숙</td>
+            </tr>
+            <tr>
+              <td>WebSocket</td>
+              <td>양방향 풀듀플렉스</td>
+              <td>업그레이드 핸드셰이크, 임베디드 부담</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>현재 <strong>HTTP/2</strong>를 채택 — 임베디드 라이브러리(nghttp2) 안정성과 멀티플렉싱 균형.</p>
+
+      <h3>7.3 응답 스트리밍 (TTS)</h3>
+      <p>
+        서버 응답(TTS 오디오)도 동일 포맷의 Session Message로 스트리밍.
+        Track 0 = TTS 응답 음성, Track 1 = 응답 텍스트(자막 용).
+        첫 프레임이 도착하는 즉시 버즈가 재생 시작 — 전체 받기 전에 음성 출력 시작.
+      </p>
+
+      <h3>7.4 백프레셔</h3>
+      <p>
+        HTTP/2 flow control window로 자연스럽게 처리.
+        버즈의 디코더 버퍼가 가득 차면 WINDOW_UPDATE 보류해 서버 송신 일시 정지.
+      </p>
+    </section>
+
+    <!-- ============================================ -->
+    <section id="tradeoff">
+      <h2>8. 자체 포맷 vs Protobuf vs CBOR — 상세 비교</h2>
+
+      <h3>8.1 메시지 크기</h3>
+      <p>같은 30초 음악 + 5초 음성 세션을 인코딩한 가상 비교:</p>
+
+      <div class="diagram">             | JSON   | Protobuf | CBOR  | 자체 포맷
+페이로드     | 230KB  | 170KB    | 170KB | 170KB
+오버헤드     |  60KB  |   2KB    |   1KB |   3KB
+─────────────────────────────────────────────────────
+총합         | 290KB  | 172KB    | 171KB | 173KB
+
+* 페이로드(Opus 프레임)는 어느 포맷이든 같음
+* JSON은 base64 + 헤더 키 반복 때문에 폭발</div>
+
+      <h3>8.2 코드 크기 (MCU)</h3>
+      <ul>
+        <li>JSON parser(jsmn): ~3KB — 가볍지만 base64 인코딩이 추가로 부담</li>
+        <li>Protobuf(nanopb): ~10KB + 스키마 컴파일러 출력 ~5KB</li>
+        <li>CBOR(QCBOR): ~15KB</li>
+        <li><strong>자체 포맷</strong>: ~5KB (encoder + decoder + CRC)</li>
+      </ul>
+
+      <h3>8.3 스트리밍 호환성</h3>
+      <ul>
+        <li>JSON: 부분 파싱 어려움 (스트리밍 JSON 파서 필요)</li>
+        <li>Protobuf: 메시지 전체 길이를 먼저 알아야 함 (보통)</li>
+        <li>CBOR: indefinite-length 모드로 스트리밍 가능</li>
+        <li><strong>자체 포맷</strong>: 프레임 단위 자연스러운 스트리밍, 디자인부터 의도</li>
+      </ul>
+
+      <h3>8.4 버전 호환성</h3>
+      <p>Protobuf는 필드 번호로, 자체 포맷은 TLV Type으로 forward-compat 보장. 둘 다 신규 필드 추가 시 구 디코더 안 깨짐.</p>
+
+      <h3>8.5 결정</h3>
+      <p>
+        자체 포맷을 채택하지만, <strong>외부 노출 API(예: Galaxy 컴패니언 앱 → 서버 read API)</strong>는 JSON/Protobuf를 씁니다.
+        자체 포맷은 버즈 ↔ 서버 내부 채널에만 사용.
+      </p>
+
+      <div class="callout info">
+        <strong>관련 문서</strong>
+        구체적인 패킷 예시와 헥스 덤프는 <a href="packet.html">패킷 포맷 페이지</a>에서 다룹니다.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix-security.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">Deep Dive 3 · 보안</span>
+      </a>
+      <a href="appendix-ai.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">Deep Dive 5 · AI 처리</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · DEEP DIVE 4</span>
+    <span class="doc-tag">BudsAI Design Doc · 진행 중인 설계 문서</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+</body>
+</html>
