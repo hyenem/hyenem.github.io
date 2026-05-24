@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 520" role="img" aria-label="BudsAI Request flow">
+  <style>
+    .gr-rect { fill: rgba(20,40,160,0.025); stroke: #c8cee9; stroke-width: 1; stroke-dasharray: 4 4; }
+    .gr-rect.others { fill: rgba(190,24,93,0.025); stroke: #f0b4d0; }
+    .gr-rect.server { fill: rgba(4,120,87,0.025); stroke: #a7e0c9; }
+    .gr-rect.buds   { fill: rgba(20,40,160,0.04);  stroke: #c8cee9; }
+    .gr-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; fill: #1428a0; }
+    .gr-label.others { fill: #be185d; }
+    .gr-label.server { fill: #047857; }
+
+    .nd-rect { fill: #fff; stroke: #0b1220; stroke-width: 1.5; }
+    .nd-rect.blue { stroke: #1428a0; }
+    .nd-rect.magenta { stroke: #be185d; }
+    .nd-rect.green { stroke: #047857; }
+    .nd-rect.solid-green { fill: #d1fae5; stroke: #047857; }
+    .nd-rect.dim { fill: #f7f8fa; stroke-dasharray: 4 3; }
+
+    .nd-text { font-family: 'Pretendard', sans-serif; font-size: 12.5px; font-weight: 600; fill: #0b1220; text-anchor: middle; }
+    .nd-text.small { font-size: 11px; font-weight: 500; fill: #4b5563; }
+    .nd-text.mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #8a93a3; letter-spacing: 0.04em; }
+
+    .edge { fill: none; stroke: #0b1220; stroke-width: 1.5; }
+    .edge.blue { stroke: #1428a0; }
+    .edge.magenta { stroke: #be185d; }
+    .edge.green { stroke: #047857; }
+
+    .edge-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #4b5563; text-anchor: middle; }
+    .edge-label.blue { fill: #1428a0; }
+    .edge-label.magenta { fill: #be185d; }
+    .edge-label-bg { fill: #f7f8fa; }
+
+    .loop-arrow { fill: none; stroke: #1428a0; stroke-width: 1.5; }
+  </style>
+
+  <defs>
+    <marker id="r-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0b1220"/>
+    </marker>
+    <marker id="r-ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1428a0"/>
+    </marker>
+    <marker id="r-ah-magenta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be185d"/>
+    </marker>
+    <marker id="r-ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+    </marker>
+  </defs>
+
+  <!-- Group: Buds -->
+  <rect class="gr-rect buds" x="20" y="220" width="240" height="160" rx="10" ry="10"/>
+  <text class="gr-label" x="34" y="244">🎧 Buds</text>
+
+  <rect class="nd-rect blue" x="40" y="270" width="90" height="80" rx="6" ry="6"/>
+  <text class="nd-text" x="85" y="306">버퍼링</text>
+  <path class="loop-arrow" d="M 70 322 a 14 10 0 1 0 28 0 a 14 10 0 1 0 -28 0" marker-end="url(#r-ah-blue)" stroke-dasharray="3 2"/>
+  <text class="nd-text small" x="85" y="342">(상시)</text>
+
+  <path class="edge" d="M 130 310 L 156 310" marker-end="url(#r-ah)"/>
+  <text class="edge-label" x="143" y="302">interaction</text>
+
+  <rect class="nd-rect blue" x="160" y="285" width="80" height="50" rx="6" ry="6"/>
+  <text class="nd-text" x="200" y="316">패킷 생성</text>
+
+  <!-- Group: Galaxy Phone -->
+  <rect class="gr-rect" x="320" y="40" width="380" height="180" rx="10" ry="10"/>
+  <text class="gr-label" x="334" y="64">📱 Galaxy Phone</text>
+
+  <rect class="nd-rect blue" x="340" y="80" width="160" height="120" rx="6" ry="6"/>
+  <text class="nd-text" x="420" y="120">BudsAI request</text>
+  <text class="nd-text" x="420" y="142">local DB 저장</text>
+  <text class="nd-text small mono" x="420" y="170">SQLite · status=wait</text>
+
+  <path class="edge" d="M 500 140 L 528 140" marker-end="url(#r-ah)"/>
+  <text class="edge-label" x="514" y="132">인터넷</text>
+  <text class="edge-label" x="514" y="158">연결</text>
+
+  <rect class="nd-rect blue" x="530" y="105" width="150" height="70" rx="6" ry="6"/>
+  <text class="nd-text" x="605" y="135">패킷 생성</text>
+  <text class="nd-text small mono" x="605" y="158">HTTPS · JWT</text>
+
+  <!-- Group: Others -->
+  <rect class="gr-rect others" x="320" y="260" width="380" height="120" rx="10" ry="10"/>
+  <text class="gr-label others" x="334" y="284">💻 Others (host)</text>
+
+  <rect class="nd-rect magenta dim" x="420" y="300" width="180" height="65" rx="6" ry="6"/>
+  <text class="nd-text" x="510" y="328">BNEP · IP 라우팅</text>
+  <text class="nd-text small mono" x="510" y="350">passthrough only</text>
+
+  <!-- Group: Server -->
+  <rect class="gr-rect server" x="760" y="40" width="400" height="470" rx="10" ry="10"/>
+  <text class="gr-label server" x="774" y="64">☁️ Server</text>
+
+  <rect class="nd-rect green" x="840" y="80" width="240" height="44" rx="6" ry="6"/>
+  <text class="nd-text" x="960" y="108">Audio decomp</text>
+  <path class="edge green" d="M 960 124 L 960 144" marker-end="url(#r-ah-green)"/>
+
+  <rect class="nd-rect green" x="840" y="146" width="240" height="44" rx="6" ry="6"/>
+  <text class="nd-text" x="960" y="174">사용자 음성 처리</text>
+  <path class="edge green" d="M 960 190 L 960 210" marker-end="url(#r-ah-green)"/>
+
+  <rect class="nd-rect green" x="840" y="212" width="240" height="44" rx="6" ry="6"/>
+  <text class="nd-text" x="960" y="240">답변 생성 (LLM)</text>
+
+  <path class="edge green" d="M 960 256 L 960 280"/>
+  <path class="edge green" d="M 960 280 L 855 280 L 855 310" marker-end="url(#r-ah-green)"/>
+  <path class="edge green" d="M 960 280 L 1065 280 L 1065 310" marker-end="url(#r-ah-green)"/>
+  <text class="edge-label" style="fill:#1428a0;" x="855" y="298">galaxy</text>
+  <text class="edge-label" style="fill:#be185d;" x="1065" y="298">others</text>
+
+  <rect class="nd-rect blue" x="790" y="316" width="140" height="50" rx="6" ry="6"/>
+  <text class="nd-text" x="860" y="346">action item 생성</text>
+
+  <rect class="nd-rect magenta" x="990" y="316" width="140" height="50" rx="6" ry="6"/>
+  <text class="nd-text" x="1060" y="346">TTS 생성</text>
+
+  <path class="edge green" d="M 860 366 L 860 392 L 960 392 L 960 416" marker-end="url(#r-ah-green)"/>
+  <path class="edge green" d="M 1060 366 L 1060 392 L 960 392"/>
+
+  <rect class="nd-rect solid-green" x="840" y="418" width="240" height="50" rx="6" ry="6"/>
+  <text class="nd-text" x="960" y="448" style="fill:#047857;">패킷 생성 (응답)</text>
+
+  <!-- Inter-group arrows -->
+  <path class="edge blue" d="M 240 300 C 290 300, 290 140, 340 140" marker-end="url(#r-ah-blue)"/>
+  <rect class="edge-label-bg" x="248" y="200" width="76" height="14" rx="3"/>
+  <text class="edge-label blue" x="286" y="211">BT (audio)</text>
+
+  <path class="edge magenta" d="M 240 320 C 290 320, 290 332, 420 332" marker-end="url(#r-ah-magenta)"/>
+  <rect class="edge-label-bg" x="270" y="318" width="80" height="14" rx="3"/>
+  <text class="edge-label magenta" x="310" y="329">BT PAN</text>
+
+  <path class="edge blue" d="M 680 140 C 720 140, 720 100, 840 100" marker-end="url(#r-ah-blue)"/>
+  <rect class="edge-label-bg" x="708" y="108" width="78" height="14" rx="3"/>
+  <text class="edge-label blue" x="747" y="119">HTTPS · JWT</text>
+
+  <path class="edge magenta" d="M 600 332 C 720 332, 720 122, 840 122" marker-end="url(#r-ah-magenta)"/>
+  <rect class="edge-label-bg" x="702" y="244" width="110" height="14" rx="3"/>
+  <text class="edge-label magenta" x="757" y="255">HTTPS · mTLS E2E</text>
+</svg>

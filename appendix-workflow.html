@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>워크플로우 + 기술 정리 — BudsAI 부록</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* =========================================================
+       LIGHT THEME (Samsung tone) — page-local override
+       ========================================================= */
+    :root {
+      --w-bg: #ffffff;
+      --w-bg-soft: #f7f8fa;
+      --w-bg-card: #ffffff;
+      --w-border: #e5e7eb;
+      --w-border-strong: #cbd1da;
+      --w-text: #0b1220;
+      --w-text-dim: #4b5563;
+      --w-text-muted: #8a93a3;
+      --w-blue: #1428a0;          /* Samsung blue */
+      --w-blue-dim: #0e1d78;
+      --w-blue-soft: #eef0fa;
+      --w-blue-line: #c8cee9;
+      --w-magenta: #be185d;       /* Others 분기 표시 */
+      --w-magenta-soft: #fce7f3;
+      --w-amber: #b45309;
+      --w-amber-soft: #fef3c7;
+      --w-green: #047857;
+      --w-green-soft: #d1fae5;
+      --w-red: #b91c1c;
+      --w-red-soft: #fee2e2;
+      --w-violet: #6d28d9;
+      --w-violet-soft: #ede9fe;
+      --w-shadow: 0 1px 2px rgba(11,18,32,.04), 0 8px 24px rgba(11,18,32,.05);
+      --w-radius: 12px;
+      --w-radius-sm: 6px;
+    }
+
+    html, body.is-wf {
+      background: var(--w-bg) !important;
+      color: var(--w-text) !important;
+    }
+    body.is-wf {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body.is-wf .site-header {
+      background: rgba(255,255,255,0.92);
+      border-bottom: 1px solid var(--w-border);
+    }
+    body.is-wf .site-header .logo { color: var(--w-text); }
+    body.is-wf .site-header .logo-mark { background: var(--w-blue); color: #fff; }
+    body.is-wf .site-header .nav a { color: var(--w-text-dim); }
+    body.is-wf .site-header .nav a:hover { background: var(--w-bg-soft); color: var(--w-text); }
+    body.is-wf .site-header .nav a.active { background: var(--w-blue-soft); color: var(--w-blue); }
+    body.is-wf .site-header .nav-toggle { background: #fff; border-color: var(--w-border); color: var(--w-text); }
+    body.is-wf .site-footer {
+      background: var(--w-bg-soft);
+      border-top: 1px solid var(--w-border);
+      color: var(--w-text-muted);
+    }
+    body.is-wf .site-footer .page-mark { color: var(--w-blue); }
+    body.is-wf .sim-fab {
+      background: var(--w-blue); color: #fff;
+      box-shadow: 0 6px 18px rgba(20,40,160,.35);
+      border-color: rgba(255,255,255,0.18);
+    }
+    body.is-wf .sim-fab:hover { background: var(--w-blue-dim); }
+
+    /* =========================================================
+       Slide scaffolding
+       ========================================================= */
+    .wf-main { max-width: 1240px; margin: 0 auto; padding: 24px 32px 96px; }
+    .wf-intro {
+      padding: 20px 0 24px;
+      border-bottom: 1px solid var(--w-border);
+      margin-bottom: 24px;
+    }
+    .wf-intro h1 {
+      font-size: 22px; margin: 0 0 6px;
+      color: var(--w-text); letter-spacing: -0.01em;
+    }
+    .wf-intro p { color: var(--w-text-dim); font-size: 14px; margin: 0; }
+    .wf-intro .hint {
+      margin-top: 8px; font-size: 12px;
+      color: var(--w-text-muted);
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    }
+    .wf-intro a { color: var(--w-blue); }
+
+    .slide {
+      min-height: 92vh;
+      padding: 56px 0 72px;
+      border-bottom: 1px dashed var(--w-border);
+      display: flex; flex-direction: column;
+    }
+    .slide:last-of-type { border-bottom: none; }
+    .slide-num {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 12px; letter-spacing: 0.12em;
+      color: var(--w-text-muted); text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .slide-tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--w-blue); background: var(--w-blue-soft);
+      padding: 4px 10px; border-radius: 999px;
+      margin-bottom: 14px; align-self: flex-start;
+    }
+    .slide-headline {
+      font-size: 40px; font-weight: 800;
+      letter-spacing: -0.025em; line-height: 1.1;
+      color: var(--w-text); margin: 0 0 12px;
+    }
+    .slide-headline em { font-style: normal; color: var(--w-blue); }
+    .slide-sub {
+      font-size: 16px; color: var(--w-text-dim);
+      line-height: 1.55; margin: 0 0 24px;
+      max-width: 940px;
+    }
+
+    /* =========================================================
+       SLIDE 01 — One-page flow (SVG-backed absolute layout)
+       ========================================================= */
+    .flow-wrap {
+      background: var(--w-bg-soft);
+      border: 1px solid var(--w-border);
+      border-radius: var(--w-radius);
+      padding: 12px;
+      overflow-x: auto;
+    }
+    .flow-canvas {
+      position: relative;
+      width: 1180px;
+      height: 480px;
+      margin: 0 auto;
+    }
+    .flow-svg {
+      position: absolute; inset: 0;
+      width: 1180px; height: 480px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .flow-svg path { fill: none; stroke-width: 2; }
+    .flow-svg path.blue { stroke: var(--w-blue); }
+    .flow-svg path.magenta { stroke: var(--w-magenta); }
+    .flow-svg path.dashed { stroke-dasharray: 5 4; }
+    .flow-svg text {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px;
+      text-anchor: middle;
+    }
+    .flow-svg text.blue { fill: var(--w-blue); }
+    .flow-svg text.magenta { fill: var(--w-magenta); }
+    .flow-svg .label-bg {
+      fill: var(--w-bg-soft);
+    }
+
+    .ent {
+      position: absolute;
+      background: #fff;
+      border: 1.5px solid var(--w-text);
+      border-radius: 12px;
+      padding: 12px 14px 10px;
+      box-shadow: var(--w-shadow);
+      z-index: 2;
+      overflow: hidden;
+    }
+    .ent.is-blue { border-color: var(--w-blue); }
+    .ent.is-magenta { border-color: var(--w-magenta); }
+    .ent-buds   { top: 140px; left:  20px; width: 180px; height: 200px; }
+    .ent-phone  { top:  40px; left: 440px; width: 280px; height: 175px; }
+    .ent-others { top: 265px; left: 440px; width: 280px; height: 175px; }
+    .ent-server { top: 100px; left: 940px; width: 220px; height: 280px; }
+
+    .ent .ent-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--w-border);
+    }
+    .ent .ent-head .icon { font-size: 16px; line-height: 1; }
+    .ent .ent-head h3 {
+      margin: 0; padding: 0;
+      font-size: 13.5px; font-weight: 700;
+      color: var(--w-text); letter-spacing: -0.005em;
+    }
+    .ent .ent-head .sub {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 9.5px; letter-spacing: 0.06em;
+      color: var(--w-text-muted); text-transform: uppercase;
+    }
+    .ent .ent-list {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .ent .ent-list li {
+      font-size: 11.5px; color: var(--w-text-dim);
+      padding-left: 12px; position: relative;
+      line-height: 1.45;
+    }
+    .ent .ent-list li::before {
+      content: ""; width: 4px; height: 4px;
+      background: var(--w-blue); border-radius: 50%;
+      position: absolute; left: 2px; top: 7px;
+    }
+    .ent.is-magenta .ent-list li::before { background: var(--w-magenta); }
+    .ent .ent-list li strong { color: var(--w-text); font-weight: 600; }
+    .ent .ent-tech {
+      margin-top: 8px; padding-top: 6px;
+      border-top: 1px dashed var(--w-border);
+      display: flex; flex-wrap: wrap; gap: 3px;
+    }
+    .ttag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 9.5px; font-weight: 600;
+      padding: 1px 5px; border-radius: 3px;
+      background: var(--w-blue-soft); color: var(--w-blue);
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+    }
+    .ttag.g { background: var(--w-green-soft); color: var(--w-green); }
+    .ttag.a { background: var(--w-amber-soft); color: var(--w-amber); }
+    .ttag.r { background: var(--w-red-soft); color: var(--w-red); }
+    .ttag.v { background: var(--w-violet-soft); color: var(--w-violet); }
+    .ttag.m { background: var(--w-magenta-soft); color: var(--w-magenta); }
+    .ttag.n { background: #eef2f7; color: #475569; }
+
+    .flow-legend {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px solid var(--w-border);
+      border-radius: var(--w-radius-sm);
+      font-size: 12px; color: var(--w-text-dim);
+      align-items: center;
+    }
+    .flow-legend .leg { display: inline-flex; align-items: center; gap: 6px; }
+    .flow-legend .leg .swatch {
+      display: inline-block; width: 22px; height: 2px;
+    }
+    .flow-legend .leg .swatch.dashed {
+      height: 0; border-top: 2px dashed currentColor;
+    }
+    .flow-legend .leg.blue { color: var(--w-blue); }
+    .flow-legend .leg.magenta { color: var(--w-magenta); }
+
+    .tech-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1px;
+      background: var(--w-border);
+      border: 1px solid var(--w-border);
+      border-radius: var(--w-radius-sm);
+      overflow: hidden;
+      margin-top: 18px;
+    }
+    @media (max-width: 980px) { .tech-strip { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .tech-strip { grid-template-columns: repeat(2, 1fr); } }
+    .tech-cell {
+      background: #fff;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .tech-cell:hover { background: var(--w-blue-soft); }
+    .tech-cell .l {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10.5px; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--w-blue); font-weight: 700;
+    }
+    .tech-cell .v {
+      margin-top: 3px;
+      font-size: 13.5px; font-weight: 700;
+      color: var(--w-text); letter-spacing: -0.005em;
+    }
+    .tech-cell .s {
+      font-size: 11.5px; color: var(--w-text-muted);
+      margin-top: 1px;
+    }
+
+    @media (max-width: 1240px) {
+      .flow-wrap { padding: 8px; }
+    }
+
+    /* =========================================================
+       SLIDE 02 — Request + Return flow diagrams (two SVGs)
+       ========================================================= */
+    .wf-section {
+      background: var(--w-bg-soft);
+      border: 1px solid var(--w-border);
+      border-radius: var(--w-radius);
+      padding: 18px 18px 14px;
+      margin-bottom: 18px;
+      overflow-x: auto;
+    }
+    .wf-section h4 {
+      margin: 0 0 12px; padding: 0;
+      text-transform: none; letter-spacing: 0;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; color: var(--w-text); font-weight: 800;
+    }
+    .wf-section h4 .badge {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 4px;
+    }
+    .wf-section h4 .badge.req { background: var(--w-blue-soft); color: var(--w-blue); }
+    .wf-section h4 .badge.ret { background: var(--w-green-soft); color: var(--w-green); }
+    .wf-section h4 .desc {
+      margin-left: auto; font-size: 12px; font-weight: 500;
+      color: var(--w-text-dim); letter-spacing: 0;
+    }
+    .wf-section svg { display: block; width: 100%; min-width: 980px; height: auto; }
+
+    /* SVG primitives shared by both diagrams */
+    .gr-rect {
+      fill: rgba(20,40,160,0.025);
+      stroke: var(--w-blue-line);
+      stroke-width: 1; stroke-dasharray: 4 4;
+      rx: 10; ry: 10;
+    }
+    .gr-rect.others { fill: rgba(190,24,93,0.025); stroke: #f0b4d0; }
+    .gr-rect.server { fill: rgba(4,120,87,0.025); stroke: #a7e0c9; }
+    .gr-rect.buds   { fill: rgba(20,40,160,0.04);  stroke: var(--w-blue-line); }
+    .gr-label {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      fill: var(--w-blue);
+    }
+    .gr-label.others { fill: var(--w-magenta); }
+    .gr-label.server { fill: var(--w-green); }
+    .gr-label.buds   { fill: var(--w-blue); }
+
+    .nd-rect {
+      fill: #fff; stroke: var(--w-text); stroke-width: 1.5;
+      rx: 6; ry: 6;
+    }
+    .nd-rect.blue   { stroke: var(--w-blue); }
+    .nd-rect.magenta{ stroke: var(--w-magenta); }
+    .nd-rect.green  { stroke: var(--w-green); }
+    .nd-rect.solid-blue { fill: var(--w-blue-soft); stroke: var(--w-blue); }
+    .nd-rect.solid-green{ fill: var(--w-green-soft); stroke: var(--w-green); }
+    .nd-rect.dim    { fill: var(--w-bg-soft); stroke-dasharray: 4 3; }
+
+    .nd-text {
+      font-family: 'Pretendard', sans-serif;
+      font-size: 12.5px; font-weight: 600;
+      fill: var(--w-text); text-anchor: middle;
+    }
+    .nd-text.small { font-size: 11px; font-weight: 500; fill: var(--w-text-dim); }
+    .nd-text.mono {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10px; fill: var(--w-text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .edge {
+      fill: none; stroke: var(--w-text); stroke-width: 1.5;
+    }
+    .edge.blue { stroke: var(--w-blue); }
+    .edge.magenta { stroke: var(--w-magenta); }
+    .edge.green { stroke: var(--w-green); }
+    .edge.dim { stroke: #cbd1da; stroke-dasharray: 4 3; }
+
+    .edge-label {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10px; fill: var(--w-text-dim);
+      text-anchor: middle;
+    }
+    .edge-label.blue { fill: var(--w-blue); }
+    .edge-label.magenta { fill: var(--w-magenta); }
+    .edge-label-bg { fill: var(--w-bg-soft); }
+
+    .loop-arrow {
+      fill: none; stroke: var(--w-blue); stroke-width: 1.5;
+    }
+
+    .wf-help {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      margin-top: 10px; padding: 10px 14px;
+      background: #fff; border: 1px solid var(--w-border); border-radius: var(--w-radius-sm);
+      font-size: 12px; color: var(--w-text-dim);
+    }
+
+    /* =========================================================
+       Tech category slides (03~08) — clean technical layout
+       ========================================================= */
+    .tech-head {
+      display: flex; align-items: center; gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--w-border);
+      margin-bottom: 18px;
+    }
+    .tech-icon {
+      width: 56px; height: 56px;
+      background: var(--w-blue-soft);
+      border-radius: var(--w-radius);
+      display: grid; place-items: center;
+      font-size: 28px;
+    }
+    .tech-meta { flex: 1; }
+    .tech-meta .where {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px; color: var(--w-text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .tech-meta h2 {
+      margin: 4px 0 0; padding: 0; border: none;
+      font-size: 22px; color: var(--w-text);
+      letter-spacing: -0.01em; font-weight: 800;
+    }
+    .tech-meta .one-liner {
+      margin-top: 4px;
+      font-size: 14px; color: var(--w-text-dim);
+    }
+    .tech-step-link {
+      align-self: flex-start;
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px;
+      background: var(--w-blue-soft);
+      color: var(--w-blue);
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .tech-card {
+      background: #fff;
+      border: 1px solid var(--w-border);
+      border-radius: var(--w-radius);
+      padding: 18px 20px;
+      box-shadow: var(--w-shadow);
+    }
+    .tech-card .tc-head {
+      display: flex; align-items: baseline; gap: 8px;
+      margin-bottom: 8px;
+    }
+    .tech-card .tc-head h3 {
+      margin: 0; padding: 0;
+      font-size: 15.5px; color: var(--w-text);
+      letter-spacing: -0.005em; font-weight: 700;
+    }
+    .tech-card .tc-head .acronym {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px; color: var(--w-blue);
+      background: var(--w-blue-soft);
+      padding: 1px 6px; border-radius: 3px;
+    }
+    .tech-card .tc-easy {
+      font-size: 13px; color: var(--w-text-dim);
+      line-height: 1.55; margin: 0 0 10px;
+    }
+    .tech-card .tc-spec {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 4px 12px;
+      font-size: 12px;
+      padding: 8px 10px;
+      background: var(--w-bg-soft);
+      border-radius: var(--w-radius-sm);
+      margin-top: 8px;
+    }
+    .tech-card .tc-spec dt {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      color: var(--w-text-muted);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      font-size: 10.5px;
+      align-self: center;
+    }
+    .tech-card .tc-spec dd {
+      margin: 0;
+      color: var(--w-text);
+      font-weight: 600;
+      align-self: center;
+    }
+    .tech-card .tc-where {
+      margin-top: 10px;
+      font-size: 11.5px; color: var(--w-text-muted);
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    }
+    .tech-card .tc-where strong {
+      color: var(--w-blue);
+      font-weight: 700;
+    }
+
+    .tech-bottom {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: var(--w-blue-soft);
+      border-left: 3px solid var(--w-blue);
+      border-radius: var(--w-radius-sm);
+      font-size: 13px; color: var(--w-text);
+      line-height: 1.55;
+    }
+    .tech-bottom strong { color: var(--w-blue); }
+
+    .mini-d {
+      background: var(--w-bg-soft);
+      border: 1px solid var(--w-border);
+      border-left: 3px solid var(--w-blue);
+      border-radius: var(--w-radius-sm);
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11.5px; color: var(--w-text-dim);
+      line-height: 1.55;
+      white-space: pre; overflow-x: auto;
+      margin: 8px 0;
+    }
+
+    /* pager (light) */
+    body.is-wf .pager a {
+      background: #fff;
+      border: 1px solid var(--w-border);
+      color: var(--w-text);
+    }
+    body.is-wf .pager a:hover { border-color: var(--w-blue); background: var(--w-blue-soft); }
+    body.is-wf .pager .pager-label { color: var(--w-text-muted); }
+    body.is-wf .pager .pager-title { color: var(--w-blue); }
+
+    /* present mode */
+    body.is-present .site-header,
+    body.is-present .site-footer,
+    body.is-present .sim-fab,
+    body.is-present .wf-intro { display: none; }
+    body.is-present .slide { display: none; min-height: 100vh; padding: 48px 48px; }
+    body.is-present .slide.is-current { display: flex; }
+    body.is-present .wf-main { max-width: 1340px; padding: 0 32px; }
+    .present-controls {
+      display: none;
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      gap: 8px; z-index: 200;
+      background: #fff; border: 1px solid var(--w-border);
+      border-radius: 999px; padding: 6px 10px;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 12px; color: var(--w-text-dim);
+      box-shadow: var(--w-shadow);
+    }
+    body.is-present .present-controls { display: inline-flex; align-items: center; }
+    .present-controls button {
+      background: #fff; border: 1px solid var(--w-border); color: var(--w-text);
+      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      font-family: inherit;
+    }
+    .present-controls button:hover { border-color: var(--w-blue); color: var(--w-blue); }
+    .present-controls .counter { padding: 0 8px; }
+    .present-controls a { color: var(--w-text-muted); padding: 0 6px; }
+
+    @media (max-width: 900px) {
+      .slide { min-height: auto; padding: 40px 0 56px; }
+      .slide-headline { font-size: 28px; }
+      .slide-sub { font-size: 14px; }
+      .flowmap { padding: 20px 16px; }
+    }
+
+    @media print {
+      body { background: white !important; color: black !important; }
+      .site-header, .site-footer, .sim-fab, .wf-intro, .nav-toggle, .present-controls { display: none !important; }
+      .slide { page-break-after: always; min-height: 100vh; border: none !important; padding: 24px !important; }
+      .slide:last-of-type { page-break-after: auto; }
+      .flowmap, .wf-canvas, .tech-card, .tech-cell, .entity {
+        background: white !important; box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="is-wf">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wf-main">
+    <div class="wf-intro">
+      <h1>워크플로우 + 기술 정리 — 8장</h1>
+      <p>전체 흐름과 사용 기술 한 페이지 → 단계별 흐름 차트 → 6개 기술 카테고리 정리.</p>
+      <p class="hint">
+        발표 모드 → <a href="?present">?present 로 진입</a> · 방향키 ← → · Esc 종료 · 인쇄 시 슬라이드당 한 페이지
+      </p>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- Slide 01 — Overview + Tech stack                       -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s01">
+      <div class="slide-num">01 / 08</div>
+      <span class="slide-tag">한 페이지 — 흐름 + 기술 스택</span>
+      <h1 class="slide-headline">세 친구가, <em>두 갈래 길</em>로,<br/>같은 서버를 향해 간다.</h1>
+      <p class="slide-sub">
+        버즈가 만든 요청은 <strong>갤럭시 폰을 거치거나</strong>, <strong>다른 기기의 BT 테더링으로 직진</strong>해서 서버로.
+        서버는 답과 액션을 만들어 같은 길로 돌려보낸다. 각 박스와 화살표에 사용된 기술이 태그로 표시.
+      </p>
+
+      <div class="flow-wrap">
+        <div class="flow-canvas">
+          <svg class="flow-svg" viewBox="0 0 1180 480" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <marker id="ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#1428a0"/>
+              </marker>
+              <marker id="ah-magenta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#be185d"/>
+              </marker>
+            </defs>
+
+            <!-- ===== Buds (right edge x=200) <-> Phone (left edge x=440) ===== -->
+            <!-- Request: Buds → Phone (solid blue) -->
+            <path class="blue" d="M 200 200 C 320 200, 320 100, 440 100" marker-end="url(#ah-blue)"/>
+            <rect class="label-bg" x="266" y="138" width="108" height="16" rx="3"/>
+            <text class="blue" x="320" y="150">BT · audio pkt</text>
+
+            <!-- Response: Phone → Buds (dashed blue) -->
+            <path class="blue dashed" d="M 440 145 C 320 145, 320 240, 200 240" marker-end="url(#ah-blue)"/>
+            <rect class="label-bg" x="282" y="183" width="76" height="16" rx="3"/>
+            <text class="blue" x="320" y="195">BT · TTS</text>
+
+            <!-- ===== Buds (right edge x=200) <-> Others (left edge x=440) ===== -->
+            <!-- Request: Buds → Others (solid magenta) -->
+            <path class="magenta" d="M 200 280 C 320 280, 320 320, 440 320" marker-end="url(#ah-magenta)"/>
+            <rect class="label-bg" x="270" y="278" width="100" height="16" rx="3"/>
+            <text class="magenta" x="320" y="290">BT PAN · IP pkt</text>
+
+            <!-- Response: Others → Buds (dashed magenta) -->
+            <path class="magenta dashed" d="M 440 380 C 320 380, 320 320, 200 320" marker-end="url(#ah-magenta)"/>
+            <rect class="label-bg" x="280" y="338" width="80" height="16" rx="3"/>
+            <text class="magenta" x="320" y="350">BT PAN · TTS</text>
+
+            <!-- ===== Phone (right edge x=720) <-> Server (left edge x=940) ===== -->
+            <!-- Request: Phone → Server (solid blue) -->
+            <path class="blue" d="M 720 100 C 830 100, 830 180, 940 180" marker-end="url(#ah-blue)"/>
+            <rect class="label-bg" x="784" y="128" width="92" height="16" rx="3"/>
+            <text class="blue" x="830" y="140">HTTPS · req</text>
+
+            <!-- Response: Server → Phone (dashed blue) -->
+            <path class="blue dashed" d="M 940 215 C 830 215, 830 145, 720 145" marker-end="url(#ah-blue)"/>
+            <rect class="label-bg" x="772" y="183" width="116" height="16" rx="3"/>
+            <text class="blue" x="830" y="195">resp + actions</text>
+
+            <!-- ===== Others (right edge x=720) <-> Server (left edge x=940) ===== -->
+            <!-- Request: Others → Server (solid magenta) -->
+            <path class="magenta" d="M 720 320 C 830 320, 830 270, 940 270" marker-end="url(#ah-magenta)"/>
+            <rect class="label-bg" x="780" y="278" width="100" height="16" rx="3"/>
+            <text class="magenta" x="830" y="290">IP · req + flag</text>
+
+            <!-- Response: Server → Others (dashed magenta) -->
+            <path class="magenta dashed" d="M 940 305 C 830 305, 830 380, 720 380" marker-end="url(#ah-magenta)"/>
+            <rect class="label-bg" x="794" y="338" width="72" height="16" rx="3"/>
+            <text class="magenta" x="830" y="350">IP · TTS</text>
+          </svg>
+
+          <!-- Buds -->
+          <div class="ent ent-buds is-blue">
+            <div class="ent-head">
+              <span class="icon">🎧</span>
+              <h3>Galaxy Buds</h3>
+              <span class="sub">EAR</span>
+            </div>
+            <ul class="ent-list">
+              <li><strong>버퍼</strong> 외부+내부 10~30s</li>
+              <li><strong>트리거</strong> 롱프레스</li>
+              <li><strong>녹취</strong> VAD 자동 종료</li>
+              <li><strong>패킷</strong> 경로별 포장</li>
+              <li><strong>출력</strong> TTS 재생</li>
+            </ul>
+            <div class="ent-tech">
+              <span class="ttag">Opus</span>
+              <span class="ttag">Ring Buf</span>
+              <span class="ttag g">VAD</span>
+              <span class="ttag r">SE / mTLS</span>
+            </div>
+          </div>
+
+          <!-- Phone -->
+          <div class="ent ent-phone is-blue">
+            <div class="ent-head">
+              <span class="icon">📱</span>
+              <h3>Galaxy Phone</h3>
+              <span class="sub">BRIDGE+UI</span>
+            </div>
+            <ul class="ent-list">
+              <li><strong>큐잉</strong> 오프라인 시 wait</li>
+              <li><strong>전송</strong> 연결 시 자동 송신</li>
+              <li><strong>매칭</strong> session_id로 응답 결합</li>
+              <li><strong>노출</strong> 히스토리·위젯·워치·Bixby</li>
+            </ul>
+            <div class="ent-tech">
+              <span class="ttag">Persistent Queue</span>
+              <span class="ttag g">Idempotent</span>
+              <span class="ttag">HTTPS / JWT</span>
+              <span class="ttag v">Local TTS</span>
+            </div>
+          </div>
+
+          <!-- Others -->
+          <div class="ent ent-others is-magenta">
+            <div class="ent-head">
+              <span class="icon">💻</span>
+              <h3>Others <span style="color:var(--w-text-muted); font-weight:500; font-size:11px;">(노트북·TV·차량·MP3)</span></h3>
+              <span class="sub">PASS-THROUGH</span>
+            </div>
+            <ul class="ent-list">
+              <li><strong>BT PAN</strong> OS 빌트인, 앱 0개</li>
+              <li><strong>BNEP</strong> IP를 BT 위로 캡슐화</li>
+              <li><strong>호스트 = 라우터</strong> 페이로드 못 봄</li>
+              <li>응답 <strong>버즈로 직송</strong></li>
+            </ul>
+            <div class="ent-tech">
+              <span class="ttag m">BT PAN (NAP)</span>
+              <span class="ttag m">BNEP</span>
+              <span class="ttag n">DHCP / DNS / TCP</span>
+              <span class="ttag r">mTLS E2E</span>
+            </div>
+          </div>
+
+          <!-- Server -->
+          <div class="ent ent-server is-blue">
+            <div class="ent-head">
+              <span class="icon">☁️</span>
+              <h3>Server</h3>
+              <span class="sub">AI BRAIN</span>
+            </div>
+            <ul class="ent-list">
+              <li><strong>Decomp</strong> Opus 풀기 + PTS 정렬</li>
+              <li><strong>STT</strong> 사용자 음성 → 텍스트</li>
+              <li><strong>관련도</strong> 유의미 ↔ 무의미 분기</li>
+              <li><strong>LLM</strong> 의도 분류 + 답변 합성</li>
+              <li>📱 → <strong>Action Items</strong></li>
+              <li>🌐 → <strong>TTS 합성</strong></li>
+            </ul>
+            <div class="ent-tech">
+              <span class="ttag g">Whisper</span>
+              <span class="ttag v">Intent LLM</span>
+              <span class="ttag">Audio FP</span>
+              <span class="ttag a">VITS TTS</span>
+              <span class="ttag r">mTLS+JWT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-legend">
+        <span class="leg blue"><span class="swatch" style="background: currentColor;"></span> 갤럭시 경로 요청</span>
+        <span class="leg blue"><span class="swatch dashed"></span> 갤럭시 경로 응답</span>
+        <span class="leg magenta"><span class="swatch" style="background: currentColor;"></span> Others 경로 요청</span>
+        <span class="leg magenta"><span class="swatch dashed"></span> Others 경로 응답</span>
+        <span style="margin-left:auto; font-family:'JetBrains Mono',monospace; color: var(--w-text-muted);">두 경로가 서버에서 만난다 · 같은 길로 되돌아온다</span>
+      </div>
+
+      <!-- 사용 기술 카테고리 빠른 인덱스 -->
+      <div class="tech-strip">
+        <a class="tech-cell" href="#s03" style="text-decoration:none; color:inherit;">
+          <div class="l">CAT 1</div>
+          <div class="v">🎧 오디오</div>
+          <div class="s">Ring Buf · Opus · VAD</div>
+        </a>
+        <a class="tech-cell" href="#s04" style="text-decoration:none; color:inherit;">
+          <div class="l">CAT 2</div>
+          <div class="v">📡 네트워크</div>
+          <div class="s">BT · PAN · BNEP · TCP/IP</div>
+        </a>
+        <a class="tech-cell" href="#s05" style="text-decoration:none; color:inherit;">
+          <div class="l">CAT 3</div>
+          <div class="v">📦 패킷</div>
+          <div class="s">Session/Frame · TLV · 멀티트랙</div>
+        </a>
+        <a class="tech-cell" href="#s06" style="text-decoration:none; color:inherit;">
+          <div class="l">CAT 4</div>
+          <div class="v">🔐 보안</div>
+          <div class="s">mTLS · SE · JWT · E2E</div>
+        </a>
+        <a class="tech-cell" href="#s07" style="text-decoration:none; color:inherit;">
+          <div class="l">CAT 5</div>
+          <div class="v">🤖 AI 파이프라인</div>
+          <div class="s">STT · Intent · FP · TTS · LLM</div>
+        </a>
+        <a class="tech-cell" href="#s08" style="text-decoration:none; color:inherit;">
+          <div class="l">CAT 6</div>
+          <div class="v">⛓ 신뢰성</div>
+          <div class="s">Queue · Idempotent · Retry</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Slide 02 — Request + Return flow diagrams              -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s02">
+      <div class="slide-num">02 / 08</div>
+      <span class="slide-tag">단계별 워크플로우 · Request + Return</span>
+      <h1 class="slide-headline">요청은 <em>오른쪽으로</em>,<br/>응답은 <em>왼쪽으로</em>.</h1>
+      <p class="slide-sub">
+        한 번의 트리거가 어떻게 처리되어 답으로 돌아오는지, 그룹과 내부 단계까지 두 장으로 나눠 보여줍니다.
+      </p>
+
+      <!-- ============== REQUEST FLOW ============== -->
+      <div class="wf-section">
+        <h4>
+          <span class="badge req">Request</span>
+          요청 흐름 — Buds 트리거에서 Server 답변 생성까지
+          <span class="desc">버즈가 만든 패킷이 두 경로 중 하나로 서버에 도달, 분기 분석 후 패킷 생성</span>
+        </h4>
+
+        <svg viewBox="0 0 1180 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Request flow">
+          <defs>
+            <marker id="r-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#0b1220"/>
+            </marker>
+            <marker id="r-ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1428a0"/>
+            </marker>
+            <marker id="r-ah-magenta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#be185d"/>
+            </marker>
+            <marker id="r-ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+            </marker>
+          </defs>
+
+          <!-- ===== Group: Buds ===== -->
+          <rect class="gr-rect buds" x="20" y="220" width="240" height="160"/>
+          <text class="gr-label buds" x="34" y="244">🎧 Buds</text>
+
+          <!-- 버퍼링 (with loop) -->
+          <rect class="nd-rect blue" x="40" y="270" width="90" height="80"/>
+          <text class="nd-text" x="85" y="306">버퍼링</text>
+          <!-- circular arrow inside box -->
+          <path class="loop-arrow" d="M 70 322 a 14 10 0 1 0 28 0 a 14 10 0 1 0 -28 0" marker-end="url(#r-ah-blue)" stroke-dasharray="3 2"/>
+          <text class="nd-text small" x="85" y="342">(상시)</text>
+
+          <!-- interaction arrow -->
+          <path class="edge" d="M 130 310 L 156 310" marker-end="url(#r-ah)"/>
+          <text class="edge-label" x="143" y="302">interaction</text>
+
+          <!-- 패킷 생성 -->
+          <rect class="nd-rect blue" x="160" y="285" width="80" height="50"/>
+          <text class="nd-text" x="200" y="316">패킷 생성</text>
+
+          <!-- ===== Group: Galaxy Phone ===== -->
+          <rect class="gr-rect" x="320" y="40" width="380" height="180"/>
+          <text class="gr-label" x="334" y="64">📱 Galaxy Phone</text>
+
+          <!-- BudsAI request local DB 저장 -->
+          <rect class="nd-rect blue" x="340" y="80" width="160" height="120"/>
+          <text class="nd-text" x="420" y="120">BudsAI request</text>
+          <text class="nd-text" x="420" y="142">local DB 저장</text>
+          <text class="nd-text small mono" x="420" y="170">SQLite · status=wait</text>
+
+          <!-- 인터넷 연결 connector -->
+          <path class="edge" d="M 500 140 L 528 140" marker-end="url(#r-ah)"/>
+          <text class="edge-label" x="514" y="132">인터넷</text>
+          <text class="edge-label" x="514" y="158">연결</text>
+
+          <!-- 패킷 생성 -->
+          <rect class="nd-rect blue" x="530" y="105" width="150" height="70"/>
+          <text class="nd-text" x="605" y="135">패킷 생성</text>
+          <text class="nd-text small mono" x="605" y="158">HTTPS · JWT</text>
+
+          <!-- ===== Group: Others ===== -->
+          <rect class="gr-rect others" x="320" y="260" width="380" height="120"/>
+          <text class="gr-label others" x="334" y="284">💻 Others (host)</text>
+
+          <!-- BNEP · IP 라우팅 -->
+          <rect class="nd-rect magenta dim" x="420" y="300" width="180" height="65"/>
+          <text class="nd-text" x="510" y="328">BNEP · IP 라우팅</text>
+          <text class="nd-text small mono" x="510" y="350">passthrough only</text>
+
+          <!-- ===== Group: Server ===== -->
+          <rect class="gr-rect server" x="760" y="40" width="400" height="470"/>
+          <text class="gr-label server" x="774" y="64">☁️ Server</text>
+
+          <!-- Audio decomp -->
+          <rect class="nd-rect green" x="840" y="80" width="240" height="44"/>
+          <text class="nd-text" x="960" y="108">Audio decomp</text>
+          <!-- ↓ -->
+          <path class="edge green" d="M 960 124 L 960 144" marker-end="url(#r-ah-green)"/>
+
+          <!-- 사용자 음성 처리 -->
+          <rect class="nd-rect green" x="840" y="146" width="240" height="44"/>
+          <text class="nd-text" x="960" y="174">사용자 음성 처리</text>
+          <path class="edge green" d="M 960 190 L 960 210" marker-end="url(#r-ah-green)"/>
+
+          <!-- 답변 생성 -->
+          <rect class="nd-rect green" x="840" y="212" width="240" height="44"/>
+          <text class="nd-text" x="960" y="240">답변 생성 (LLM)</text>
+
+          <!-- branch labels -->
+          <path class="edge green" d="M 960 256 L 960 280" />
+          <path class="edge green" d="M 960 280 L 855 280 L 855 310" marker-end="url(#r-ah-green)"/>
+          <path class="edge green" d="M 960 280 L 1065 280 L 1065 310" marker-end="url(#r-ah-green)"/>
+          <text class="edge-label" style="fill:#1428a0;" x="855" y="298">galaxy</text>
+          <text class="edge-label" style="fill:#be185d;" x="1065" y="298">others</text>
+
+          <!-- action item 생성 -->
+          <rect class="nd-rect blue" x="790" y="316" width="140" height="50"/>
+          <text class="nd-text" x="860" y="346">action item 생성</text>
+
+          <!-- TTS 생성 -->
+          <rect class="nd-rect magenta" x="990" y="316" width="140" height="50"/>
+          <text class="nd-text" x="1060" y="346">TTS 생성</text>
+
+          <!-- merge to 패킷 생성 -->
+          <path class="edge green" d="M 860 366 L 860 392 L 960 392 L 960 416" marker-end="url(#r-ah-green)"/>
+          <path class="edge green" d="M 1060 366 L 1060 392 L 960 392"/>
+
+          <rect class="nd-rect solid-green" x="840" y="418" width="240" height="50"/>
+          <text class="nd-text" x="960" y="448" style="fill:#047857;">패킷 생성 (응답)</text>
+
+          <!-- ===== Inter-group arrows ===== -->
+          <!-- Buds 패킷 → Galaxy Phone (top) -->
+          <path class="edge blue" d="M 240 300 C 290 300, 290 140, 340 140" marker-end="url(#r-ah-blue)"/>
+          <rect class="edge-label-bg" x="248" y="200" width="76" height="14" rx="3"/>
+          <text class="edge-label blue" x="286" y="211">BT (audio)</text>
+
+          <!-- Buds 패킷 → Others (bottom) -->
+          <path class="edge magenta" d="M 240 320 C 290 320, 290 332, 420 332" marker-end="url(#r-ah-magenta)"/>
+          <rect class="edge-label-bg" x="270" y="318" width="80" height="14" rx="3"/>
+          <text class="edge-label magenta" x="310" y="329">BT PAN</text>
+
+          <!-- Galaxy Phone 패킷 → Server -->
+          <path class="edge blue" d="M 680 140 C 720 140, 720 100, 840 100" marker-end="url(#r-ah-blue)"/>
+          <rect class="edge-label-bg" x="708" y="108" width="78" height="14" rx="3"/>
+          <text class="edge-label blue" x="747" y="119">HTTPS · JWT</text>
+
+          <!-- Others → Server (mTLS E2E from Buds, host passthrough) -->
+          <path class="edge magenta" d="M 600 332 C 720 332, 720 122, 840 122" marker-end="url(#r-ah-magenta)"/>
+          <rect class="edge-label-bg" x="702" y="244" width="110" height="14" rx="3"/>
+          <text class="edge-label magenta" x="757" y="255">HTTPS · mTLS E2E</text>
+        </svg>
+      </div>
+
+      <!-- ============== RETURN FLOW ============== -->
+      <div class="wf-section">
+        <h4>
+          <span class="badge ret">Return</span>
+          응답 흐름 — Server 패킷에서 Buds 출력까지
+          <span class="desc">매칭/저장은 갤럭시가, 3rd party 후속과 TTS도 갤럭시가 합성. Others는 단순 통과</span>
+        </h4>
+
+        <svg viewBox="0 0 1180 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Return flow">
+          <defs>
+            <marker id="rt-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#0b1220"/>
+            </marker>
+            <marker id="rt-ah-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1428a0"/>
+            </marker>
+            <marker id="rt-ah-magenta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#be185d"/>
+            </marker>
+            <marker id="rt-ah-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#047857"/>
+            </marker>
+          </defs>
+
+          <!-- ===== Group: Server ===== -->
+          <rect class="gr-rect server" x="20" y="160" width="200" height="120"/>
+          <text class="gr-label server" x="34" y="184">☁️ Server</text>
+
+          <rect class="nd-rect solid-green" x="50" y="200" width="140" height="60"/>
+          <text class="nd-text" x="120" y="234" style="fill:#047857;">packet</text>
+
+          <!-- ===== Group: Galaxy Phone ===== -->
+          <rect class="gr-rect" x="290" y="40" width="540" height="220"/>
+          <text class="gr-label" x="304" y="64">📱 Galaxy Phone</text>
+
+          <!-- DB mapping 후 답변 & action item 저장 -->
+          <rect class="nd-rect blue" x="310" y="90" width="220" height="140"/>
+          <text class="nd-text" x="420" y="130">DB mapping 후</text>
+          <text class="nd-text" x="420" y="152">답변 &amp; action item</text>
+          <text class="nd-text" x="420" y="174">저장</text>
+          <text class="nd-text small mono" x="420" y="206">match by session_id</text>
+
+          <!-- 3rd party action item 후속처리 -->
+          <rect class="nd-rect blue" x="580" y="100" width="230" height="56"/>
+          <text class="nd-text" x="695" y="124">3rd party action item</text>
+          <text class="nd-text small" x="695" y="142">후속 처리 (Calendar · SmartThings…)</text>
+
+          <!-- TTS 생성 -->
+          <rect class="nd-rect blue" x="580" y="178" width="230" height="48"/>
+          <text class="nd-text" x="695" y="200">TTS 생성</text>
+          <text class="nd-text small mono" x="695" y="218">VITS · 24kbps Opus</text>
+
+          <!-- internal arrows in Phone -->
+          <path class="edge blue" d="M 530 130 L 580 130" marker-end="url(#rt-ah-blue)"/>
+          <path class="edge blue" d="M 530 200 L 580 200" marker-end="url(#rt-ah-blue)"/>
+
+          <!-- ===== Group: Others ===== -->
+          <rect class="gr-rect others" x="290" y="290" width="540" height="120"/>
+          <text class="gr-label others" x="304" y="314">💻 Others</text>
+
+          <rect class="nd-rect magenta dim" x="430" y="332" width="260" height="56"/>
+          <text class="nd-text" x="560" y="356">호스트 통과 (passthrough)</text>
+          <text class="nd-text small mono" x="560" y="376">BT PAN · 페이로드 비공개</text>
+
+          <!-- ===== Group: Buds ===== -->
+          <rect class="gr-rect buds" x="900" y="180" width="240" height="160"/>
+          <text class="gr-label buds" x="914" y="204">🎧 Buds</text>
+
+          <rect class="nd-rect solid-blue" x="930" y="230" width="180" height="80"/>
+          <text class="nd-text" x="1020" y="266" style="fill:#1428a0;">TTS 출력</text>
+          <text class="nd-text small mono" x="1020" y="288">Opus decode → speaker</text>
+
+          <!-- ===== Inter-group arrows ===== -->
+          <!-- Server packet → Galaxy Phone -->
+          <path class="edge green" d="M 220 220 C 260 220, 260 160, 310 160" marker-end="url(#rt-ah-green)"/>
+          <rect class="edge-label-bg" x="226" y="178" width="68" height="14" rx="3"/>
+          <text class="edge-label" x="260" y="189" style="fill:#047857;">resp+act</text>
+
+          <!-- Server packet → Others -->
+          <path class="edge green" d="M 220 260 C 260 260, 260 360, 430 360" marker-end="url(#rt-ah-green)"/>
+          <rect class="edge-label-bg" x="232" y="302" width="58" height="14" rx="3"/>
+          <text class="edge-label" x="261" y="313" style="fill:#047857;">TTS pkt</text>
+
+          <!-- Galaxy Phone TTS → Buds -->
+          <path class="edge blue" d="M 810 202 C 860 202, 860 260, 930 260" marker-end="url(#rt-ah-blue)"/>
+          <rect class="edge-label-bg" x="828" y="218" width="68" height="14" rx="3"/>
+          <text class="edge-label blue" x="862" y="229">BT · TTS</text>
+
+          <!-- Others → Buds (curving around) -->
+          <path class="edge magenta" d="M 690 360 C 800 360, 800 290, 930 290" marker-end="url(#rt-ah-magenta)"/>
+          <rect class="edge-label-bg" x="804" y="302" width="84" height="14" rx="3"/>
+          <text class="edge-label magenta" x="846" y="313">BT PAN · TTS</text>
+        </svg>
+      </div>
+
+      <div class="wf-help">
+        <span><strong>Request:</strong> 두 경로 모두 마지막 홉은 HTTPS. 갤럭시 = 📱 TLS endpoint(JWT), Others = 🎧 Buds 자신이 TLS endpoint(mTLS E2E).</span>
+        <span><strong>Return:</strong> 갤럭시 경로는 폰이 저장·후속·TTS 모두 처리. Others는 서버가 TTS를 직접 만들어 호스트만 통과해 버즈로 직송.</span>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Slide 03 — CAT 1: 오디오 캡처 & 압축                   -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s03">
+      <div class="slide-num">03 / 08</div>
+      <span class="slide-tag">Category 1 of 6</span>
+
+      <div class="tech-head">
+        <div class="tech-icon">🎧</div>
+        <div class="tech-meta">
+          <div class="where">RUNS ON · Galaxy Buds</div>
+          <h2>오디오 캡처 & 압축</h2>
+          <p class="one-liner">"방금 그거"를 답할 수 있도록 직전 30초를 항상 들고 다닌다 — 작게.</p>
+        </div>
+        <span class="tech-step-link">used in Step 1 · 3</span>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><h3>Ring Buffer</h3><span class="acronym">압축 링버퍼</span></div>
+          <p class="tc-easy">회전 칠판. 새 소리가 들어오면 가장 오래된 소리를 지우고 덮어쓴다. 메모리는 항상 일정.</p>
+          <dl class="tc-spec">
+            <dt>Window</dt><dd>10 ~ 30 s</dd>
+            <dt>Slot</dt><dd>Opus 20ms frame</dd>
+            <dt>RAM</dt><dd>~165 KB</dd>
+            <dt>동시성</dt><dd>SPSC lock-free</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 1</strong> · Buds 펌웨어</div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Opus 코덱</h3><span class="acronym">RFC 6716</span></div>
+          <p class="tc-easy">오디오용 ZIP. 음악과 음성을 모두 잘 압축. 같은 코덱으로 단일 파이프라인.</p>
+          <dl class="tc-spec">
+            <dt>구조</dt><dd>SILK + CELT 하이브리드</dd>
+            <dt>Bitrate</dt><dd>음성 16k · 음악 32k</dd>
+            <dt>Latency</dt><dd>20 ms (low-delay 모드)</dd>
+            <dt>Raw 대비</dt><dd>~20× 압축</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 1 · 3 · 8</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>VAD</h3><span class="acronym">Voice Activity Detection</span></div>
+          <p class="tc-easy">"지금 말하는 중?"을 0.01초 단위로 판단. 침묵 0.5초면 자동 종료.</p>
+          <dl class="tc-spec">
+            <dt>모델</dt><dd>GMM → DNN (compact)</dd>
+            <dt>Hop</dt><dd>10 ms</dd>
+            <dt>End-of-speech</dt><dd>500 ms 침묵</dd>
+            <dt>위치</dt><dd>Buds DSP 온디바이스</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 3</strong> · 자동 종료</div>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>왜 압축?</strong> Raw PCM 30초 = 2.8MB → 버즈 RAM에 못 들어간다. Opus로 ~150KB. <strong>왜 단일 코덱?</strong> 듣던 게 음악인지 말인지 모르니 하나가 둘 다 잘해야 한다 — Opus가 유일한 답.
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Slide 04 — CAT 2: 무선 통신 & 네트워킹                 -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s04">
+      <div class="slide-num">04 / 08</div>
+      <span class="slide-tag">Category 2 of 6</span>
+
+      <div class="tech-head">
+        <div class="tech-icon">📡</div>
+        <div class="tech-meta">
+          <div class="where">RUNS ON · Buds + Host (Phone/Others) + Network</div>
+          <h2>무선 통신 & 네트워킹</h2>
+          <p class="one-liner">갤럭시 없이도 어떤 BT+인터넷 기기와도 통한다 — 앱 설치 0.</p>
+        </div>
+        <span class="tech-step-link">used in Step 4 · 5</span>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><h3>Bluetooth Classic / BLE</h3><span class="acronym">BR/EDR · 5.x</span></div>
+          <p class="tc-easy">버즈 ↔ 폰의 일반 무선 연결. 오디오 채널은 Classic, 컨트롤은 BLE GATT.</p>
+          <dl class="tc-spec">
+            <dt>MTU</dt><dd>L2CAP CoC ~1 KB</dd>
+            <dt>Throughput</dt><dd>~1 Mbps (실측)</dd>
+            <dt>페어링</dt><dd>SSP + LE Secure Conn</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 4 (갤럭시 경로)</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Bluetooth PAN</h3><span class="acronym">Personal Area Network</span></div>
+          <p class="tc-easy">BT를 "Wi-Fi처럼" 쓰는 모드. 기기끼리 IP 주소를 주고받아 인터넷 공유. 모든 OS 빌트인.</p>
+          <dl class="tc-spec">
+            <dt>역할</dt><dd>NAP (호스트) ↔ PANU (버즈)</dd>
+            <dt>OS 지원</dt><dd>데스크톱 100% · 모바일 대부분</dd>
+            <dt>설치</dt><dd>0 (OS 토글 한 번)</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 4 · 5 (Others 경로)</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>BNEP</h3><span class="acronym">BT Network Encapsulation Protocol</span></div>
+          <p class="tc-easy">BT 위에 이더넷 프레임을 실어 보내는 포장지. PAN이 동작하는 안쪽 메커니즘.</p>
+          <dl class="tc-spec">
+            <dt>위치</dt><dd>L2CAP 채널 0x000F</dd>
+            <dt>프레임</dt><dd>Ethernet II 호환</dd>
+            <dt>오버헤드</dt><dd>~14 bytes/frame</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 4 · 5 (Others 경로)</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>TCP/IP · DNS · DHCP</h3><span class="acronym">인터넷 3대장</span></div>
+          <p class="tc-easy">주소 받기(DHCP) → 이름 찾기(DNS) → 안전하게 보내기(TCP). 펌웨어 내장 lwIP 스택이 처리.</p>
+          <dl class="tc-spec">
+            <dt>스택</dt><dd>lwIP (펌웨어 내)</dd>
+            <dt>주소</dt><dd>IPv4 DHCP · IPv6 SLAAC</dd>
+            <dt>TLS</dt><dd>mbedTLS 1.3</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 5</strong> · 버즈가 직접 HTTPS</div>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>핵심:</strong> Others 경로는 호스트(노트북·TV)에 앱을 깔지 못한다는 제약을 OS 표준 BT PAN으로 우회. 버즈가 직접 TCP/IP·TLS 스택을 가져 호스트는 라우터 역할만 — <strong>한 OS만 쓰는 회사에 종속되지 않는 게 비결.</strong>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Slide 05 — CAT 3: 패킷 / 프로토콜                       -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s05">
+      <div class="slide-num">05 / 08</div>
+      <span class="slide-tag">Category 3 of 6</span>
+
+      <div class="tech-head">
+        <div class="tech-icon">📦</div>
+        <div class="tech-meta">
+          <div class="where">RUNS ON · Buds (구성) + Server (파싱)</div>
+          <h2>패킷 / 프로토콜</h2>
+          <p class="one-liner">직전 사운드와 사용자 질문을 한 봉투에 묶어 보낸다 — 확장 가능한 자체 포맷.</p>
+        </div>
+        <span class="tech-step-link">used in Step 4 · 6</span>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><h3>Session / Frame 2-레이어</h3><span class="acronym">BUDS v1.0</span></div>
+          <p class="tc-easy">큰 봉투(Session) 안에 작은 봉투(Frame) 여러 개. 큰 봉투엔 메타, 작은 봉투엔 실제 오디오 조각.</p>
+          <dl class="tc-spec">
+            <dt>Header</dt><dd>16 B 고정 (Magic·Ver·Type·SID)</dd>
+            <dt>Magic</dt><dd>0x42 0x55 0x44 0x53 ("BUDS")</dd>
+            <dt>Frame MTU</dt><dd>240 ~ 1024 B</dd>
+            <dt>Integrity</dt><dd>CRC16 (frame) + CRC32 (session)</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 4 · 6</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>TLV 메타데이터</h3><span class="acronym">Type-Length-Value</span></div>
+          <p class="tc-easy">"이건 뭐(Type)·몇 글자(Length)·값(Value)" 세 칸. 모르는 태그가 와도 길이를 보고 건너뛸 수 있어 무한 확장.</p>
+          <dl class="tc-spec">
+            <dt>Tag</dt><dd>1 B (256개 슬롯)</dd>
+            <dt>Length</dt><dd>2 B (max 64 KB)</dd>
+            <dt>이미 정의</dt><dd>DeviceID · TS · Trigger · Codec…</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 4</strong> · 메타 확장</div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>멀티트랙 페이로드</h3><span class="acronym">Track A + B</span></div>
+          <p class="tc-easy">한 패킷 안에 두 동시 트랙. Track A = 직전 사운드, Track B = 사용자 질문. 영상 편집 타임라인처럼.</p>
+          <dl class="tc-spec">
+            <dt>Track A</dt><dd>Opus 32 kbps · 30 s · ~120 KB</dd>
+            <dt>Track B</dt><dd>Opus 16 kbps · 5 s · ~10 KB</dd>
+            <dt>총합</dt><dd>~130 KB · ~130 BLE frames</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 4</strong> · 두 트랙 동시 전달</div>
+        </div>
+      </div>
+
+      <div class="mini-d">+--------+--------+------------+----------------+----------------+
+| Header | Meta   | Track A    | Track B        | Footer (CRC32) |
+| 16 B   | TLV    | (직전사운드)| (질문 음성)     | 4 B            |
++--------+--------+------------+----------------+----------------+</div>
+
+      <div class="tech-bottom">
+        <strong>왜 자체 포맷?</strong> ProtoBuf/MessagePack은 메타 표현은 좋지만 오디오 페이로드용 헤더 효율이 떨어진다. 2-레이어 + TLV는 오디오 스트림 + 확장 가능 메타를 둘 다 잡는다.
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Slide 06 — CAT 4: 보안                                  -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s06">
+      <div class="slide-num">06 / 08</div>
+      <span class="slide-tag">Category 4 of 6</span>
+
+      <div class="tech-head">
+        <div class="tech-icon">🔐</div>
+        <div class="tech-meta">
+          <div class="where">RUNS ON · Buds + Server (E2E)</div>
+          <h2>보안</h2>
+          <p class="one-liner">호스트(폰·노트북)도 페이로드를 못 본다 — 버즈와 서버 둘만 푼다.</p>
+        </div>
+        <span class="tech-step-link">used in Step 4 ~ 8 (계속)</span>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><h3>mTLS</h3><span class="acronym">Mutual TLS</span></div>
+          <p class="tc-easy">은행과 손님이 서로 신분증을 보여주는 양방향 인증. 일반 HTTPS는 서버만, mTLS는 양쪽 모두.</p>
+          <dl class="tc-spec">
+            <dt>TLS</dt><dd>1.3</dd>
+            <dt>KEX</dt><dd>X25519 ECDHE</dd>
+            <dt>Cipher</dt><dd>AEAD (ChaCha20-Poly1305)</dd>
+            <dt>Cert</dt><dd>X.509 · 디바이스별 발급</dd>
+          </dl>
+          <div class="tc-where">used <strong>Buds ↔ Server</strong> 직접 — 호스트 못 끼어듦</div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Secure Element</h3><span class="acronym">SE / TEE</span></div>
+          <p class="tc-easy">버즈에 박힌 금고 칩. 디바이스 비밀키가 여기에만 보관되고 절대 밖으로 나오지 않음.</p>
+          <dl class="tc-spec">
+            <dt>표준</dt><dd>GlobalPlatform SE / ARM TrustZone</dd>
+            <dt>저장</dt><dd>Device priv key · Pairing key</dd>
+            <dt>Attestation</dt><dd>SE-signed key cert</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Pairing · 매 요청 서명</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>JWT</h3><span class="acronym">JSON Web Token</span></div>
+          <p class="tc-easy">위변조 불가 도장 찍힌 종이. mTLS와 함께 이중 인증 — 누가/언제까지 허용인지 명시.</p>
+          <dl class="tc-spec">
+            <dt>Alg</dt><dd>EdDSA (Ed25519)</dd>
+            <dt>Claims</dt><dd>sub·iat·exp·scope</dd>
+            <dt>TTL</dt><dd>1 h (rotate)</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 5</strong> · Phone↔Server</div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>E2E 암호화</h3><span class="acronym">End-to-End</span></div>
+          <p class="tc-easy">버즈에서 서버까지 가는 길에 있는 누구도(폰·노트북 포함) 내용을 못 본다. 양 끝 두 명만 푼다.</p>
+          <dl class="tc-spec">
+            <dt>적용 범위</dt><dd>모든 페이로드 (Track A·B·TTS)</dd>
+            <dt>키 합의</dt><dd>ECDH per-session</dd>
+            <dt>Forward Secrecy</dt><dd>O (에페메럴 키)</dd>
+          </dl>
+          <div class="tc-where">used <strong>Step 4 ~ 8 전 구간</strong></div>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>중요한 약속:</strong> Others 경로에서 호스트(친구의 노트북·공용 TV)에 잠시 연결되더라도, 그 호스트는 라우터 역할만 — 사용자가 무엇을 들었는지·물었는지·답받았는지 전혀 알 수 없다.
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Slide 07 — CAT 5: AI 파이프라인                         -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s07">
+      <div class="slide-num">07 / 08</div>
+      <span class="slide-tag">Category 5 of 6</span>
+
+      <div class="tech-head">
+        <div class="tech-icon">🤖</div>
+        <div class="tech-meta">
+          <div class="where">RUNS ON · Server</div>
+          <h2>AI 파이프라인</h2>
+          <p class="one-liner">두 트랙(직전 사운드 + 질문)을 함께 봐서 정확한 답을 만든다 — 폰 마이크가 못하는 일.</p>
+        </div>
+        <span class="tech-step-link">used in Step 6</span>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><h3>STT</h3><span class="acronym">Speech-to-Text</span></div>
+          <p class="tc-easy">목소리를 글자로. 받아쓰기 AI.</p>
+          <dl class="tc-spec">
+            <dt>모델</dt><dd>Whisper / Conformer</dd>
+            <dt>언어</dt><dd>다국어 (자동 감지)</dd>
+            <dt>WER</dt><dd>한국어 ~6%</dd>
+          </dl>
+          <div class="tc-where">처리: <strong>Step 6-2</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>관련도 판단</h3><span class="acronym">Cross-modal Sim</span></div>
+          <p class="tc-easy">"질문이 듣던 것과 관련 있나?" — Track A 임베딩과 Track B 텍스트 임베딩의 코사인 유사도.</p>
+          <dl class="tc-spec">
+            <dt>임계값</dt><dd>cos θ ≥ 0.55</dd>
+            <dt>모델</dt><dd>CLAP (audio-text)</dd>
+            <dt>분기</dt><dd>유의미 ↔ 무의미</dd>
+          </dl>
+          <div class="tc-where">처리: <strong>Step 6-2</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Audio Fingerprinting</h3><span class="acronym">Wang 2003</span></div>
+          <p class="tc-easy">음악의 "지문". Shazam과 같은 기술 — 1초 안에 고유 패턴으로 곡 식별.</p>
+          <dl class="tc-spec">
+            <dt>알고리즘</dt><dd>Spectral peaks + hashing</dd>
+            <dt>DB</dt><dd>1억+ 트랙</dd>
+            <dt>매치 시간</dt><dd>~200 ms</dd>
+          </dl>
+          <div class="tc-where">처리: <strong>Step 6-3</strong> · 음악 의도</div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>의도 분류 (LLM)</h3><span class="acronym">Intent Classification</span></div>
+          <p class="tc-easy">"이 질문이 어떤 종류?" 분류 + 답변 합성. 같은 LLM이 갤럭시용 Action Items와 Others용 TTS 텍스트를 만든다.</p>
+          <dl class="tc-spec">
+            <dt>라우팅</dt><dd>분류 → 전문 핸들러</dd>
+            <dt>의도 카탈로그</dt><dd>music · translate · summary · QA · …</dd>
+            <dt>지연 목표</dt><dd>p50 ~ 0.8 s</dd>
+          </dl>
+          <div class="tc-where">처리: <strong>Step 6-3 · 6-4</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Neural TTS</h3><span class="acronym">Text-to-Speech</span></div>
+          <p class="tc-easy">글자를 사람 목소리로. 사람과 구별 어려움.</p>
+          <dl class="tc-spec">
+            <dt>모델</dt><dd>VITS / Tacotron 2 (스트리밍)</dd>
+            <dt>코덱</dt><dd>Opus 24 kbps</dd>
+            <dt>첫 음절</dt><dd>~300 ms (스트리밍)</dd>
+          </dl>
+          <div class="tc-where">처리: <strong>Step 6-4 (Others)</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Action Item 합성</h3><span class="acronym">Galaxy only</span></div>
+          <p class="tc-easy">"5/30 미팅 잡아줘" → [캘린더 생성, 알림 설정, 오디오 저장] 우선순위 매김.</p>
+          <dl class="tc-spec">
+            <dt>스키마</dt><dd>{intent, params, priority}</dd>
+            <dt>핸들러</dt><dd>Calendar · Reminder · SmartThings…</dd>
+          </dl>
+          <div class="tc-where">처리: <strong>Step 6-3 (갤럭시)</strong></div>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>핵심:</strong> 같은 AI 두뇌가 두 경로 모두를 처리한다. 갤럭시 → Action Items + 텍스트 답변, Others → 합성된 음성. <strong>모델·추론 비용 공유 → 운영비 절감.</strong>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- Slide 08 — CAT 6: 신뢰성 / 오프라인                     -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s08">
+      <div class="slide-num">08 / 08</div>
+      <span class="slide-tag">Category 6 of 6</span>
+
+      <div class="tech-head">
+        <div class="tech-icon">⛓</div>
+        <div class="tech-meta">
+          <div class="where">RUNS ON · Galaxy Phone (주) + Buds (BT 재전송)</div>
+          <h2>신뢰성 & 오프라인</h2>
+          <p class="one-liner">인터넷이 끊겨도 요청은 잃지 않는다. 한 번 보낸 요청은 두 번 처리되지 않는다.</p>
+        </div>
+        <span class="tech-step-link">used in Step 4 · 5 · 7</span>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tc-head"><h3>Persistent Queue</h3><span class="acronym">갤럭시 폰</span></div>
+          <p class="tc-easy">버즈→폰 요청은 영속 DB 큐에 적재. 기본 상태 wait — 인터넷 복구 시 자동 전송.</p>
+          <dl class="tc-spec">
+            <dt>스토리지</dt><dd>SQLite (WAL)</dd>
+            <dt>상태</dt><dd>wait → sending → done / failed</dd>
+            <dt>Network Cb</dt><dd>onAvailable → drain</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 5</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Idempotency</h3><span class="acronym">session_id</span></div>
+          <p class="tc-easy">같은 요청을 두 번 보내도 서버는 한 번만 처리. 재시도가 안전해진다.</p>
+          <dl class="tc-spec">
+            <dt>Key</dt><dd>uint32 session_id (random)</dd>
+            <dt>TTL</dt><dd>서버 측 24h 중복 가드</dd>
+            <dt>응답 결합</dt><dd>session_id로 원본 매칭</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 5 · 7</strong></div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>Frame Retransmission</h3><span class="acronym">BT 신뢰성</span></div>
+          <p class="tc-easy">BT 프레임이 누락되면 NAK으로 그 프레임만 재전송. 전체 세션은 폐기되지 않음.</p>
+          <dl class="tc-spec">
+            <dt>탐지</dt><dd>Seq 갭 → NAK(seq=N)</dd>
+            <dt>Timeout</dt><dd>3 s → 세션 폐기</dd>
+            <dt>Cost</dt><dd>~프레임당 5 B</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 4</strong> · Buds↔Phone BT</div>
+        </div>
+
+        <div class="tech-card">
+          <div class="tc-head"><h3>응답 매칭 / 히스토리</h3><span class="acronym">Phone DB</span></div>
+          <p class="tc-easy">서버 응답이 도착하면 session_id로 원본 큐 항목 찾아 답변·액션을 붙여 히스토리에 적층.</p>
+          <dl class="tc-spec">
+            <dt>스키마</dt><dd>request · response · actions · ts</dd>
+            <dt>노출</dt><dd>위젯 / 노티 / 워치 / Bixby</dd>
+            <dt>유지</dt><dd>사용자 설정 (default 30d)</dd>
+          </dl>
+          <div class="tc-where">used in <strong>Step 7</strong> · 갤럭시 경로</div>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>큐 = 경험의 안전망.</strong> "지금 답을 못 듣더라도 나중에 폰을 봤을 때 답이 있어야 한다" — 큐 없이 즉시 실패하면 그 순간이 영영 사라진다. <br/>
+        <strong>다음 단계:</strong> 더 깊은 디테일은 <a href="appendix.html">부록 인덱스</a>의 카테고리별 deep dive에서.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">부록 인덱스</span>
+      </a>
+      <a href="appendix-audio.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">Deep Dive 1 · 오디오 캡처 & 압축</span>
+      </a>
+    </nav>
+  </main>
+
+  <div class="present-controls" id="presentControls">
+    <button id="prevSlide" aria-label="이전">‹</button>
+    <span class="counter"><span id="curSlide">1</span> / <span id="totalSlides">8</span></span>
+    <button id="nextSlide" aria-label="다음">›</button>
+    <a href="appendix-workflow.html" id="exitPresent" title="발표 모드 종료">✕</a>
+  </div>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · WORKFLOW + TECH · 8 SLIDES</span>
+    <span class="doc-tag">BudsAI Design Doc · 워크플로우 + 기술 슬라이드</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+  <script>
+    /* Presentation mode (?present) */
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has('present')) return;
+
+      document.body.classList.add('is-present');
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      let current = 0;
+      const curEl = document.getElementById('curSlide');
+      const totalEl = document.getElementById('totalSlides');
+      totalEl.textContent = slides.length;
+
+      function show(i) {
+        if (i < 0) i = 0;
+        if (i >= slides.length) i = slides.length - 1;
+        current = i;
+        slides.forEach((s, idx) => s.classList.toggle('is-current', idx === i));
+        curEl.textContent = i + 1;
+        window.scrollTo(0, 0);
+      }
+      show(0);
+
+      document.getElementById('prevSlide').addEventListener('click', () => show(current - 1));
+      document.getElementById('nextSlide').addEventListener('click', () => show(current + 1));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          e.preventDefault(); show(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault(); show(current - 1);
+        } else if (e.key === 'Home') {
+          show(0);
+        } else if (e.key === 'End') {
+          show(slides.length - 1);
+        } else if (e.key === 'Escape') {
+          window.location.href = 'appendix-workflow.html';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
