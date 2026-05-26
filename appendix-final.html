@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>최종 기술 부록 · 5 슬라이드 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* =========================================================
+       LIGHT THEME (Samsung tone) — same palette as workflow deck
+       ========================================================= */
+    :root {
+      --w-bg: #ffffff;
+      --w-bg-soft: #f7f8fa;
+      --w-border: #e5e7eb;
+      --w-text: #0b1220;
+      --w-text-dim: #4b5563;
+      --w-text-muted: #8a93a3;
+      --w-blue: #1428a0;
+      --w-blue-dim: #0e1d78;
+      --w-blue-soft: #eef0fa;
+      --w-blue-line: #c8cee9;
+      --w-magenta: #be185d;
+      --w-magenta-soft: #fce7f3;
+      --w-amber: #b45309;
+      --w-amber-soft: #fef3c7;
+      --w-green: #047857;
+      --w-green-soft: #d1fae5;
+      --w-red: #b91c1c;
+      --w-red-soft: #fee2e2;
+      --w-violet: #6d28d9;
+      --w-violet-soft: #ede9fe;
+      --w-shadow: 0 1px 2px rgba(11,18,32,.04), 0 8px 24px rgba(11,18,32,.05);
+      --w-radius: 12px;
+      --w-radius-sm: 6px;
+    }
+
+    html, body.is-fin {
+      background: var(--w-bg) !important;
+      color: var(--w-text) !important;
+    }
+    body.is-fin {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body.is-fin .site-header {
+      background: rgba(255,255,255,0.92);
+      border-bottom: 1px solid var(--w-border);
+    }
+    body.is-fin .site-header .logo { color: var(--w-text); }
+    body.is-fin .site-header .logo-mark { background: var(--w-blue); color: #fff; }
+    body.is-fin .site-header .nav a { color: var(--w-text-dim); }
+    body.is-fin .site-header .nav a:hover { background: var(--w-bg-soft); color: var(--w-text); }
+    body.is-fin .site-header .nav a.active { background: var(--w-blue-soft); color: var(--w-blue); }
+    body.is-fin .site-header .nav-toggle { background:#fff; border-color: var(--w-border); color: var(--w-text); }
+    body.is-fin .site-footer {
+      background: var(--w-bg-soft);
+      border-top: 1px solid var(--w-border);
+      color: var(--w-text-muted);
+    }
+    body.is-fin .site-footer .page-mark { color: var(--w-blue); }
+    body.is-fin .sim-fab {
+      background: var(--w-blue); color: #fff;
+      box-shadow: 0 6px 18px rgba(20,40,160,.35);
+    }
+    body.is-fin .sim-fab:hover { background: var(--w-blue-dim); }
+
+    /* Slide scaffolding (shared with workflow deck) */
+    .wf-main { max-width: 1240px; margin: 0 auto; padding: 24px 32px 96px; }
+    .wf-intro {
+      padding: 20px 0 24px; border-bottom: 1px solid var(--w-border); margin-bottom: 24px;
+    }
+    .wf-intro h1 { font-size: 22px; margin: 0 0 6px; color: var(--w-text); letter-spacing: -0.01em; }
+    .wf-intro p { color: var(--w-text-dim); font-size: 14px; margin: 0; }
+    .wf-intro .hint {
+      margin-top: 8px; font-size: 12px; color: var(--w-text-muted);
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    }
+    .wf-intro a { color: var(--w-blue); }
+
+    .slide {
+      min-height: 92vh;
+      padding: 40px 0 56px;
+      border-bottom: 1px dashed var(--w-border);
+      display: flex; flex-direction: column;
+    }
+    .slide:last-of-type { border-bottom: none; }
+    .slide-num {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 12px; letter-spacing: 0.12em;
+      color: var(--w-text-muted); text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .slide-tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--w-blue); background: var(--w-blue-soft);
+      padding: 4px 10px; border-radius: 999px;
+      margin-bottom: 12px; align-self: flex-start;
+    }
+    .slide-headline {
+      font-size: 34px; font-weight: 800;
+      letter-spacing: -0.025em; line-height: 1.15;
+      color: var(--w-text); margin: 0 0 10px;
+    }
+    .slide-headline em { font-style: normal; color: var(--w-blue); }
+    .slide-headline em.m { color: var(--w-magenta); }
+    .slide-sub {
+      font-size: 15px; color: var(--w-text-dim);
+      line-height: 1.55; margin: 0 0 22px;
+      max-width: 980px;
+    }
+
+    /* Tech head with icon */
+    .tech-head { display: none; }  /* not used in this deck */
+
+    /* Tech grid + card (reused) */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .tech-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .tech-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 980px) {
+      .tech-grid.cols-4, .tech-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .tech-grid.cols-4, .tech-grid.cols-2 { grid-template-columns: 1fr; }
+    }
+    .tech-card {
+      background: #fff;
+      border: 1px solid var(--w-border);
+      border-radius: var(--w-radius);
+      padding: 16px 18px;
+      box-shadow: var(--w-shadow);
+      display: flex; flex-direction: column;
+    }
+    .tech-card.is-magenta { border-color: #f0b4d0; }
+    .tech-card.is-green { border-color: #a7e0c9; }
+    .tech-card.is-amber { border-color: #f4d28a; }
+    .tech-card.is-violet { border-color: #d3c4f5; }
+    .tech-card .tc-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+    .tech-card .tc-head h3 {
+      margin: 0; padding: 0;
+      font-size: 15px; color: var(--w-text);
+      letter-spacing: -0.005em; font-weight: 700;
+    }
+    .tech-card .tc-head .acronym {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10.5px; color: var(--w-blue);
+      background: var(--w-blue-soft);
+      padding: 1px 6px; border-radius: 3px;
+    }
+    .tech-card.is-magenta .tc-head .acronym { color: var(--w-magenta); background: var(--w-magenta-soft); }
+    .tech-card.is-green .tc-head .acronym { color: var(--w-green); background: var(--w-green-soft); }
+    .tech-card.is-amber .tc-head .acronym { color: var(--w-amber); background: var(--w-amber-soft); }
+    .tech-card.is-violet .tc-head .acronym { color: var(--w-violet); background: var(--w-violet-soft); }
+    .tech-card .tc-easy {
+      font-size: 12.5px; color: var(--w-text-dim);
+      line-height: 1.5; margin: 0 0 8px;
+    }
+    .tech-card .tc-spec {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 4px 12px;
+      font-size: 11.5px;
+      padding: 8px 10px;
+      background: var(--w-bg-soft);
+      border-radius: var(--w-radius-sm);
+      margin-top: auto;
+    }
+    .tech-card .tc-spec dt {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      color: var(--w-text-muted);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      font-size: 10px; align-self: center;
+    }
+    .tech-card .tc-spec dd {
+      margin: 0; color: var(--w-text);
+      font-weight: 600; align-self: center;
+    }
+
+    /* ===== TL;DR box — single most important takeaway, top of each slide ===== */
+    .tldr {
+      display: flex;
+      align-items: stretch;
+      gap: 18px;
+      padding: 16px 20px 16px 18px;
+      background: linear-gradient(135deg, #fff 0%, var(--w-blue-soft) 100%);
+      border: 1px solid var(--w-blue-line);
+      border-left: 5px solid var(--w-blue);
+      border-radius: var(--w-radius);
+      margin-bottom: 18px;
+      box-shadow: 0 1px 2px rgba(20,40,160,.04), 0 6px 18px rgba(20,40,160,.06);
+    }
+    .tldr.m { background: linear-gradient(135deg, #fff 0%, var(--w-magenta-soft) 100%); border-color: #f0b4d0; border-left-color: var(--w-magenta); }
+    .tldr.g { background: linear-gradient(135deg, #fff 0%, var(--w-green-soft) 100%); border-color: #a7e0c9; border-left-color: var(--w-green); }
+    .tldr.a { background: linear-gradient(135deg, #fff 0%, var(--w-amber-soft) 100%); border-color: #f4d28a; border-left-color: var(--w-amber); }
+    .tldr.v { background: linear-gradient(135deg, #fff 0%, var(--w-violet-soft) 100%); border-color: #d3c4f5; border-left-color: var(--w-violet); }
+    .tldr .tldr-mark {
+      display: grid; place-items: center;
+      flex: 0 0 56px;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px; font-weight: 800;
+      color: var(--w-blue);
+      letter-spacing: 0.08em;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      border-right: 1px dashed var(--w-blue-line);
+      padding-right: 4px;
+    }
+    .tldr.m .tldr-mark { color: var(--w-magenta); border-right-color: #f0b4d0; }
+    .tldr.g .tldr-mark { color: var(--w-green); border-right-color: #a7e0c9; }
+    .tldr.a .tldr-mark { color: var(--w-amber); border-right-color: #f4d28a; }
+    .tldr.v .tldr-mark { color: var(--w-violet); border-right-color: #d3c4f5; }
+    .tldr .tldr-body {
+      font-size: 16.5px; font-weight: 700;
+      line-height: 1.5; color: var(--w-text);
+      letter-spacing: -0.005em;
+      align-self: center;
+      flex: 1;
+    }
+    .tldr .tldr-body em { font-style: normal; color: var(--w-blue); }
+    .tldr.m .tldr-body em { color: var(--w-magenta); }
+    .tldr.g .tldr-body em { color: var(--w-green); }
+    .tldr.a .tldr-body em { color: var(--w-amber); }
+    .tldr.v .tldr-body em { color: var(--w-violet); }
+    .tldr .tldr-body u {
+      text-decoration: none;
+      background: linear-gradient(180deg, transparent 60%, rgba(94,234,212,0) 60%, var(--w-blue-soft) 60%);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    @media (max-width: 640px) {
+      .tldr { flex-direction: column; gap: 6px; }
+      .tldr .tldr-mark { writing-mode: horizontal-tb; transform: none; flex: none; border-right: none; border-bottom: 1px dashed var(--w-blue-line); padding: 0 0 4px; }
+      .tldr .tldr-body { font-size: 14.5px; }
+    }
+
+    /* ===== Stat row — big numbers that should pop ===== */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--w-border);
+      border-top: 3px solid var(--w-blue);
+      border-radius: var(--w-radius);
+      padding: 14px 16px 12px;
+      box-shadow: var(--w-shadow);
+    }
+    .stat.g { border-top-color: var(--w-green); }
+    .stat.m { border-top-color: var(--w-magenta); }
+    .stat.a { border-top-color: var(--w-amber); }
+    .stat.v { border-top-color: var(--w-violet); }
+    .stat .stat-label {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10.5px; font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--w-text-muted);
+      margin-bottom: 4px;
+    }
+    .stat .stat-value {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 26px; font-weight: 800;
+      color: var(--w-blue);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin: 0 0 2px;
+    }
+    .stat.g .stat-value { color: var(--w-green); }
+    .stat.m .stat-value { color: var(--w-magenta); }
+    .stat.a .stat-value { color: var(--w-amber); }
+    .stat.v .stat-value { color: var(--w-violet); }
+    .stat .stat-value small {
+      font-size: 14px; font-weight: 700;
+      color: inherit;
+      margin-left: 2px;
+    }
+    .stat .stat-desc {
+      font-size: 11.5px;
+      color: var(--w-text-dim);
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+    @media (max-width: 640px) {
+      .stat .stat-value { font-size: 22px; }
+    }
+
+    /* Bottom takeaway */
+    .tech-bottom {
+      margin-top: 14px; padding: 12px 16px;
+      background: var(--w-blue-soft);
+      border-left: 3px solid var(--w-blue);
+      border-radius: var(--w-radius-sm);
+      font-size: 13px; color: var(--w-text);
+      line-height: 1.55;
+    }
+    .tech-bottom strong { color: var(--w-blue); }
+    .tech-bottom.green {
+      background: var(--w-green-soft);
+      border-left-color: var(--w-green);
+    }
+    .tech-bottom.green strong { color: var(--w-green); }
+
+    /* Mini ascii diagram */
+    .mini-d {
+      background: var(--w-bg-soft);
+      border: 1px solid var(--w-border);
+      border-left: 3px solid var(--w-blue);
+      border-radius: var(--w-radius-sm);
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11px; color: var(--w-text-dim);
+      line-height: 1.55;
+      white-space: pre; overflow-x: auto;
+      margin: 8px 0;
+    }
+    .mini-d.m { border-left-color: var(--w-magenta); }
+    .mini-d.g { border-left-color: var(--w-green); }
+    .mini-d.a { border-left-color: var(--w-amber); }
+    .mini-d.v { border-left-color: var(--w-violet); }
+
+    /* Compact slide-level table */
+    .fin-table {
+      width: 100%; border-collapse: collapse; font-size: 12.5px;
+      background: #fff; border: 1px solid var(--w-border);
+      border-radius: var(--w-radius-sm); overflow: hidden;
+    }
+    .fin-table th {
+      background: var(--w-bg-soft);
+      text-align: left; padding: 8px 12px;
+      font-weight: 700; color: var(--w-text);
+      border-bottom: 1px solid var(--w-border);
+      white-space: nowrap;
+      font-size: 11.5px; letter-spacing: 0.02em;
+      text-transform: none;
+    }
+    .fin-table td {
+      padding: 8px 12px; border-bottom: 1px solid var(--w-border);
+      color: var(--w-text); vertical-align: top;
+    }
+    .fin-table tbody tr:last-child td { border-bottom: none; }
+    .fin-table tbody tr:nth-child(even) td { background: rgba(247,248,250,0.5); }
+    .fin-table td.dim { color: var(--w-text-muted); }
+    .fin-table td.code, .fin-table th.code {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 11.5px;
+    }
+    .fin-table .star { color: var(--w-blue); font-weight: 700; }
+
+    /* Two-column 50/50 slide content layout */
+    .split-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 980px) { .split-2 { grid-template-columns: 1fr; } }
+
+    /* Reference footnote block at the bottom of each slide */
+    .refs-foot {
+      margin-top: 18px; padding: 12px 14px;
+      background: #fff; border-top: 2px solid var(--w-border);
+      border-radius: 0 0 var(--w-radius-sm) var(--w-radius-sm);
+      font-size: 11.5px; color: var(--w-text-muted);
+      line-height: 1.6;
+    }
+    .refs-foot .label {
+      display: inline-block;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10.5px; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--w-text); font-weight: 700;
+      margin-right: 8px;
+    }
+    .refs-foot ol {
+      margin: 4px 0 0 0; padding-left: 0; list-style: none;
+      columns: 2; column-gap: 28px;
+    }
+    @media (max-width: 980px) { .refs-foot ol { columns: 1; } }
+    .refs-foot li {
+      margin: 2px 0; padding-left: 20px; position: relative;
+      break-inside: avoid;
+    }
+    .refs-foot li::before {
+      content: "[" counter(refs) "]";
+      counter-increment: refs;
+      position: absolute; left: 0; top: 0;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      color: var(--w-blue);
+    }
+    .refs-foot ol { counter-reset: refs; }
+    .refs-foot em { color: var(--w-text); font-style: normal; font-weight: 600; }
+    .refs-foot code {
+      background: var(--w-bg-soft);
+      color: var(--w-text-dim);
+      font-size: 10.5px;
+      padding: 1px 4px; border-radius: 3px;
+      border: none;
+    }
+    .ref-cite {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10.5px; color: var(--w-blue);
+      font-weight: 700; white-space: nowrap;
+    }
+
+    /* Highlight a key number */
+    .big-num {
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-weight: 800; color: var(--w-blue);
+      font-size: 16px;
+    }
+    .big-num.m { color: var(--w-magenta); }
+    .big-num.g { color: var(--w-green); }
+
+    /* Inline chip */
+    .chip {
+      display: inline-block;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 10.5px; font-weight: 700;
+      padding: 1px 6px; border-radius: 3px;
+      background: var(--w-blue-soft); color: var(--w-blue);
+      letter-spacing: -0.005em;
+      line-height: 1.4;
+    }
+    .chip.g { background: var(--w-green-soft); color: var(--w-green); }
+    .chip.a { background: var(--w-amber-soft); color: var(--w-amber); }
+    .chip.r { background: var(--w-red-soft); color: var(--w-red); }
+    .chip.v { background: var(--w-violet-soft); color: var(--w-violet); }
+    .chip.m { background: var(--w-magenta-soft); color: var(--w-magenta); }
+    .chip.n { background: #eef2f7; color: #475569; }
+
+    /* Pager (light) */
+    body.is-fin .pager a {
+      background: #fff;
+      border: 1px solid var(--w-border);
+      color: var(--w-text);
+    }
+    body.is-fin .pager a:hover { border-color: var(--w-blue); background: var(--w-blue-soft); }
+    body.is-fin .pager .pager-label { color: var(--w-text-muted); }
+    body.is-fin .pager .pager-title { color: var(--w-blue); }
+
+    /* Present mode */
+    body.is-present .site-header,
+    body.is-present .site-footer,
+    body.is-present .sim-fab,
+    body.is-present .wf-intro { display: none; }
+    body.is-present .slide { display: none; min-height: 100vh; padding: 40px 40px; }
+    body.is-present .slide.is-current { display: flex; }
+    body.is-present .wf-main { max-width: 1340px; padding: 0 32px; }
+    .present-controls {
+      display: none;
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      gap: 8px; z-index: 200;
+      background: #fff; border: 1px solid var(--w-border);
+      border-radius: 999px; padding: 6px 10px;
+      font-family: 'JetBrains Mono', 'SF Mono', monospace;
+      font-size: 12px; color: var(--w-text-dim);
+      box-shadow: var(--w-shadow);
+    }
+    body.is-present .present-controls { display: inline-flex; align-items: center; }
+    .present-controls button {
+      background: #fff; border: 1px solid var(--w-border); color: var(--w-text);
+      width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      font-family: inherit;
+    }
+    .present-controls button:hover { border-color: var(--w-blue); color: var(--w-blue); }
+    .present-controls .counter { padding: 0 8px; }
+    .present-controls a { color: var(--w-text-muted); padding: 0 6px; }
+
+    @media (max-width: 900px) {
+      .slide { min-height: auto; padding: 32px 0 48px; }
+      .slide-headline { font-size: 24px; }
+      .slide-sub { font-size: 13.5px; }
+    }
+
+    @media print {
+      body { background: white !important; color: black !important; }
+      .site-header, .site-footer, .sim-fab, .wf-intro, .nav-toggle, .present-controls { display: none !important; }
+      .slide { page-break-after: always; min-height: 100vh; border: none !important; padding: 24px !important; }
+      .slide:last-of-type { page-break-after: auto; }
+      .tech-card, .fin-table { background: white !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="is-fin">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="compare.html">타사 비교</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wf-main">
+    <div class="wf-intro">
+      <h1>최종 기술 부록 — 한 주제 = 한 슬라이드 × 5</h1>
+      <p>① Bluetooth 연결·음성 · ② BT 테더링 · ③ Opus + 이중 링버퍼 · ④ VAD · ⑤ Zero-copy + DMA. 각 슬라이드 하단에 1차 출처(spec/논문/teardown) 인용.</p>
+      <p class="hint">발표 모드 → <a href="?present">?present 로 진입</a> · 방향키 ← → · Esc 종료 · 인쇄 시 슬라이드당 한 페이지</p>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- SLIDE 01 — Bluetooth 연결 & 음성 전송                  -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s01">
+      <div class="slide-num">01 / 05 · BLUETOOTH</div>
+      <span class="slide-tag">같은 칩, 두 라디오, 세 음성 채널</span>
+      <h1 class="slide-headline">Bluetooth는 <em>BR/EDR + LE</em> 두 PHY가 한 칩에,<br/>그 위에 <em>eSCO · A2DP · LE Audio CIS</em> 세 음성 길.</h1>
+
+      <div class="tldr">
+        <div class="tldr-mark">한 줄</div>
+        <div class="tldr-body">
+          삼성 버즈가 폰에 음성을 보내는 길은 셋. <em>통화는 eSCO+mSBC</em>, <em>음악은 A2DP+SSC</em>,
+          그리고 Buds3 Pro부터 <em>LE Audio CIS+LC3</em>로 이주 중.
+          <strong>모두 표준이고, 칩셋이 이미 다 지원한다.</strong>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-label">통화 (HFP)</div>
+          <div class="stat-value">eSCO + mSBC</div>
+          <div class="stat-desc">16 kHz wideband · 7.5 ms 슬롯 예약 · 갤럭시 HD 통화 기본</div>
+        </div>
+        <div class="stat g">
+          <div class="stat-label">음악 (A2DP)</div>
+          <div class="stat-value">ACL + SSC</div>
+          <div class="stat-desc">88–512 kbps 적응형 · 전파 좋으면 24bit/96kHz UHQ</div>
+        </div>
+        <div class="stat v">
+          <div class="stat-label">차세대 (5.2+)</div>
+          <div class="stat-value">CIS + LC3</div>
+          <div class="stat-desc">Isochronous QoS · Buds3 Pro + S24부터 활성화 가능</div>
+        </div>
+        <div class="stat a">
+          <div class="stat-label">실효 처리량</div>
+          <div class="stat-value">2.1 <small>Mbps</small></div>
+          <div class="stat-desc">BR/EDR 2-EDR 실측 · 음악 + control plane 동시 충분</div>
+        </div>
+      </div>
+
+      <div class="tech-grid cols-4">
+        <div class="tech-card">
+          <div class="tc-head"><h3>BR/EDR (Classic)</h3><span class="acronym">79ch · 1600hop/s</span></div>
+          <p class="tc-easy">오디오·파일을 위한 고대역 비동기 채널. ACL 데이터 + SCO 동기. 1999년부터 진화.</p>
+          <dl class="tc-spec">
+            <dt>PHY</dt><dd>GFSK / π/4-DQPSK / 8DPSK</dd>
+            <dt>실효</dt><dd>~2.1 Mbps (2-EDR)</dd>
+            <dt>표준 음성</dt><dd>SCO/eSCO · A2DP</dd>
+            <dt>전력</dt><dd>수 mA (sniff)</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-violet">
+          <div class="tc-head"><h3>LE (Low Energy)</h3><span class="acronym">40ch · BLE 5.x</span></div>
+          <p class="tc-easy">제어·센서용 저전력 채널. 5.2부터 Isochronous(CIS·BIS)로 오디오까지 흡수.</p>
+          <dl class="tc-spec">
+            <dt>PHY</dt><dd>GFSK · LE 1M/2M/Coded</dd>
+            <dt>실효</dt><dd>~1.4 Mbps (2M PHY)</dd>
+            <dt>표준 음성</dt><dd>BAP/LC3 (5.2+)</dd>
+            <dt>전력</dt><dd>µA 단위</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-amber">
+          <div class="tc-head"><h3>eSCO + mSBC</h3><span class="acronym">HFP 1.9</span></div>
+          <p class="tc-easy">통화용 동기 채널. 갤럭시 HD 통화의 기본. 7.5 ms 프레임 × 슬롯 예약 + eSCO 재전송.</p>
+          <dl class="tc-spec">
+            <dt>샘플</dt><dd>16 kHz (wideband)</dd>
+            <dt>코덱</dt><dd>mSBC ~62 kbps</dd>
+            <dt>레거시</dt><dd>CVSD 64 kbps (8 kHz)</dd>
+            <dt>지연</dt><dd>~7.5 ms / frame</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-green">
+          <div class="tc-head"><h3>A2DP + SSC</h3><span class="acronym">AVDTP · ACL</span></div>
+          <p class="tc-easy">음악·미디어용 비동기 스트림. 전파 상태에 따라 비트레이트 자동 적응.</p>
+          <dl class="tc-spec">
+            <dt>SBC</dt><dd>~328 kbps · 필수</dd>
+            <dt>AAC-LC</dt><dd>~320 kbps · iPhone 기본</dd>
+            <dt>SSC</dt><dd>88–512 kbps · Samsung 자동</dd>
+            <dt>SSC-UHQ</dt><dd>~512 kbps · 24bit/96kHz</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="split-2" style="margin-top:14px;">
+        <div>
+          <div class="mini-d">┌──────── Bluetooth Protocol Stack ────────┐
+│ Profile : HFP · A2DP · AVRCP · BAP       │  ← 응용 의미
+├──────────────────────────────────────────┤
+│ Host    : RFCOMM · BNEP · SDP · GATT     │
+│           L2CAP (PSM mux, MTU 협상)       │
+├──── HCI (Host ↔ Controller 경계) ────────┤
+│ Ctrl   : LMP (Classic) │ LL (LE)         │
+│         Baseband (slot · FH · CRC · FEC) │
+│         Radio · 2.4 GHz ISM              │
+└──────────────────────────────────────────┘</div>
+        </div>
+        <div>
+          <table class="fin-table">
+            <thead><tr><th>삼성 버즈 시나리오</th><th>채널</th><th>코덱</th></tr></thead>
+            <tbody>
+              <tr><td>음악 재생</td><td>ACL · A2DP/AVDTP</td><td>SSC <span class="dim">/ AAC / SBC</span></td></tr>
+              <tr><td>전화 통화</td><td>eSCO · HFP</td><td>mSBC <span class="dim">(WB)</span></td></tr>
+              <tr><td>음성 명령(Bixby)</td><td>eSCO 또는 LE CIS</td><td>mSBC / LC3</td></tr>
+              <tr><td>Buds3 Pro · S24+</td><td>LE CIS (BAP)</td><td>LC3 <span class="dim">(16–80kbps)</span></td></tr>
+              <tr><td>좌↔우 동기</td><td>독자 TWS link</td><td>벤더 영역 <span class="dim">(snoop)</span></td></tr>
+              <tr><td>FW 업데이트</td><td>ACL · OBEX/SPP</td><td><span class="dim">n/a (BIN)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>BudsAI에 주는 함의:</strong> 음성 캡처는 이미 무선으로 흘러나오는 흐름.
+        별도 채널 신설 없이 ACL 안의 SPP/GATT custom service에 control plane을 얹는 것으로 충분.
+        LE Audio 인프라가 보급되면 CIS의 isochronous QoS 위에서 AI 캡처도 자연스럽게 동작.
+      </div>
+
+      <div class="refs-foot">
+        <span class="label">References · Slide 01</span>
+        <ol>
+          <li><em>Bluetooth Core Specification v5.4</em>, Bluetooth SIG, 2023. <code>bluetooth.com/specifications/specs/core-specification-5-4</code> <span class="ref-cite">[BT-CORE]</span></li>
+          <li><em>Advanced Audio Distribution Profile (A2DP) v1.4</em>, Bluetooth SIG, 2021. <span class="ref-cite">[A2DP-1.4]</span></li>
+          <li><em>Hands-Free Profile (HFP) v1.9</em>, Bluetooth SIG, 2023. <span class="ref-cite">[HFP-1.9]</span></li>
+          <li><em>Basic Audio Profile (BAP) v1.0.1 & LC3 Codec</em>, Bluetooth SIG / Fraunhofer IIS · Ericsson, 2022. <span class="ref-cite">[BAP-LC3]</span></li>
+          <li>Samsung Newsroom. "Samsung Scalable Codec" / "Galaxy Buds3 Pro AI features." 2021–2024. <code>news.samsung.com</code> <span class="ref-cite">[SAMSUNG]</span></li>
+          <li>J. Bray & C. Sturman. <em>Bluetooth 1.1: Connect Without Cables</em>, 2nd ed., Prentice Hall, 2002. (HCI·L2CAP 표준 입문서) <span class="ref-cite">[BRAY02]</span></li>
+          <li>M. Ryan. "Bluetooth: With Low Energy Comes Low Security." <em>USENIX WOOT '13</em> (TWS sniff 기법 공개 사례). <span class="ref-cite">[RYAN13]</span></li>
+          <li>Android Open Source Project. <em>packages/modules/Bluetooth</em>(Fluoride) — packet_layout reference. <code>cs.android.com</code> <span class="ref-cite">[AOSP-BT]</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- SLIDE 02 — Bluetooth Tethering                         -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s02">
+      <div class="slide-num">02 / 05 · BT TETHERING</div>
+      <span class="slide-tag">PAN · BNEP · 실측 처리량</span>
+      <h1 class="slide-headline">OS에게 Bluetooth는 그냥 <em class="m">느린 이더넷 카드</em>.<br/>BNEP가 그 환상을 만든다.</h1>
+
+      <div class="tldr m">
+        <div class="tldr-mark">한 줄</div>
+        <div class="tldr-body">
+          OS는 BT를 <em>가상 NIC <code style="font-size:14px;background:#fff;padding:0 4px;border-radius:3px;color:var(--w-magenta);">bnep0</code></em>로 본다 — 위에서는 DHCP·TCP·DNS가 평소대로 동작.
+          안드로이드 "Bluetooth 테더링" 토글이 정확히 이 NAP를 띄운다. <strong>실측 1–2 Mbps, 앱 설치 0.</strong>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat m">
+          <div class="stat-label">실측 처리량</div>
+          <div class="stat-value">1.5–2.3 <small>Mbps</small></div>
+          <div class="stat-desc">BR/EDR 3-EDR · 웹·IM·SSH·480p 영상까지 정상</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">RTT</div>
+          <div class="stat-value">40–80 <small>ms</small></div>
+          <div class="stat-desc">Wi-Fi(5–20 ms)보다 느리지만 체감 사용 가능</div>
+        </div>
+        <div class="stat g">
+          <div class="stat-label">설치 비용</div>
+          <div class="stat-value">0 <small>app</small></div>
+          <div class="stat-desc">모든 데스크톱 OS · Android에 BT PAN 빌트인</div>
+        </div>
+        <div class="stat a">
+          <div class="stat-label">L2CAP PSM</div>
+          <div class="stat-value">0x000F</div>
+          <div class="stat-desc">BNEP 전용 채널 · MTU 1691 byte 협상</div>
+        </div>
+      </div>
+
+      <div class="tech-grid cols-4">
+        <div class="tech-card is-magenta">
+          <div class="tc-head"><h3>PANU — 사용자</h3><span class="acronym">UUID 0x1115</span></div>
+          <p class="tc-easy">일반 노드. 클라이언트로 NAP에 붙어 인터넷을 얻는다.</p>
+          <dl class="tc-spec">
+            <dt>역할</dt><dd>클라이언트</dd>
+            <dt>예시</dt><dd>노트북 · 차량 IVI · 버즈</dd>
+            <dt>NAT</dt><dd>받는 쪽</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-magenta">
+          <div class="tc-head"><h3>NAP — 게이트웨이</h3><span class="acronym">UUID 0x1116</span></div>
+          <p class="tc-easy">외부망으로 가는 게이트웨이. DHCP 서버 + NAT를 직접 수행.</p>
+          <dl class="tc-spec">
+            <dt>역할</dt><dd>라우터 + DHCP</dd>
+            <dt>예시</dt><dd>안드로이드 BT 테더링</dd>
+            <dt>NAT</dt><dd>제공 (MASQUERADE)</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-magenta">
+          <div class="tc-head"><h3>GN — 그룹</h3><span class="acronym">UUID 0x1117</span></div>
+          <p class="tc-easy">같은 PAN 내부에서만 통신하는 라우터. 외부 인터넷 없음.</p>
+          <dl class="tc-spec">
+            <dt>역할</dt><dd>내부 라우터</dd>
+            <dt>예시</dt><dd>회의실 ad-hoc</dd>
+            <dt>NAT</dt><dd>없음 (실사용 희소)</dd>
+          </dl>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><h3>BNEP</h3><span class="acronym">L2CAP PSM 0x000F</span></div>
+          <p class="tc-easy">Ethernet 헤더(6+6+2) → BNEP 헤더로 살짝 다듬어 L2CAP에 넣음. RFC 894 호환.</p>
+          <dl class="tc-spec">
+            <dt>MTU</dt><dd>1691 byte 기본</dd>
+            <dt>Types</dt><dd>CONTROL · GENERAL · 3종 압축</dd>
+            <dt>EtherType</dt><dd>그대로 (0x0800 IPv4 등)</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="split-2" style="margin-top:14px;">
+        <div>
+          <div class="mini-d m">┌────── 노트북 ──── BT ──── 폰 ──── 셀룰러 ──── 인터넷 ─┐
+│                                                       │
+│  Application : HTTPS / gRPC                           │
+│  Transport   : TCP                                    │
+│  Network     : IP (192.168.44.x ← DHCP from NAP)      │
+│  Data-link   : Ethernet II frame                      │
+│  ┌─ BNEP encapsulation ──────────────────────────┐    │
+│  │ Type(0x01) │ Dst MAC │ Src MAC │ EtherType │   │    │
+│  │           + IP datagram (그대로)             │    │
+│  └────────────────────────────────────────────────┘    │
+│  L2CAP       : PSM = 0x000F · MTU 1691                │
+│  ACL/Baseband: 2.4 GHz · AFH · 1600 hop/s             │
+└───────────────────────────────────────────────────────┘</div>
+          <p style="font-size:12px; color:var(--w-text-muted); margin:4px 2px 0;">
+            <strong>풀 시퀀스</strong> · SDP(UUID=0x1116) → L2CAP_ConnectReq(PSM=0x000F) →
+            BNEP_SETUP_CONNECTION_REQUEST(PANU/NAP) → 가상 <code>bnep0</code> link-up →
+            DHCP DISCOVER → 폰의 iptables MASQUERADE로 외부망 NAT.
+          </p>
+        </div>
+        <div>
+          <table class="fin-table">
+            <thead><tr><th>링크</th><th>실측 TCP</th><th>RTT</th><th>체감</th></tr></thead>
+            <tbody>
+              <tr><td>BR/EDR 1.2 (1Mbps PHY)</td><td>~500 kbps</td><td>80–150 ms</td><td>웹 OK</td></tr>
+              <tr><td>BR/EDR 2.0+EDR</td><td>1.0–1.5 Mbps</td><td>50–100 ms</td><td>240p 영상</td></tr>
+              <tr><td>BR/EDR 3.0+EDR <span class="star">★</span></td><td>1.5–2.3 Mbps</td><td>40–80 ms</td><td>480p · SSH 쾌적</td></tr>
+              <tr><td>BLE 5.0 + IPSP <span class="dim">(비표준)</span></td><td>~0.5 Mbps</td><td>100+ ms</td><td>실사용 거의 없음</td></tr>
+              <tr><td>Wi-Fi 핫스팟 <span class="dim">(비교)</span></td><td>20–100 Mbps</td><td>5–20 ms</td><td>모든 용도</td></tr>
+            </tbody>
+          </table>
+          <table class="fin-table" style="margin-top:10px;">
+            <thead><tr><th>OS</th><th>NAP</th><th>PANU</th><th>UI 경로 / 명령</th></tr></thead>
+            <tbody>
+              <tr><td>Android 4.0+</td><td>O</td><td>O</td><td>설정 → Bluetooth 테더링</td></tr>
+              <tr><td>Windows 10/11</td><td>O</td><td>O</td><td>모바일 핫스팟 · PAN 가입</td></tr>
+              <tr><td>macOS Big Sur 11 이하</td><td>O</td><td>O</td><td>시스템 환경설정 → 공유 → Bluetooth PAN</td></tr>
+              <tr><td>macOS Monterey 12 이후 <span class="star" style="color:var(--w-red);">⚠</span></td><td style="color:var(--w-red);font-weight:700;">X</td><td style="color:var(--w-red);font-weight:700;">X</td><td><strong>Apple이 PAN 지원 제거</strong> · Sonoma·Sequoia 동일 (USB/Wi-Fi 핫스팟만)</td></tr>
+              <tr><td>Linux + BlueZ 5</td><td>O</td><td>O</td><td><code>bt-network -s nap pan0</code></td></tr>
+              <tr><td>iOS (iPhone)</td><td>O <span class="dim">(Personal Hotspot · BT)</span></td><td style="color:var(--w-red);font-weight:700;">X</td><td>NAP는 가능 · PANU 미지원 (개시 불가)</td></tr>
+              <tr><td>iPadOS</td><td>O</td><td>O</td><td>iPhone과 달리 PANU도 가능</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tech-bottom green">
+        <strong>"실제로 쓸 수 있나"의 답:</strong> <strong>대부분의 호스트에선 그렇다.</strong>
+        Android의 "Bluetooth 테더링" 토글이 정확히 NAP를 띄우고, iPhone Personal Hotspot의 BT 옵션, Windows·iPadOS·Linux도 모두 동작.
+        실측에서 일반 웹·메시지·SSH·480p 영상까지 무리 없음.
+        <strong>예외는 macOS Monterey 이후</strong> — Apple이 BT PAN을 제거해서 맥북은 더 이상 안 됨 (USB·Wi-Fi 핫스팟으로 대체).
+      </div>
+
+      <div class="tech-bottom" style="background:#fef3c7; border-left-color:var(--w-amber); margin-top:10px;">
+        <strong style="color:var(--w-amber);">⚠ 현실 체크 — 두 가지 사실:</strong>
+        <strong>(1) macOS는 Monterey(2021)부터 BT 테더링을 제거</strong>했다. Sonoma·Sequoia·Tahoe 모두 인터페이스 목록에서
+        Bluetooth PAN 항목 자체가 사라졌다. 맥북에선 USB·Wi-Fi 핫스팟만 가능. &nbsp;
+        <strong>(2) Galaxy Buds의 공식 프로파일은 A2DP·AVRCP·HFP만</strong>이라 현재 펌웨어로는 PAN이 불가능 —
+        다만 <em>이는 하드웨어 한계가 아니라 소프트웨어 결정</em>이다. Samsung은 Buds2에 LE Audio Auracast를 펌웨어 업데이트로 추가한 전례가 있고,
+        lwIP(~40 KB ROM) + BNEP(~10 KB) + mbedTLS(~80 KB)는 Buds3 Pro급 SoC의 플래시·SRAM 예산 안에 들어간다.
+        즉 <strong>"버즈가 직접 BNEP+TLS로 인터넷에 붙는다"는 펌웨어 업데이트로 도달 가능한 옵션</strong>이지,
+        칩을 바꿔야 하는 문제가 아니다.
+      </div>
+
+      <div class="refs-foot">
+        <span class="label">References · Slide 02</span>
+        <ol>
+          <li><em>Personal Area Networking Profile Specification v1.0</em>, Bluetooth SIG, 2003. <code>bluetooth.com/specifications/specs/personal-area-networking-profile-1-0/</code> <span class="ref-cite">[PAN-1.0]</span></li>
+          <li><em>Bluetooth Network Encapsulation Protocol (BNEP) v1.0</em>, Bluetooth SIG, 2003. <span class="ref-cite">[BNEP-1.0]</span></li>
+          <li>C. Hornig. <em>RFC 894 — A Standard for the Transmission of IP Datagrams over Ethernet Networks</em>. IETF, 1984. <span class="ref-cite">[RFC894]</span></li>
+          <li>D. Cypher et al. "Performance Analysis of Bluetooth PAN." <em>NIST Internal Report NIST.IR.7167</em>, 2005. (실측 throughput/RTT) <span class="ref-cite">[NIST-7167]</span></li>
+          <li>J. Nieminen et al. <em>RFC 7668 — IPv6 over Bluetooth(R) Low Energy</em>. IETF, 2015. <span class="ref-cite">[RFC7668]</span></li>
+          <li>Android Open Source Project. <em>BluetoothPan.java · pan_main.cc</em> (Fluoride). <code>cs.android.com</code> <span class="ref-cite">[AOSP-PAN]</span></li>
+          <li>Linux kernel. <em>net/bluetooth/bnep/</em> 소스 트리. <code>git.kernel.org</code> <span class="ref-cite">[LINUX-BNEP]</span></li>
+          <li>BlueZ Project. <em>bt-network(1) man page</em>. <code>bluez.org</code> <span class="ref-cite">[BLUEZ]</span></li>
+          <li>Apple Developer Forums. "iPhone IP PAN network over Bluetooth" thread #51470. <code>developer.apple.com/forums/thread/51470</code> (iOS NAP O · PANU X) <span class="ref-cite">[APPLE-FORUM]</span></li>
+          <li>Apple Discussions. "Ethernet via Bluetooth" thread #254349391. <code>discussions.apple.com/thread/254349391</code> (iPadOS 양방향 가능) <span class="ref-cite">[APPLE-DISC]</span></li>
+          <li>Samsung. <em>Galaxy Buds (Pro/Live/2Pro/3Pro) Specifications — Bluetooth Profile</em>. <code>samsung.com/.../galaxy-buds/specs/</code> (A2DP·AVRCP·HFP만 명시, PAN 미지원) <span class="ref-cite">[SAMSUNG-SPEC]</span></li>
+          <li>Qualcomm. <em>QCC30xx / QCC51xx Series TWS Bluetooth SoC product brief</em>. (오디오 프로파일 중심, PAN/BNEP 미내장) <span class="ref-cite">[QCC]</span></li>
+          <li>Apple Community. "Bluetooth PAN is missing on new MacBook Pro" thread #253312557 (2021). <code>discussions.apple.com/thread/253312557</code> (Monterey부터 제거) <span class="ref-cite">[APPLE-MAC-PAN1]</span></li>
+          <li>Apple Community. "Can't turn Bluetooth sharing on in Sequoia" thread #255822875 (2024). <code>discussions.apple.com/thread/255822875</code> (Sequoia에서도 미복원) <span class="ref-cite">[APPLE-MAC-PAN2]</span></li>
+          <li>SamMobile. "Galaxy Buds 2 Pro firmware update adds Auracast" / "Buds2 Auracast via FW update." 2023. <code>sammobile.com</code> (펌웨어 업데이트로 BT 프로파일 추가 전례) <span class="ref-cite">[SAMMOBILE-AURACAST]</span></li>
+          <li>lwIP Project. <em>lwIP — Lightweight TCP/IP stack</em>, ~40 KB ROM footprint. <code>savannah.nongnu.org/projects/lwip/</code> (Buds 펌웨어 안에 들어갈 수 있는 근거) <span class="ref-cite">[LWIP]</span></li>
+          <li>US Patent 11,726,761. <em>Firmware upgrade for wireless stereo earbuds</em>, 2023. (TWS 펌웨어 OTA 업데이트로 기능 추가 가능 근거) <span class="ref-cite">[USPTO-11726761]</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- SLIDE 03 — Opus + 이중 링버퍼                          -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s03">
+      <div class="slide-num">03 / 05 · OPUS + DUAL RING</div>
+      <span class="slide-tag">30s = 60 KB · 메모리는 병목이 아니다</span>
+      <h1 class="slide-headline">SILK + CELT 하이브리드 코덱이<br/><em>30초를 60KB로</em> 묶고, 두 링버퍼가 동시에 돈다.</h1>
+
+      <div class="tldr g">
+        <div class="tldr-mark">한 줄</div>
+        <div class="tldr-body">
+          30초 음성 = <em>60 KB</em>. 이중 링버퍼 총합 ≈ <em>80 KB</em>. Buds급 SoC SRAM ≈ <em>512 KB – 1 MB</em>.
+          <strong>메모리는 이 설계의 병목이 아니다 — 6× 이상 여유.</strong>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat g">
+          <div class="stat-label">30s 음성 @ 16k</div>
+          <div class="stat-value">60 <small>KB</small></div>
+          <div class="stat-desc">Raw PCM 대비 약 1/16 압축 (raw=960 KB)</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">이중 버퍼 합</div>
+          <div class="stat-value">~80 <small>KB</small></div>
+          <div class="stat-desc">환경음 60 + 사용자 16 + 메타데이터</div>
+        </div>
+        <div class="stat v">
+          <div class="stat-label">Buds SoC SRAM</div>
+          <div class="stat-value">512 KB+</div>
+          <div class="stat-desc">teardown 추정 (Apple H2 ≈ 640 KB, Buds2 Pro급)</div>
+        </div>
+        <div class="stat a">
+          <div class="stat-label">CPU @ M33 200MHz</div>
+          <div class="stat-value">~15 <small>%</small></div>
+          <div class="stat-desc">SILK 16k enc 1 instance · 2개 동시도 30% 미만</div>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div>
+          <table class="fin-table">
+            <thead><tr><th>비트레이트</th><th>음성 품질</th><th>음악 품질</th><th>참조 비교</th></tr></thead>
+            <tbody>
+              <tr><td>6 kbps</td><td>알아들음</td><td>—</td><td>≈ AMR-NB 12.2</td></tr>
+              <tr><td>12 kbps</td><td>준 HD</td><td>—</td><td>AMR-WB 12.65 우위</td></tr>
+              <tr><td>16 kbps <span class="star">★</span></td><td>HD 통화</td><td>모노 라디오</td><td>mSBC · AMR-WB 23.85 동급</td></tr>
+              <tr><td>32 kbps</td><td>스튜디오</td><td>일반 음악</td><td>MP3 96 kbps</td></tr>
+              <tr><td>64 kbps</td><td>투명</td><td>HE-AAC 64 우위</td><td>스트리밍 라디오 최상위</td></tr>
+              <tr><td>128 kbps</td><td>—</td><td>거의 무손실</td><td>AAC-LC 128 우위</td></tr>
+            </tbody>
+          </table>
+          <table class="fin-table" style="margin-top:10px;">
+            <thead><tr><th>보관 길이</th><th>16k 음성</th><th>32k 혼합</th><th>64k 음악</th></tr></thead>
+            <tbody>
+              <tr><td>10초</td><td>20 KB</td><td>40 KB</td><td>80 KB</td></tr>
+              <tr><td>30초 <span class="star">★</span></td><td><span class="big-num">60 KB</span></td><td>120 KB</td><td>240 KB</td></tr>
+              <tr><td>60초</td><td>120 KB</td><td>240 KB</td><td>480 KB</td></tr>
+              <tr><td>5분</td><td>600 KB</td><td>1.2 MB</td><td>2.4 MB</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div class="mini-d">/* ───── DUAL RING BUFFER LAYOUT ───── */
+struct audio_dual_ring {
+  /* Buffer A : 외부 환경음 30s 룩백 @ 16kbps SILK ─── 60 KB */
+  uint8_t   A_buf[60 * 1024];
+  uint16_t  A_slot_len[1500];     /* 20ms × 1500 = 30s */
+  uint32_t  A_slot_pts[1500];     /* PTS in ms        */
+  uint16_t  A_head, A_tail;
+  opus_encoder_t *enc_A;          /* MODE_VOIP, DTX off */
+
+  /* Buffer B : 사용자 질문 5s @ 24kbps Hybrid ─── 16 KB */
+  uint8_t   B_buf[16 * 1024];
+  uint16_t  B_slot_len[250];
+  uint16_t  B_head, B_tail;
+  opus_encoder_t *enc_B;          /* MODE_VOIP, DTX on  */
+  vad_state_t   *vad_B;           /* 종료 감지         */
+
+  uint32_t  shared_pts_origin;    /* 두 트랙 시간정렬   */
+};                          /* TOTAL ≈ 80 KB */</div>
+          <div class="mini-d g">/* Trigger flow */
+1. 상시: A 회전 (DMA → enc_A → A_buf, 1500 슬롯 wrap)
+2. Wake/tap → A_snapshot = A.write_offset    (동결)
+3.            enc_B 시작, B_buf에 사용자 음성 기록
+4. VAD가 500ms 침묵 / 5s 한계 감지 → enc_B close
+5. Session msg = A_snapshot ‖ B_total → host 전송
+6. B reset · A는 계속 회전 (끊김 없음)</div>
+        </div>
+      </div>
+
+      <div class="tech-grid cols-4" style="margin-top:14px;">
+        <div class="tech-card is-violet">
+          <div class="tc-head"><h3>SILK</h3><span class="acronym">선형예측</span></div>
+          <p class="tc-easy">음성 특화. LPC + LTP + 노이즈 셰이핑. 6–32 kbps 영역 SOTA.</p>
+        </div>
+        <div class="tech-card is-green">
+          <div class="tc-head"><h3>CELT</h3><span class="acronym">MDCT + range</span></div>
+          <p class="tc-easy">음악 특화. MDCT 변환 + 산술 부호화. 32–510 kbps, 48 kHz fullband.</p>
+        </div>
+        <div class="tech-card">
+          <div class="tc-head"><h3>Hybrid mode</h3><span class="acronym">SILK+CELT</span></div>
+          <p class="tc-easy">저역은 SILK, 고역은 CELT. SWB·FB 음성 + 약한 음악에 사용.</p>
+        </div>
+        <div class="tech-card is-amber">
+          <div class="tc-head"><h3>CPU 비용</h3><span class="acronym">Cortex-M33</span></div>
+          <p class="tc-easy">SILK 16 kbps enc @ 200 MHz ≈ 15%. 두 인스턴스 동시도 30% 미만. 디코더는 1/5.</p>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>메모리 결론:</strong> 30초 환경음(60 KB) + 5초 질문(16 KB) + 메타 ≈ <span class="big-num">~80 KB</span>.
+        Buds3 Pro급 SoC의 SRAM(통상 512 KB – 1 MB) + 외부 PSRAM(수 MB)에 비해 압도적 여유.
+        ANC는 별도 DSP 코어에서 돌고, Opus enc는 두 인스턴스 모두 메인 Cortex-M에서 충분히 처리.
+        <strong>메모리는 이 설계의 병목이 아니다.</strong>
+      </div>
+
+      <div class="refs-foot">
+        <span class="label">References · Slide 03</span>
+        <ol>
+          <li>JM. Valin, K. Vos, T. Terriberry. <em>RFC 6716 — Definition of the Opus Audio Codec</em>, IETF, 2012. <code>datatracker.ietf.org/doc/html/rfc6716</code> <span class="ref-cite">[RFC6716]</span></li>
+          <li>JM. Valin, G. Maxwell, T. Terriberry, K. Vos. "High-Quality, Low-Delay Music Coding in the Opus Codec." <em>AES 135th Convention</em>, 2013. <span class="ref-cite">[VALIN13]</span></li>
+          <li>K. Vos et al. "Voice Coding with Opus." <em>AES 135th Convention</em>, 2013. <span class="ref-cite">[VOS13]</span></li>
+          <li>C. Hoene, JM. Valin et al. "Summary of Opus Listening Test Results." IETF draft, draft-ietf-codec-results-03, 2013. <span class="ref-cite">[HOENE13]</span></li>
+          <li>iFixit. "Apple AirPods Pro 2 Teardown." 2022. (H2 SiP · ~640 KB SRAM 분석) <span class="ref-cite">[IFIXIT-APP2]</span></li>
+          <li>System Plus Consulting. <em>Galaxy Buds2 Pro Teardown Report</em>, 2022. (메인 SoC · SRAM 추정) <span class="ref-cite">[SYSPLUS-BUDS]</span></li>
+          <li>Paul E. McKenney. <em>Is Parallel Programming Hard…</em> ch. SPSC ring buffers · memory barriers, 2023. <span class="ref-cite">[MCKENNEY23]</span></li>
+          <li>Xiph.Org. <em>Opus codec performance benchmarks</em>. <code>opus-codec.org/comparison/</code> <span class="ref-cite">[XIPH-PERF]</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- SLIDE 04 — VAD                                          -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s04">
+      <div class="slide-num">04 / 05 · VAD</div>
+      <span class="slide-tag">에너지 → GMM → DNN, 세대별 진화</span>
+      <h1 class="slide-headline">VAD = <em>"지금 말하는 중인가"</em>를 0.01초마다 판단.<br/>BudsAI에선 트리거가 아닌 <em>질문이 끝났는지</em>를 본다.</h1>
+
+      <div class="tldr v">
+        <div class="tldr-mark">한 줄</div>
+        <div class="tldr-body">
+          BudsAI에서 VAD가 하는 일은 단 하나 — <em>"말이 끝났는가?"</em>.
+          500 ms 침묵 또는 5 s 한계에 도달하면 Buffer B를 닫고 패킷 송신.
+          <strong>사용자는 "끝" 버튼을 누를 필요가 없다. 트리거에는 쓰지 않는다 (프라이버시).</strong>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat v">
+          <div class="stat-label">종료 조건</div>
+          <div class="stat-value">500 <small>ms</small></div>
+          <div class="stat-desc">연속 침묵 시 Buffer B close · 표준 hangover</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">하드 캡</div>
+          <div class="stat-value">5 <small>s</small></div>
+          <div class="stat-desc">사용자 질문의 최대 길이 · 무한 녹취 방지</div>
+        </div>
+        <div class="stat g">
+          <div class="stat-label">1차 선택</div>
+          <div class="stat-value">WebRTC</div>
+          <div class="stat-desc">GMM LRT · ~5 KB · 0.1 ms/30ms · 검증됨</div>
+        </div>
+        <div class="stat a">
+          <div class="stat-label">SOTA fallback</div>
+          <div class="stat-value">Silero</div>
+          <div class="stat-desc">RNN · 1.8 MB · FAR 3% @ 10dB SNR</div>
+        </div>
+      </div>
+
+      <div class="tech-grid cols-4">
+        <div class="tech-card">
+          <div class="tc-head"><h3>1세대 · Energy</h3><span class="acronym">ITU G.729-B</span></div>
+          <p class="tc-easy">단순 에너지 임계값 + 영교차율(ZCR). 1996년 ITU 표준화. 잡음에 약함.</p>
+          <dl class="tc-spec">
+            <dt>특징</dt><dd>Energy · ZCR · LSP 거리</dd>
+            <dt>출력</dt><dd>Active / Inactive (DTX)</dd>
+            <dt>CPU</dt><dd>~수십 KIPS</dd>
+            <dt>한계</dt><dd>SNR 낮으면 오탐</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-violet">
+          <div class="tc-head"><h3>2세대 · Statistical</h3><span class="acronym">Sohn 1999 · WebRTC</span></div>
+          <p class="tc-easy">주파수 대역별 GMM 우도비 검정. Sohn et al. 1999 → WebRTC 오픈소스로 사실상 표준.</p>
+          <dl class="tc-spec">
+            <dt>특징</dt><dd>6 band GMM log-likelihood</dd>
+            <dt>판별</dt><dd>likelihood ratio test (LRT)</dd>
+            <dt>CPU</dt><dd>~100 KIPS</dd>
+            <dt>강점</dt><dd>잡음 robust + 매우 빠름</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-green">
+          <div class="tc-head"><h3>3세대 · DNN</h3><span class="acronym">Silero · Marvin</span></div>
+          <p class="tc-easy">작은 RNN/CNN. Silero VAD는 1.8 MB 모델, ≤1ms / 30ms 프레임. 모바일·Edge SOTA.</p>
+          <dl class="tc-spec">
+            <dt>입력</dt><dd>raw waveform 또는 MFCC</dd>
+            <dt>모델</dt><dd>CRNN ~수만 param</dd>
+            <dt>FAR/FRR</dt><dd>≤ 1% (clean), ≤ 5% (10dB)</dd>
+            <dt>위치</dt><dd>버즈 DSP/MCU 실시간</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-amber">
+          <div class="tc-head"><h3>Hangover 스킴</h3><span class="acronym">상태 머신</span></div>
+          <p class="tc-easy">짧은 무성구간(<em>"음…"</em>)에 끊기지 않게 N프레임 유예. 종료는 <strong>500 ms 침묵</strong>이 표준.</p>
+          <dl class="tc-spec">
+            <dt>Hangover</dt><dd>15–30 frame (150–300ms)</dd>
+            <dt>End</dt><dd>≥ 500 ms silence</dd>
+            <dt>Max</dt><dd>5 s hard cap (BudsAI)</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="split-2" style="margin-top:14px;">
+        <div>
+          <div class="mini-d v">┌────────────── VAD Pipeline ──────────────┐
+│ PCM 16kHz  ──► Frame (20 ms)              │
+│             │                              │
+│             ▼                              │
+│  [Feature]                                 │
+│   • Sub-band energy (6 bands)              │
+│   • Spectral entropy / flatness            │
+│   • LPC residual energy                    │
+│   • (DNN: log-mel · MFCC · raw)            │
+│             │                              │
+│             ▼                              │
+│  [Classifier]                              │
+│   • GMM LRT (WebRTC) or                    │
+│   • RNN sigmoid (Silero) → P(speech)       │
+│             │                              │
+│             ▼                              │
+│  [Smoothing] hangover · hysteresis         │
+│             │                              │
+│             ▼                              │
+│  speech / silence  ──► Buffer B 종료 시그널 │
+└──────────────────────────────────────────┘</div>
+        </div>
+        <div>
+          <table class="fin-table">
+            <thead><tr><th>알고리즘</th><th>Latency</th><th>모델 크기</th><th>SNR 10dB FAR</th></tr></thead>
+            <tbody>
+              <tr><td>G.729 Annex B</td><td>10 ms</td><td>&lt; 1 KB</td><td>~12%</td></tr>
+              <tr><td>WebRTC VAD (mode 3)</td><td>10 ms</td><td>~5 KB</td><td>~6%</td></tr>
+              <tr><td>Silero VAD v4 <span class="star">★</span></td><td>1 ms / 30ms hop</td><td>~1.8 MB</td><td>~3%</td></tr>
+              <tr><td>Picovoice Cobra</td><td>10 ms</td><td>~2 MB</td><td>~3%</td></tr>
+              <tr><td>3GPP AMR-WB VAD</td><td>20 ms</td><td>~3 KB</td><td>~7%</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:12px; color:var(--w-text-muted); margin:10px 2px 0;">
+            <strong>BudsAI 선택:</strong> 1차 구현은 <strong>WebRTC VAD mode 3</strong>(검증된 GMM, 5 KB, 0.1 ms / 30 ms 프레임)으로
+            시작 — 펌웨어 풋프린트를 최소화. 정확도가 부족하면 Silero quantized(INT8, ~600 KB)로 단계 업그레이드.
+            wake-word는 별도 KWS 모델이 담당하고, VAD는 오직 "질문이 끝났는가"만 본다.
+          </p>
+        </div>
+      </div>
+
+      <div class="tech-bottom">
+        <strong>왜 VAD를 트리거에 쓰지 않는가:</strong> 트리거에 VAD를 쓰면 사용자가 말하지 않을 때도
+        끊임없이 누군가의 음성을 캡처하게 됨 → 프라이버시·전력 모두 손해. BudsAI는 명시적 트리거(롱프레스
+        또는 키프레이즈)로 시작하고, VAD는 <strong>끝맺음 자동화</strong>에만 관여. 사용자는 "끝" 버튼을 누를
+        필요가 없다.
+      </div>
+
+      <div class="refs-foot">
+        <span class="label">References · Slide 04</span>
+        <ol>
+          <li>ITU-T Recommendation G.729 Annex B. <em>A silence compression scheme for use with G.729 optimized for V.70 digital simultaneous voice and data applications</em>, 1996. <span class="ref-cite">[G729B]</span></li>
+          <li>J. Sohn, N. S. Kim, W. Sung. "A Statistical Model-Based Voice Activity Detection." <em>IEEE Signal Processing Letters</em>, vol.6 no.1, 1999. (LRT 기반 통계 VAD 원전) <span class="ref-cite">[SOHN99]</span></li>
+          <li>WebRTC Project. <em>common_audio/vad/</em> source — Google. <code>webrtc.googlesource.com/src/+/refs/heads/main/common_audio/vad/</code> <span class="ref-cite">[WEBRTC-VAD]</span></li>
+          <li>Silero Team. <em>Silero VAD: pre-trained enterprise-grade VAD</em>. <code>github.com/snakers4/silero-vad</code> (paper v4, 2023) <span class="ref-cite">[SILERO]</span></li>
+          <li>3GPP TS 26.094. <em>Mandatory Speech Codec speech processing functions; AMR speech codec; VAD</em>, 2018. <span class="ref-cite">[3GPP-26094]</span></li>
+          <li>ETSI EN 301 708. <em>Voice Activity Detector for AMR Speech Traffic Channels</em>, 1999. <span class="ref-cite">[ETSI-708]</span></li>
+          <li>F. Eyben et al. "Real-life Voice Activity Detection with LSTM Recurrent Neural Networks." <em>ICASSP 2013</em>. <span class="ref-cite">[EYBEN13]</span></li>
+          <li>Picovoice. <em>Cobra Voice Activity Detection — Technical Whitepaper</em>. <code>picovoice.ai/docs/cobra/</code> <span class="ref-cite">[COBRA]</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ===================================================== -->
+    <!-- SLIDE 05 — Zero-copy + DMA Zone                        -->
+    <!-- ===================================================== -->
+    <section class="slide" id="s05">
+      <div class="slide-num">05 / 05 · ZERO-COPY + DMA</div>
+      <span class="slide-tag">Single-producer · Multiple-readers</span>
+      <h1 class="slide-headline">DMA가 <em>한 번 쓴 메모리</em>를 ANC와 AI가 <em class="m">동시에 읽는다</em>.<br/>두 소비자는 같은 데이터 위에서 절대 충돌하지 않는다.</h1>
+
+      <div class="tldr">
+        <div class="tldr-mark">한 줄</div>
+        <div class="tldr-body">
+          한 명이 쓰고 여럿이 <em>읽기만</em> 하면 락이 필요 없다.
+          마이크 → DMA → 공유 RAM → <em>ANC (µs)</em> + <em>AI (20 ms)</em> 동시 fan-out.
+          <strong>생산자 1 · 소비자 N · memcpy 0 · lock 0 → 물리적으로 충돌 불가능.</strong>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-label">memcpy</div>
+          <div class="stat-value">0</div>
+          <div class="stat-desc">DMA가 직접 RAM에 적재 · CPU 0 cycle/sample</div>
+        </div>
+        <div class="stat g">
+          <div class="stat-label">Lock</div>
+          <div class="stat-value">0</div>
+          <div class="stat-desc">atomic write_pos + DMB 1회로 충분 (lock-free)</div>
+        </div>
+        <div class="stat a">
+          <div class="stat-label">ANC RT 예산</div>
+          <div class="stat-value">≤ 10 <small>µs</small></div>
+          <div class="stat-desc">피드포워드 ANC 1 tick · 최신 N sample만 참조</div>
+        </div>
+        <div class="stat m">
+          <div class="stat-label">AI 배치 주기</div>
+          <div class="stat-value">20 <small>ms</small></div>
+          <div class="stat-desc">Opus 프레임 단위 · ANC와 2000× 스케일 차이</div>
+        </div>
+      </div>
+
+      <div class="tech-grid cols-4">
+        <div class="tech-card">
+          <div class="tc-head"><h3>Zero-copy</h3><span class="acronym">no memcpy</span></div>
+          <p class="tc-easy">데이터를 옮기는 대신 <strong>가리키는 포인터를 옮긴다</strong>. memcpy 사이클 = CPU 소모 + 캐시 오염.</p>
+          <dl class="tc-spec">
+            <dt>득</dt><dd>CPU · 캐시 · 전력</dd>
+            <dt>실현</dt><dd>공유 버퍼 + offset</dd>
+            <dt>전제</dt><dd>읽기 전용 fan-out</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-violet">
+          <div class="tc-head"><h3>DMA</h3><span class="acronym">Direct Memory Access</span></div>
+          <p class="tc-easy">CPU와 독립된 컨트롤러가 주변장치 ↔ 메모리 전송을 수행. CPU는 인터럽트만 받음.</p>
+          <dl class="tc-spec">
+            <dt>소스</dt><dd>I2S / PDM 마이크</dd>
+            <dt>전송</dt><dd>circular · double-buffer</dd>
+            <dt>비용</dt><dd>~0 CPU cycle / sample</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-green">
+          <div class="tc-head"><h3>DMA Zone</h3><span class="acronym">non-cacheable</span></div>
+          <p class="tc-easy">DMA가 쓴 메모리는 CPU 캐시와 일관성 문제 발생 가능 → MPU로 <strong>non-cacheable / write-through</strong> 영역 지정.</p>
+          <dl class="tc-spec">
+            <dt>Cortex-M4/M33</dt><dd>D-cache 없음 → 안전</dd>
+            <dt>Cortex-M7</dt><dd>MPU로 zone 지정 필수</dd>
+            <dt>크기</dt><dd>버즈에선 16–64 KB</dd>
+          </dl>
+        </div>
+        <div class="tech-card is-amber">
+          <div class="tc-head"><h3>SPMC 모델</h3><span class="acronym">single-prod multi-cons</span></div>
+          <p class="tc-easy">생산자는 DMA 하나, 소비자는 N명. 소비자별 독립 read pointer를 둬 서로 간섭 없음.</p>
+          <dl class="tc-spec">
+            <dt>동기화</dt><dd>atomic write_pos만 발행</dd>
+            <dt>barrier</dt><dd><code>__DMB()</code> 1회</dd>
+            <dt>락</dt><dd>없음 (lock-free)</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="split-2" style="margin-top:14px;">
+        <div>
+          <div class="mini-d g">/* ──── Single-Producer / Multiple-Reader 메모리 모델 ──── */
+
+       마이크 (PDM/I2S)                  ┌── ANC DSP (HiFi-Mini)
+            │                            │     read_ptr_anc ─► (≤10 µs)
+            │ I2S clk · 16-bit @ 16kHz   │
+            ▼                            │
+   ┌──── DMA Controller ────┐            │
+   │ circular descriptor    │            ▼
+   │ HW: 0 CPU cycle/sample │  ┌──── DMA Zone (non-cacheable) ────┐
+   └────────┬───────────────┘  │  audio_raw[2048] · 128 ms 슬라이딩 │
+            │ writes once      │  write_pos (atomic, producer-only)│
+            ▼                  └────────────┬─────────────────────┘
+   ┌──── audio_raw 슬라이딩 윈도우 ──┐       │
+   │ wraps every 128 ms              │       └─► AI Capture Path
+   │ DMA-coherent attribute (MPU)    │             read_ptr_ai ─► (20 ms batch)
+   └─────────────────────────────────┘                  │
+                                                        ▼
+                                                  Opus enc_A (Buffer A)
+
+   ★ ANC와 AI는 같은 audio_raw를 읽지만 read_ptr가 독립.
+     생산자(DMA)는 둘에게 쓰기 권한 없음 → 데이터 레이스 불가능.</div>
+        </div>
+        <div>
+          <table class="fin-table">
+            <thead><tr><th>소비자</th><th>타이밍</th><th>접근 패턴</th><th>충돌 가능성</th></tr></thead>
+            <tbody>
+              <tr><td>ANC DSP (피드포워드/백)</td><td>µs 단위 · 실시간</td><td>최신 슬라이드 N samples 매 tick</td><td>read-only, 안전</td></tr>
+              <tr><td>Opus enc_A (환경음)</td><td>20 ms 배치</td><td>20 ms 프레임 단위 읽기</td><td>read-only, 안전</td></tr>
+              <tr><td>Opus enc_B (질문)</td><td>20 ms 배치 (다른 mic)</td><td>별도 DMA channel · 별도 zone</td><td>물리적으로 분리</td></tr>
+              <tr><td>Debug capture</td><td>10 ms 폴링</td><td>read-only</td><td>안전</td></tr>
+              <tr><td>VAD (Buffer B 종료 감지)</td><td>10 ms · enc_B 후단</td><td>encB output 참조</td><td>안전</td></tr>
+            </tbody>
+          </table>
+          <table class="fin-table" style="margin-top:10px;">
+            <thead><tr><th>왜 ANC와 AI가 충돌하지 않는가</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td>① 생산자가 단 하나 (DMA)</td><td>RAW에 쓰는 주체가 유일 → 일관된 view</td></tr>
+              <tr><td>② 소비자는 모두 read-only</td><td>둘 다 데이터 변형 안 함 → 데이터 레이스 불가</td></tr>
+              <tr><td>③ read_ptr가 각자 독립</td><td>ANC의 latest와 AI의 frame_start가 서로 무관</td></tr>
+              <tr><td>④ 타임 스케일 분리</td><td>ANC µs vs AI ms → 캐시·버스 경합 사실상 zero</td></tr>
+              <tr><td>⑤ DMA-coherent MPU region</td><td>캐시 stale 문제 차단 (Cortex-M7 한정 필요)</td></tr>
+              <tr><td>⑥ 별도 마이크 경로</td><td>외부 mic ≠ 내부 mic → enc_B는 다른 DMA zone</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tech-bottom green">
+        <strong>핵심 보장:</strong> "ANC가 실시간으로 외부 소음을 빼고 있는 그 순간에도, BudsAI는 동일한 외부음을
+        독립적으로 압축·전송할 수 있다." 두 경로는 같은 DMA가 쓴 한 줄의 메모리 위에 read-only fan-out으로
+        붙어 있으므로 <strong>물리적으로 충돌이 불가능</strong>. Apple AirPods의 Voice Isolation, Bose QC의 Conversation
+        모드도 동일한 SPMC 패턴 위에 구현되어 있다.
+      </div>
+
+      <div class="refs-foot">
+        <span class="label">References · Slide 05</span>
+        <ol>
+          <li>ARM. <em>ARMv7-M / ARMv8-M Architecture Reference Manual</em> — DMB · MPU regions · cache architecture. <code>developer.arm.com/documentation</code> <span class="ref-cite">[ARM-ARM]</span></li>
+          <li>STMicroelectronics. <em>RM0433 — STM32H743/53 Reference Manual</em>, MDMA / DMA / I2S 챕터. <span class="ref-cite">[ST-RM0433]</span></li>
+          <li>STMicroelectronics. <em>AN4839 — Level 1 cache on STM32F7/H7 Series</em>. (DMA-coherent zone 패턴) <span class="ref-cite">[ST-AN4839]</span></li>
+          <li>Paul E. McKenney. <em>Memory Barriers: a Hardware View for Software Hackers</em>, 2010. (DMB / DSB / load-acquire 의미) <span class="ref-cite">[MCKENNEY10]</span></li>
+          <li>The Linux Kernel. <em>Documentation/core-api/dma-api.txt · cachetlb.txt</em>. <code>kernel.org/doc/html/latest/core-api/dma-api.html</code> <span class="ref-cite">[LINUX-DMA]</span></li>
+          <li>Cadence Tensilica. <em>HiFi DSP Audio Software Reference</em>. (ANC pipeline · zero-copy DSP frame queue) <span class="ref-cite">[CADENCE-HIFI]</span></li>
+          <li>U. Drepper. "What Every Programmer Should Know About Memory." <em>Red Hat tech report</em>, 2007. (DMA · cache coherence 입문 표준 자료) <span class="ref-cite">[DREPPER07]</span></li>
+          <li>Apple Developer. "Voice Isolation with AirPods Pro 2." WWDC22 session 10074. (실제 fan-out 사례) <span class="ref-cite">[APPLE-WWDC22]</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">부록 인덱스</span>
+      </a>
+      <a href="appendix-workflow.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">워크플로우 8 슬라이드</span>
+      </a>
+    </nav>
+  </main>
+
+  <div class="present-controls" id="presentControls">
+    <button id="prevSlide" aria-label="이전">‹</button>
+    <span class="counter"><span id="curSlide">1</span> / <span id="totalSlides">5</span></span>
+    <button id="nextSlide" aria-label="다음">›</button>
+    <a href="appendix-final.html" id="exitPresent" title="발표 모드 종료">✕</a>
+  </div>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · FINAL · 5 SLIDES</span>
+    <span class="doc-tag">BudsAI Design Doc · 최종 기술 부록</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+  <script>
+    /* Presentation mode (?present) */
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has('present')) return;
+
+      document.body.classList.add('is-present');
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      let current = 0;
+      const curEl = document.getElementById('curSlide');
+      const totalEl = document.getElementById('totalSlides');
+      totalEl.textContent = slides.length;
+
+      function show(i) {
+        if (i < 0) i = 0;
+        if (i >= slides.length) i = slides.length - 1;
+        current = i;
+        slides.forEach((s, idx) => s.classList.toggle('is-current', idx === i));
+        curEl.textContent = i + 1;
+        window.scrollTo(0, 0);
+      }
+      show(0);
+
+      document.getElementById('prevSlide').addEventListener('click', () => show(current - 1));
+      document.getElementById('nextSlide').addEventListener('click', () => show(current + 1));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+          e.preventDefault(); show(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault(); show(current - 1);
+        } else if (e.key === 'Home') {
+          show(0);
+        } else if (e.key === 'End') {
+          show(slides.length - 1);
+        } else if (e.key === 'Escape') {
+          window.location.href = 'appendix-final.html';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
