@@ -725,7 +725,26 @@
       const tookPill = `<span class="pill">${data.elapsed_ms} ms</span>`;
       if (!data.matched) {
         statusEl.innerHTML = `<span class="pill miss">매칭 실패</span>${tookPill}`;
-        resultBody.innerHTML = `<div class="err">곡을 찾지 못했습니다. 클립 길이를 5초 이상으로, 음원이 분명히 들리도록 다시 시도해보세요.</div>${rawBlock(data.raw)}`;
+        let errLine = "";
+        if (data.error) {
+          errLine = `<div><strong>서버 에러:</strong> <code>${escapeHtml(data.error)}</code></div>`;
+        }
+        const matches = data.raw && Array.isArray(data.raw.matches) ? data.raw.matches : null;
+        const retryms = data.raw && data.raw.retryms;
+        let hint = "";
+        if (matches && matches.length === 0) {
+          hint = `Shazam이 응답은 했지만 <strong>매칭되는 곡이 없다</strong>고 했습니다. 흔한 원인:
+            <ul style="margin-top:6px; margin-left:18px;">
+              <li>인디/구곡/매우 신곡/리믹스/라이브 버전은 Shazam DB에 없을 수 있어요</li>
+              <li>오디오 품질(잡음, 저비트레이트)이 너무 낮음</li>
+              <li>5-10초 명확한 보컬/멜로디 구간이 가장 잘 됨 (인트로보다 후렴)</li>
+              <li>유명 글로벌 히트곡(예: Taylor Swift, BTS, Olivia Rodrigo)으로 먼저 테스트해보세요</li>
+            </ul>
+            ${retryms ? `<div style="margin-top:6px;">Shazam suggests retry in ${retryms}ms</div>` : ""}`;
+        } else {
+          hint = `클립 길이를 5초 이상으로, 음원이 분명히 들리도록 다시 시도해보세요.`;
+        }
+        resultBody.innerHTML = `<div class="err">${errLine}${hint}</div>${rawBlock(data.raw)}`;
         return;
       }
       const s = data.summary || {};
