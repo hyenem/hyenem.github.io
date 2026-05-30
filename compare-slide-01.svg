@@ -1,0 +1,135 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#ffffff"/>
+  <text x="50" y="60" font-size="12" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">01 / 04</text>
+  <text x="140" y="62" font-size="22" fill="#111827" font-weight="700">시장 대표 6종 + BudsAI — 강점/한계/스펙 한 장</text>
+  <rect x="1814" y="46" width="56" height="24" rx="4" fill="#ccfbf1"/>
+  <text x="1842.0" y="62" font-size="11" font-weight="700" fill="#0d9488" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">MARKET</text>
+  <line x1="50" y1="88" x2="1870" y2="88" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="50" y="112" font-size="13.5" fill="#4b5563">프리미엄 TWS · 자사 후속 · 음질 정통파 · ChatGPT 단축키 · 통역 특화 · 시각 컨텍스트 AI —</text>
+  <text x="50" y="132" font-size="13.5" fill="#4b5563">7개 제품을 강점(+) / 한계(−) / 스펙 한 줄로 압축.</text>
+  <rect x="50" y="170" width="440" height="290" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1"/>
+  <text x="64" y="192" font-size="10" fill="#0d9488" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">SAMSUNG · 본 제안</text>
+  <text x="64" y="216" font-size="15" fill="#0d9488" font-weight="700">BudsAI</text>
+  <text x="64" y="235" font-size="11" fill="#4b5563" font-style="italic">직전 사운드 + 음성 질의 결합 AI 이어버드</text>
+  <line x1="64" y1="247" x2="476" y2="247" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="66" y="267" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="80" y="267" font-size="11" fill="#111827">출력 PCM 30초 링버퍼 (~150KB) — 유일 차별점</text>
+  <text x="66" y="288" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="80" y="288" font-size="11" fill="#111827">표준 BT PAN, 앱 0, 호스트 무관</text>
+  <text x="66" y="309" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="80" y="309" font-size="11" fill="#111827">버즈 종단 mTLS (SE 인증서)</text>
+  <text x="66" y="330" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="80" y="330" font-size="11" fill="#111827">의도·세션 연속은 Gemini Live가 우위</text>
+  <text x="66" y="351" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="80" y="351" font-size="11" fill="#111827">신규 카테고리 — 학습 필요</text>
+  <line x1="64" y1="432" x2="476" y2="432" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="64" y="446" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">~3s 응답 · Opus · Galaxy 시너지 풀 지원</text>
+  <rect x="510" y="170" width="440" height="290" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="524" y="192" font-size="10" fill="#6b7280" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">SAMSUNG · 자사 (2026-03 출시)</text>
+  <text x="524" y="216" font-size="15" fill="#111827" font-weight="700">Galaxy Buds4 Pro</text>
+  <text x="524" y="235" font-size="11" fill="#4b5563" font-style="italic">Bixby + Galaxy AI Interpreter 연장</text>
+  <line x1="524" y1="247" x2="936" y2="247" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="526" y="267" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="540" y="267" font-size="11" fill="#111827">실시간 Interpreter(통역) 강력</text>
+  <text x="526" y="288" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="540" y="288" font-size="11" fill="#111827">Samsung Sound by AKG 튜닝</text>
+  <text x="526" y="309" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="540" y="309" font-size="11" fill="#111827">SSC 코덱 · One UI 통합</text>
+  <text x="526" y="330" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="540" y="330" font-size="11" fill="#111827">ANC는 Bose/Sony 대비 중급(평가)</text>
+  <text x="526" y="351" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="540" y="351" font-size="11" fill="#111827">Galaxy 폰 페어링 시에만 풀 기능</text>
+  <line x1="524" y1="432" x2="936" y2="432" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="524" y="446" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">~2-3s 응답(추정) · Wearable 앱 필수</text>
+  <rect x="970" y="170" width="440" height="290" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="984" y="192" font-size="10" fill="#6b7280" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">APPLE</text>
+  <text x="984" y="216" font-size="15" fill="#111827" font-weight="700">AirPods Pro 2</text>
+  <text x="984" y="235" font-size="11" fill="#4b5563" font-style="italic">Siri + Apple Intelligence + Conv. Awareness</text>
+  <line x1="984" y1="247" x2="1396" y2="247" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="986" y="267" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1000" y="267" font-size="11" fill="#111827">H2 칩 ANC · Hearing Aid · Adaptive</text>
+  <text x="986" y="288" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1000" y="288" font-size="11" fill="#111827">iPhone↔Mac 핸드오프 (실사용 미스 있음)</text>
+  <text x="986" y="309" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1000" y="309" font-size="11" fill="#111827">Live Translation (Apple Intelligence)</text>
+  <text x="986" y="330" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="1000" y="330" font-size="11" fill="#111827">iPhone 15 Pro+ 강제 · Mac 단독 불가</text>
+  <text x="986" y="351" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="1000" y="351" font-size="11" fill="#111827">듣던 사운드 자체는 컨텍스트 미사용</text>
+  <line x1="984" y1="432" x2="1396" y2="432" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="984" y="446" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">~2-3s 응답(추정) · iCloud 계정 sync · AAC</text>
+  <rect x="1430" y="170" width="440" height="290" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1444" y="192" font-size="10" fill="#6b7280" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">SONY</text>
+  <text x="1444" y="216" font-size="15" fill="#111827" font-weight="700">WF-1000XM5</text>
+  <text x="1444" y="235" font-size="11" fill="#4b5563" font-style="italic">음질·ANC 정통파</text>
+  <line x1="1444" y1="247" x2="1856" y2="247" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="1446" y="267" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1460" y="267" font-size="11" fill="#111827">LDAC · 360 Reality Audio</text>
+  <text x="1446" y="288" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1460" y="288" font-size="11" fill="#111827">ANC 클래스 최고 수준(Bose·Apple과 경합)</text>
+  <text x="1446" y="309" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1460" y="309" font-size="11" fill="#111827">Speak-to-Chat (말하면 일시정지)</text>
+  <text x="1446" y="330" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="1460" y="330" font-size="11" fill="#111827">AI 자체 기능 없음 — 폰 비서 패스스루</text>
+  <text x="1446" y="351" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="1460" y="351" font-size="11" fill="#111827">통역·번역·식별 모두 외부 의존</text>
+  <line x1="1444" y1="432" x2="1856" y2="432" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="1444" y="446" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">자체 AI 없음 · Headphones Connect · LDAC</text>
+  <rect x="50" y="480" width="440" height="290" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="64" y="502" font-size="10" fill="#6b7280" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">NOTHING</text>
+  <text x="64" y="526" font-size="15" fill="#111827" font-weight="700">Nothing Ear (2024)</text>
+  <text x="64" y="545" font-size="11" fill="#4b5563" font-style="italic">ChatGPT 직접 호출 (Nothing Phone 한정)</text>
+  <line x1="64" y1="557" x2="476" y2="557" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="66" y="577" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="80" y="577" font-size="11" fill="#111827">Pinch 제스처 → ChatGPT</text>
+  <text x="66" y="598" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="80" y="598" font-size="11" fill="#111827">LDAC · 45dB ANC · 합리적 가격</text>
+  <text x="66" y="619" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="80" y="619" font-size="11" fill="#111827">투명 디자인 차별화</text>
+  <text x="66" y="640" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="80" y="640" font-size="11" fill="#111827">타사 폰에서 ChatGPT 단축키 사망</text>
+  <text x="66" y="661" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="80" y="661" font-size="11" fill="#111827">듣던 오디오는 컨텍스트 미사용</text>
+  <line x1="64" y1="742" x2="476" y2="742" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="64" y="756" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">~3-5s 응답(추정) · Nothing X 앱 필수</text>
+  <rect x="510" y="480" width="440" height="290" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="524" y="502" font-size="10" fill="#6b7280" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">TIMEKETTLE</text>
+  <text x="524" y="526" font-size="15" fill="#111827" font-weight="700">WT2 Edge / M3</text>
+  <text x="524" y="545" font-size="11" fill="#4b5563" font-style="italic">실시간 양방향 통역 특화</text>
+  <line x1="524" y1="557" x2="936" y2="557" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="526" y="577" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="540" y="577" font-size="11" fill="#111827">40+ 언어 동시 통역</text>
+  <text x="526" y="598" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="540" y="598" font-size="11" fill="#111827">카드 기반 화자 분리 UX</text>
+  <text x="526" y="619" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="540" y="619" font-size="11" fill="#111827">M3는 30dB ANC + 음악·통화 패스스루</text>
+  <text x="526" y="640" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="540" y="640" font-size="11" fill="#111827">AI 의도는 번역만 (음악ID/요약 X)</text>
+  <text x="526" y="661" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="540" y="661" font-size="11" fill="#111827">전용 앱 + 클라우드 STT/MT 필수</text>
+  <line x1="524" y1="742" x2="936" y2="742" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="524" y="756" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">~2-4s 응답(추정) · M3 30dB ANC · WT2는 ANC X</text>
+  <rect x="970" y="480" width="440" height="290" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="984" y="502" font-size="10" fill="#6b7280" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">META (참고)</text>
+  <text x="984" y="526" font-size="15" fill="#111827" font-weight="700">Ray-Ban Meta</text>
+  <text x="984" y="545" font-size="11" fill="#4b5563" font-style="italic">스마트글래스 · "Hey Meta" + 카메라</text>
+  <line x1="984" y1="557" x2="1396" y2="557" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="986" y="577" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1000" y="577" font-size="11" fill="#111827">시각 컨텍스트 강함 (12MP 카메라)</text>
+  <text x="986" y="598" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1000" y="598" font-size="11" fill="#111827">Meta AI Live + Shazam v11 통합</text>
+  <text x="986" y="619" font-size="12" fill="#0d9488" font-weight="700">+</text>
+  <text x="1000" y="619" font-size="11" fill="#111827">자체 폼팩터 · 오픈 이어 스피커</text>
+  <text x="986" y="640" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="1000" y="640" font-size="11" fill="#111827">오디오 컨텍스트 약함 (환경 마이크만)</text>
+  <text x="986" y="661" font-size="12" fill="#b91c1c" font-weight="700">−</text>
+  <text x="1000" y="661" font-size="11" fill="#111827">Meta AI 앱 + 폰 종속</text>
+  <line x1="984" y1="742" x2="1396" y2="742" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="984" y="756" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">~2-3s 응답(추정) · 이어폰 아님 · 보완재</text>
+  <rect x="50" y="784" width="1820" height="140" rx="8" fill="#fee2e2" stroke="#fca5a5" stroke-width="1"/>
+  <rect x="50" y="784" width="4" height="140" rx="2" fill="#b91c1c"/>
+  <text x="70" y="816" font-size="15" fill="#b91c1c" font-weight="700">공통 한계 (BudsAI 제외 6종 전체)</text>
+  <text x="70" y="846" font-size="13" fill="#7f1d1d">모두 "사용자가 질문하는 순간부터의 마이크 입력"만 AI에 보낸다.</text>
+  <text x="70" y="868" font-size="13" fill="#7f1d1d">듣고 있던 출력 사운드 자체를 컨텍스트로 동봉하는 제품은 시장에 단 하나도 존재하지 않는다.</text>
+  <text x="70" y="890" font-size="13" fill="#7f1d1d">"방금 그 노래/대사/단어"를 묻기 위해 사용자가 다시 마이크에 대고 캡처하거나 별도 앱(Shazam 등)을 켜야 한다.</text>
+</svg>

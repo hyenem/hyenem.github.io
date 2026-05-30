@@ -1,0 +1,200 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#ffffff"/>
+  <text x="50" y="60" font-size="12" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">01 / 01</text>
+  <text x="140" y="62" font-size="22" fill="#111827" font-weight="700">Opus — 한 코덱으로 음성과 음악을 다 잡는 IETF 표준</text>
+  <rect x="1744" y="46" width="126" height="24" rx="4" fill="#ccfbf1"/>
+  <text x="1807.0" y="62" font-size="11" font-weight="700" fill="#0d9488" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">CODEC · RFC 6716</text>
+  <line x1="50" y1="88" x2="1870" y2="88" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="50" y="112" font-size="13.5" fill="#4b5563">Opus는 SILK(음성용 LPC) + CELT(음악용 MDCT)를 한 비트스트림 안에서 자동 전환·하이브리드로 묶은 IETF 표준 코덱이다.</text>
+  <text x="50" y="132" font-size="13.5" fill="#4b5563">6 ~ 510 kbps, 8 ~ 48 kHz, 2.5 ~ 60 ms 프레임을 한 디코더가 다 받는다.</text>
+  <rect x="50" y="170" width="430" height="256" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="66" y="200" font-size="16" fill="#111827" font-weight="700">Opus가 뭔가?</text>
+  <rect x="347" y="184" width="117" height="20" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="405.5" y="198" font-size="10.5" fill="#6b7280" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">RFC 6716 · 2012</text>
+  <text x="66" y="218" font-size="12.5" fill="#4b5563">IETF가 표준화한 로열티 프리 오디오 코덱.</text>
+  <text x="66" y="236" font-size="12.5" fill="#4b5563">Skype의 SILK와 Xiph의 CELT를 합쳐, VoIP부터</text>
+  <text x="66" y="254" font-size="12.5" fill="#4b5563">음악 스트리밍·라이브 방송까지 한 코덱으로 커버.</text>
+  <text x="72" y="276" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="276" font-size="12" fill="#111827">비트레이트 6 ~ 510 kbps (VBR 기본, CBR 가능)</text>
+  <text x="72" y="295" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="295" font-size="12" fill="#111827">샘플레이트 8 / 12 / 16 / 24 / 48 kHz</text>
+  <text x="72" y="314" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="314" font-size="12" fill="#111827">프레임 2.5 / 5 / 10 / 20 / 40 / 60 ms</text>
+  <text x="72" y="333" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="333" font-size="12" fill="#111827">모노 / 스테레오 / 멀티채널</text>
+  <text x="72" y="352" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="352" font-size="12" fill="#111827">WebRTC · Discord · YouTube Live · Zoom</text>
+  <rect x="50" y="440" width="430" height="326" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1"/>
+  <text x="66" y="470" font-size="16" fill="#0d9488" font-weight="700">압축 원리</text>
+  <rect x="361" y="454" width="103" height="20" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="412.5" y="468" font-size="10.5" fill="#6b7280" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">hybrid engine</text>
+  <text x="66" y="488" font-size="12.5" fill="#4b5563">Opus는 콘텐츠·비트레이트에 따라 두 엔진을</text>
+  <text x="66" y="506" font-size="12.5" fill="#4b5563">프레임 단위로 전환. 경계에서는 두 엔진을</text>
+  <text x="66" y="524" font-size="12.5" fill="#4b5563">동시에 돌리는 하이브리드 모드 사용.</text>
+  <rect x="66" y="544" width="44" height="20" rx="4" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+  <text x="88.0" y="558" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">SILK</text>
+  <rect x="118" y="544" width="44" height="20" rx="4" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="140.0" y="558" font-size="11" font-weight="700" fill="#4c1d95" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">CELT</text>
+  <rect x="170" y="544" width="58" height="20" rx="4" fill="#fbcfe8" stroke="#ec4899" stroke-width="1"/>
+  <text x="199.0" y="558" font-size="11" font-weight="700" fill="#831843" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">HYBRID</text>
+  <text x="72" y="572" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="572" font-size="12" fill="#111827">SILK: 음성용. LPC 선형 예측 → 저비트레이트</text>
+  <text x="82" y="589" font-size="12" fill="#111827">에서도 자연스러운 음성. NB/MB/WB 모드.</text>
+  <text x="72" y="608" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="608" font-size="12" fill="#111827">CELT: 음악·저지연용. MDCT 변환 코딩 →</text>
+  <text x="82" y="625" font-size="12" fill="#111827">음악·과도음에 강함. SWB/FB 모드.</text>
+  <text x="72" y="644" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="644" font-size="12" fill="#111827">Hybrid: 저주파 SILK, 고주파 CELT —</text>
+  <text x="82" y="661" font-size="12" fill="#111827">12 ~ 40 kbps 음성에서 자동.</text>
+  <text x="72" y="680" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="680" font-size="12" fill="#111827">DTX(무음 송신 정지), 인밴드 FEC,</text>
+  <text x="82" y="697" font-size="12" fill="#111827">PLC(패킷 손실 은닉) 내장.</text>
+  <rect x="50" y="780" width="430" height="184" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="66" y="810" font-size="16" fill="#111827" font-weight="700">왜 BudsAI에 맞나</text>
+  <text x="72" y="828" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="828" font-size="12" fill="#111827">한 코덱이 음성·음악을 다 잡음 — "방금 듣던 곡"</text>
+  <text x="72" y="847" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="847" font-size="12" fill="#111827">12 kbps WB 30초 음성 ≈ 45 KB, BT PAN+mTLS에 가뜬</text>
+  <text x="72" y="866" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="866" font-size="12" fill="#111827">지연 5 ms 모드까지 — 링버퍼 회전 부담 無</text>
+  <text x="72" y="885" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="885" font-size="12" fill="#111827">표준이라 서버 측 libopus 디코딩 검증·무료</text>
+  <text x="72" y="904" font-size="14" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="904" font-size="12" fill="#111827">모든 모던 OS·브라우저에 디코더 내장</text>
+  <rect x="504" y="170" width="1366" height="360" rx="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="504" y="170" width="4" height="360" rx="2" fill="#0d9488"/>
+  <text x="522" y="196" font-size="15" fill="#111827" font-weight="700">퀄리티 — 비트레이트별 체감 (MUSHRA 계열 평가 종합)</text>
+  <text x="1856" y="196" font-size="11" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">listening tests / xiph.org</text>
+  <line x1="522" y1="210" x2="1856" y2="210" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="522" y="240" font-size="14" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">6 kbps</text>
+  <text x="522" y="256" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">NB · 음성</text>
+  <rect x="644" y="226" width="1040" height="28" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="644" y="226" width="332" height="28" rx="4" fill="#fde68a"/>
+  <line x1="976" y1="226" x2="976" y2="254" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  <text x="654" y="245" font-size="12" font-weight="700" fill="#78350f" letter-spacing="0.02em" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">알아들음</text>
+  <text x="1846" y="240" font-size="11" fill="#4b5563" text-anchor="end">전화선보다 소폭 거침</text>
+  <text x="522" y="274" font-size="14" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">12 kbps</text>
+  <text x="522" y="290" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">WB · 음성</text>
+  <rect x="644" y="260" width="1040" height="28" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="644" y="260" width="644" height="28" rx="4" fill="#fbcfe8"/>
+  <line x1="1288" y1="260" x2="1288" y2="288" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  <text x="654" y="279" font-size="12" font-weight="700" fill="#831843" letter-spacing="0.02em" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">자연스러움</text>
+  <text x="1846" y="274" font-size="11" fill="#4b5563" text-anchor="end">PSTN(64 kbps) 훨씬 상회</text>
+  <text x="522" y="308" font-size="14" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">16 kbps</text>
+  <text x="522" y="324" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">WB · 음성</text>
+  <rect x="644" y="294" width="1040" height="28" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="644" y="294" width="769" height="28" rx="4" fill="#fbcfe8"/>
+  <line x1="1413" y1="294" x2="1413" y2="322" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  <text x="654" y="313" font-size="12" font-weight="700" fill="#831843" letter-spacing="0.02em" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">VoIP 권장</text>
+  <text x="1846" y="308" font-size="11" fill="#4b5563" text-anchor="end">WebRTC 기본값</text>
+  <text x="522" y="342" font-size="14" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">24 kbps</text>
+  <text x="522" y="358" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">WB · 음성</text>
+  <rect x="644" y="328" width="1040" height="28" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="644" y="328" width="894" height="28" rx="4" fill="#fbcfe8"/>
+  <line x1="1538" y1="328" x2="1538" y2="356" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  <text x="654" y="347" font-size="12" font-weight="700" fill="#831843" letter-spacing="0.02em" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">사실상 투명</text>
+  <text x="1846" y="342" font-size="11" fill="#4b5563" text-anchor="end">음성 기준 원음 구분 난</text>
+  <text x="522" y="376" font-size="14" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">64 kbps</text>
+  <text x="522" y="392" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">FB · 음악 mono</text>
+  <rect x="644" y="362" width="1040" height="28" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="644" y="362" width="811" height="28" rx="4" fill="#ddd6fe"/>
+  <line x1="1455" y1="362" x2="1455" y2="390" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  <text x="654" y="381" font-size="12" font-weight="700" fill="#4c1d95" letter-spacing="0.02em" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">AAC 96 kbps 동급</text>
+  <text x="1846" y="376" font-size="11" fill="#4b5563" text-anchor="end">스트리밍 준수</text>
+  <text x="522" y="410" font-size="14" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">96 kbps</text>
+  <text x="522" y="426" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">FB · 음악 stereo</text>
+  <rect x="644" y="396" width="1040" height="28" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="644" y="396" width="936" height="28" rx="4" fill="#ddd6fe"/>
+  <line x1="1580" y1="396" x2="1580" y2="424" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  <text x="654" y="415" font-size="12" font-weight="700" fill="#4c1d95" letter-spacing="0.02em" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">거의 투명</text>
+  <text x="1846" y="410" font-size="11" fill="#4b5563" text-anchor="end">동영상 오디오 트랙</text>
+  <text x="522" y="444" font-size="14" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">128 kbps</text>
+  <text x="522" y="460" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">FB · 음악 stereo</text>
+  <rect x="644" y="430" width="1040" height="28" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="644" y="430" width="1008" height="28" rx="4" fill="#ddd6fe"/>
+  <line x1="1652" y1="430" x2="1652" y2="458" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  <text x="654" y="449" font-size="12" font-weight="700" fill="#4c1d95" letter-spacing="0.02em" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">투명 (ABX 불가)</text>
+  <text x="1846" y="444" font-size="11" fill="#4b5563" text-anchor="end">CD급 무손실 체감</text>
+  <text x="644" y="468" font-size="10.5" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">0 kbps</text>
+  <text x="1170.0" y="468" font-size="10.5" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle">품질 →</text>
+  <text x="1696" y="468" font-size="10.5" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">투명(원음 구분 불가)</text>
+  <line x1="522" y1="500" x2="1856" y2="500" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <rect x="526" y="505" width="11" height="11" rx="2" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+  <text x="542" y="514" font-size="11.5" fill="#4b5563">SILK (음성 LPC)</text>
+  <rect x="706" y="505" width="11" height="11" rx="2" fill="#fbcfe8" stroke="#ec4899" stroke-width="1"/>
+  <text x="722" y="514" font-size="11.5" fill="#4b5563">Hybrid (SILK+CELT)</text>
+  <rect x="906" y="505" width="11" height="11" rx="2" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="922" y="514" font-size="11.5" fill="#4b5563">CELT (음악 MDCT)</text>
+  <rect x="504" y="544" width="1366" height="406" rx="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="504" y="544" width="4" height="406" rx="2" fill="#1d4ed8"/>
+  <text x="522" y="570" font-size="15" fill="#111827" font-weight="700">공간 ↔ 시간 — 같은 1 MB에 얼마나 담기나</text>
+  <text x="1856" y="570" font-size="11" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">bitrate × 60 / 8 = KB/min</text>
+  <line x1="522" y1="584" x2="1856" y2="584" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <rect x="522" y="600" width="1330" height="32" rx="0" fill="#f9fafb" stroke="#d1d5db" stroke-width="1"/>
+  <text x="534" y="621" font-size="10.5" fill="#6b7280" font-weight="700" letter-spacing="0.06em">비트레이트</text>
+  <text x="734" y="621" font-size="10.5" fill="#6b7280" font-weight="700" letter-spacing="0.06em">용도</text>
+  <text x="1540" y="621" font-size="10.5" fill="#6b7280" font-weight="700" text-anchor="end" letter-spacing="0.06em">KB / 분</text>
+  <text x="1710" y="621" font-size="10.5" fill="#6b7280" font-weight="700" text-anchor="end" letter-spacing="0.06em">1 MB로 저장</text>
+  <text x="1840" y="621" font-size="10.5" fill="#6b7280" font-weight="700" text-anchor="end" letter-spacing="0.06em">30초</text>
+  <rect x="522" y="632" width="1330" height="38" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="534" y="656" font-size="12.5" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">6 kbps</text>
+  <rect x="585.0" y="643" width="44" height="20" rx="4" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+  <text x="607.0" y="657" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">SILK</text>
+  <text x="728" y="656" font-size="12" fill="#4b5563">NB 음성 (협대역, DTX on)</text>
+  <text x="1540" y="656" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">45 KB</text>
+  <text x="1710" y="656" font-size="12.5" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">22 분</text>
+  <text x="1840" y="656" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">23 KB</text>
+  <rect x="522" y="670" width="1330" height="38" rx="0" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1"/>
+  <text x="534" y="694" font-size="12.5" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">12 kbps</text>
+  <rect x="592.5" y="681" width="37" height="20" rx="4" fill="#fbcfe8" stroke="#ec4899" stroke-width="1"/>
+  <text x="611.0" y="695" font-size="10" font-weight="700" fill="#831843" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">HYB</text>
+  <text x="728" y="694" font-size="12" fill="#4b5563">WB 음성, 일상 통화 수준</text>
+  <rect x="1356" y="681" width="50" height="18" rx="3" fill="#0d9488"/>
+  <text x="1381.0" y="694" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">BUDS</text>
+  <text x="1540" y="694" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">90 KB</text>
+  <text x="1710" y="694" font-size="12.5" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">11 분</text>
+  <text x="1840" y="694" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">45 KB</text>
+  <rect x="522" y="708" width="1330" height="38" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="534" y="732" font-size="12.5" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">16 kbps</text>
+  <rect x="592.5" y="719" width="37" height="20" rx="4" fill="#fbcfe8" stroke="#ec4899" stroke-width="1"/>
+  <text x="611.0" y="733" font-size="10" font-weight="700" fill="#831843" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">HYB</text>
+  <text x="728" y="732" font-size="12" fill="#4b5563">WB 음성, WebRTC 권장</text>
+  <text x="1540" y="732" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">120 KB</text>
+  <text x="1710" y="732" font-size="12.5" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">8.5 분</text>
+  <text x="1840" y="732" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">60 KB</text>
+  <rect x="522" y="746" width="1330" height="38" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="534" y="770" font-size="12.5" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">24 kbps</text>
+  <rect x="592.5" y="757" width="37" height="20" rx="4" fill="#fbcfe8" stroke="#ec4899" stroke-width="1"/>
+  <text x="611.0" y="771" font-size="10" font-weight="700" fill="#831843" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">HYB</text>
+  <text x="728" y="770" font-size="12" fill="#4b5563">WB 음성, 사실상 투명</text>
+  <text x="1540" y="770" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">180 KB</text>
+  <text x="1710" y="770" font-size="12.5" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">5.5 분</text>
+  <text x="1840" y="770" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">90 KB</text>
+  <rect x="522" y="784" width="1330" height="38" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="534" y="808" font-size="12.5" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">64 kbps</text>
+  <rect x="592.5" y="795" width="44" height="20" rx="4" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="614.5" y="809" font-size="10" font-weight="700" fill="#4c1d95" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">CELT</text>
+  <text x="728" y="808" font-size="12" fill="#4b5563">FB 음악 mono, AAC 96k 동급</text>
+  <text x="1540" y="808" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">480 KB</text>
+  <text x="1710" y="808" font-size="12.5" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">2.1 분</text>
+  <text x="1840" y="808" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">240 KB</text>
+  <rect x="522" y="822" width="1330" height="38" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="534" y="846" font-size="12.5" fill="#111827" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">128 kbps</text>
+  <rect x="600.0" y="833" width="44" height="20" rx="4" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="622.0" y="847" font-size="10" font-weight="700" fill="#4c1d95" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.04em">CELT</text>
+  <text x="728" y="846" font-size="12" fill="#4b5563">FB 음악 stereo, 거의 투명</text>
+  <text x="1540" y="846" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">960 KB</text>
+  <text x="1710" y="846" font-size="12.5" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">~65 초</text>
+  <text x="1840" y="846" font-size="12" fill="#111827" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">480 KB</text>
+  <rect x="522" y="872" width="1330" height="30" rx="4" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="534" y="892" font-size="11.5" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">환산 공식: </text>
+  <text x="612" y="892" font-size="11.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">bitrate(kbps) × 60 / 8 = KB/min</text>
+  <text x="852" y="892" font-size="11.5" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"> · 패킷·컨테이너 오버헤드는 ±5% 수준이라 표에서는 무시.</text>
+  <rect x="50" y="964" width="1820" height="92" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1"/>
+  <rect x="50" y="964" width="4" height="92" rx="2" fill="#0d9488"/>
+  <text x="70" y="990" font-size="14" fill="#0d9488" font-weight="700">TL;DR</text>
+  <text x="70" y="1012" font-size="12.5" fill="#064e3b">Opus는 SILK(음성) + CELT(음악)를 한 코덱에 묶어 6 ~ 510 kbps를 자유롭게 오간다.</text>
+  <text x="70" y="1030" font-size="12.5" fill="#064e3b">BudsAI의 30초 음성 링버퍼는 12 kbps WB 기준 약 45 KB로 충분하고, 같은 30초를 "방금 듣던 음악"(64 kbps mono)으로 보내도 240 KB — BT PAN 위 mTLS에 부담 없는 크기.</text>
+  <text x="70" y="1048" font-size="12.5" fill="#064e3b">한 디코더가 음성·음악·라이브를 다 받기 때문에, 서버는 입력 종류를 의식할 필요가 없다.</text>
+  <text x="1870" y="1058" font-size="11" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end" letter-spacing="0.04em">BudsAI Design Doc · Opus one-pager</text>
+</svg>

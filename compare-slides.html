@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>타사 비교 발표용 4장 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============ White mode override ============ */
+    body.is-deck-light {
+      background: #ffffff;
+      color: #111827;
+      font-family: var(--sans);
+    }
+    body.is-deck-light .site-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    body.is-deck-light .nav a { color: #4b5563; }
+    body.is-deck-light .nav a:hover { background: #f3f4f6; color: #111827; }
+    body.is-deck-light .nav a.active {
+      background: #ccfbf1;
+      color: #0d9488;
+    }
+    body.is-deck-light .logo { color: #111827; }
+    body.is-deck-light .logo-mark {
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: white;
+    }
+    body.is-deck-light .site-footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+    body.is-deck-light .site-footer .page-mark { color: #0d9488; }
+    body.is-deck-light .pager {
+      border-color: #e5e7eb;
+    }
+    body.is-deck-light .pager a { color: #111827; }
+    body.is-deck-light .pager-label { color: #6b7280; }
+
+    /* Local color tokens */
+    .deck {
+      --c-bg: #ffffff;
+      --c-bg-soft: #f9fafb;
+      --c-bg-elev: #f3f4f6;
+      --c-border: #e5e7eb;
+      --c-border-strong: #d1d5db;
+      --c-text: #111827;
+      --c-text-dim: #4b5563;
+      --c-text-muted: #6b7280;
+      --c-accent: #0d9488;
+      --c-accent-dim: #14b8a6;
+      --c-accent-soft: #ccfbf1;
+      --c-accent-bg: #f0fdfa;
+      --c-warn: #b45309;
+      --c-warn-soft: #fef3c7;
+      --c-danger: #b91c1c;
+      --c-danger-soft: #fee2e2;
+      --c-galaxy: #1428a0;
+      --c-galaxy-soft: #e0e7ff;
+      --c-galaxy-bg: #eef2ff;
+    }
+
+    .deck-main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 32px 80px;
+      background: var(--c-bg);
+      color: var(--c-text);
+    }
+    .deck-intro {
+      padding: 12px 0 18px;
+      border-bottom: 1px solid var(--c-border);
+      margin-bottom: 20px;
+    }
+    .deck-intro h1 { font-size: 20px; margin-bottom: 4px; color: var(--c-text); font-weight: 700; }
+    .deck-intro p { color: var(--c-text-dim); font-size: 13px; margin: 0; }
+    .deck-intro .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--c-text-muted);
+      font-family: var(--mono);
+    }
+    .deck-intro a { color: var(--c-accent); }
+
+    /* ============ Slide layout ============ */
+    .slide {
+      min-height: 92vh;
+      padding: 36px 36px 28px;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      background: var(--c-bg);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 22px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .slide-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .slide-num {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--c-text);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .slide-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      background: var(--c-accent-soft);
+      padding: 4px 9px;
+      border-radius: 4px;
+    }
+    .slide-tag.galaxy {
+      color: var(--c-galaxy);
+      background: var(--c-galaxy-soft);
+    }
+    .slide-lead {
+      font-size: 13.5px;
+      color: var(--c-text-dim);
+      margin: 0 0 16px;
+      line-height: 1.55;
+    }
+
+    /* ===== Slide 01 — product cards ===== */
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 1024px) { .market-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .market-grid { grid-template-columns: 1fr; } }
+    .mc {
+      background: var(--c-bg-soft);
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+    }
+    .mc.you {
+      background: var(--c-accent-bg);
+      border-color: var(--c-accent-dim);
+    }
+    .mc .brand {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--c-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+    .mc.you .brand { color: var(--c-accent); }
+    .mc .pname {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin-bottom: 6px;
+    }
+    .mc .tag {
+      font-size: 11.5px;
+      color: var(--c-text-dim);
+      font-style: italic;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--c-border);
+    }
+    .mc .plist { margin: 0; padding: 0; list-style: none; }
+    .mc .plist li {
+      font-size: 11.5px;
+      color: var(--c-text);
+      line-height: 1.45;
+      padding-left: 12px;
+      position: relative;
+      margin-bottom: 2px;
+    }
+    .mc .plist li.pro::before { content: "+"; position: absolute; left: 0; color: var(--c-accent); font-weight: 700; }
+    .mc .plist li.con::before { content: "−"; position: absolute; left: 0; color: var(--c-danger); font-weight: 700; }
+    .mc .meta {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--c-text-muted);
+      margin-top: 6px;
+      padding-top: 5px;
+      border-top: 1px dashed var(--c-border);
+    }
+
+    .common-flaw {
+      background: var(--c-danger-soft);
+      border: 1px solid #fca5a5;
+      border-left: 3px solid var(--c-danger);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #7f1d1d;
+      line-height: 1.55;
+    }
+    .common-flaw strong { color: var(--c-danger); }
+
+    /* ===== Slide 02 — dense matrix ===== */
+    .matrix-box {
+      flex: 1;
+      overflow-x: auto;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      background: var(--c-bg);
+    }
+    table.dm {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      min-width: 900px;
+    }
+    table.dm th, table.dm td {
+      padding: 7px 8px;
+      border-bottom: 1px solid var(--c-border);
+      border-right: 1px solid var(--c-border);
+      vertical-align: top;
+      color: var(--c-text);
+    }
+    table.dm th {
+      background: var(--c-bg-elev);
+      font-weight: 700;
+      font-size: 11px;
+      text-align: center;
+    }
+    table.dm td { text-align: center; }
+    table.dm th:first-child, table.dm td:first-child {
+      text-align: left;
+      font-weight: 600;
+      background: var(--c-bg-soft);
+      min-width: 170px;
+    }
+    table.dm th.self, table.dm td.self { background: var(--c-accent-bg); }
+    table.dm th.self { background: var(--c-accent-soft); color: var(--c-accent); }
+    table.dm .y { color: var(--c-accent); font-weight: 700; font-size: 13px; }
+    table.dm .m { color: var(--c-warn); font-weight: 700; font-size: 13px; }
+    table.dm .n { color: #9ca3af; font-size: 12px; }
+    table.dm .note {
+      display: block;
+      font-size: 10px;
+      color: var(--c-text-muted);
+      font-weight: 400;
+      margin-top: 1px;
+      line-height: 1.3;
+    }
+
+    .legend-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 11.5px;
+      color: var(--c-text-muted);
+      margin-top: 10px;
+    }
+    .legend-row span { display: inline-flex; align-items: center; gap: 5px; }
+
+    /* ===== Slide 03 — differentiator rows ===== */
+    .diff-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 12.5px;
+    }
+    .diff-table th {
+      background: var(--c-bg-elev);
+      color: var(--c-text);
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11.5px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .diff-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--c-border);
+      vertical-align: top;
+      color: var(--c-text);
+      line-height: 1.5;
+    }
+    .diff-table tr:last-child td { border-bottom: none; }
+    .diff-table .num { font-family: var(--mono); font-weight: 700; color: var(--c-accent); width: 28px; text-align: center; }
+    .diff-table .what { font-weight: 700; color: var(--c-text); width: 22%; }
+    .diff-table .how { color: var(--c-text); width: 35%; }
+    .diff-table .evidence {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--c-text-dim);
+      background: var(--c-bg-soft);
+      width: 23%;
+    }
+    .diff-table .none { font-size: 11.5px; color: var(--c-danger); width: 20%; }
+    .diff-table .none strong { color: var(--c-danger); }
+
+    /* ===== Slide 04 — Galaxy synergy ===== */
+    .galaxy-banner {
+      background: linear-gradient(135deg, var(--c-galaxy-bg), white);
+      border: 1px solid var(--c-galaxy-soft);
+      border-left: 4px solid var(--c-galaxy);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--c-text);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .galaxy-banner strong { color: var(--c-galaxy); }
+
+    .galaxy-scen-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+    .galaxy-scen-table th {
+      background: var(--c-bg-elev);
+      padding: 8px 10px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--c-text);
+      text-align: left;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .galaxy-scen-table th.galaxy {
+      background: var(--c-galaxy-soft);
+      color: var(--c-galaxy);
+    }
+    .galaxy-scen-table td {
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--c-border);
+      border-right: 1px solid var(--c-border);
+      vertical-align: top;
+      color: var(--c-text);
+      line-height: 1.5;
+    }
+    .galaxy-scen-table td:last-child { border-right: none; }
+    .galaxy-scen-table tr:last-child td { border-bottom: none; }
+    .galaxy-scen-table .trigger { font-weight: 700; width: 22%; background: var(--c-bg-soft); }
+    .galaxy-scen-table .standalone { width: 36%; color: var(--c-text-dim); font-size: 11.5px; }
+    .galaxy-scen-table .with-galaxy { width: 42%; background: var(--c-galaxy-bg); color: var(--c-text); font-weight: 500; }
+    .galaxy-scen-table .with-galaxy strong { color: var(--c-galaxy); }
+
+    .galaxy-features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 900px) { .galaxy-features { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .galaxy-features { grid-template-columns: 1fr; } }
+    .gf {
+      background: white;
+      border: 1px solid var(--c-border);
+      border-left: 3px solid var(--c-galaxy);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 11.5px;
+    }
+    .gf .ico {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--c-galaxy);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .gf h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin: 0 0 4px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .gf p { color: var(--c-text-dim); margin: 0; line-height: 1.5; font-size: 11.5px; }
+    .gf .ex {
+      display: block;
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--c-border);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--c-galaxy);
+    }
+
+    .final-galaxy {
+      margin-top: 14px;
+      padding: 14px 18px;
+      background: linear-gradient(135deg, var(--c-galaxy-bg), var(--c-accent-bg));
+      border: 1px solid var(--c-galaxy-soft);
+      border-left: 4px solid var(--c-galaxy);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--c-text);
+      line-height: 1.55;
+    }
+    .final-galaxy strong { color: var(--c-galaxy); }
+    .final-galaxy em { font-style: normal; color: var(--c-accent); font-weight: 600; }
+
+    /* ============ Print mode ============ */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      body { background: white !important; }
+      .site-header, .site-footer, .sim-fab, .deck-intro, .nav-toggle, .pager { display: none !important; }
+      .slide {
+        page-break-after: always;
+        min-height: 0;
+        height: auto;
+        margin: 0 0 0 0;
+        padding: 12mm !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .slide:last-of-type { page-break-after: auto; }
+      .deck-main { padding: 0 !important; max-width: none !important; }
+    }
+
+    /* ============ Presentation mode (?present) ============ */
+    body.is-present .site-header,
+    body.is-present .site-footer,
+    body.is-present .sim-fab,
+    body.is-present .deck-intro,
+    body.is-present .pager { display: none; }
+    body.is-present .slide { display: none; min-height: 100vh; margin: 0; border-radius: 0; padding: 36px 56px; }
+    body.is-present .slide.is-current { display: flex; }
+    body.is-present .deck-main { max-width: none; padding: 0 32px; }
+    .present-controls {
+      display: none;
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      gap: 6px;
+      z-index: 200;
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--c-text-dim);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    body.is-present .present-controls { display: inline-flex; align-items: center; }
+    .present-controls button {
+      background: transparent;
+      border: 1px solid var(--c-border);
+      color: var(--c-text);
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .present-controls button:hover { border-color: var(--c-accent); color: var(--c-accent); }
+    .present-controls .counter { padding: 0 8px; }
+    .present-controls a { color: var(--c-text-muted); padding: 0 6px; }
+  </style>
+</head>
+<body class="is-deck-light">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="compare.html" class="active">타사 비교</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="deck-main deck">
+
+    <div class="deck-intro">
+      <h1>타사 비교 — 발표용 4장</h1>
+      <p>시장 현황 / 풀 매트릭스 / 차별점 4개 / Galaxy 시너지 — 정보 밀도 우선의 4장. 2026-05-27 기준, 6개 제품 모두 1차 출처(제조사) + 2차 출처(독립 리뷰) 검증 완료.</p>
+      <p class="hint">발표 모드 → <a href="?present">?present</a> · 방향키 ← → 또는 PgUp/PgDn · Esc 종료 · 검증 출처 = <a href="compare.html#refs">compare.html#refs</a></p>
+    </div>
+
+    <!-- ============ Slide 01 — Market landscape ============ -->
+    <section class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">01 / 04</span>
+        <h2 class="slide-title">시장 대표 6종 + BudsAI — 강점/한계/스펙 한 장</h2>
+        <span class="slide-tag">Market</span>
+      </div>
+      <p class="slide-lead">
+        프리미엄 TWS · 자사 후속 · 음질 정통파 · ChatGPT 단축키 · 통역 특화 · 시각 컨텍스트 AI — 7개 제품을 강점(+) / 한계(−) / 스펙 한 줄로 압축.
+      </p>
+
+      <div class="market-grid">
+
+        <div class="mc you">
+          <div class="brand">Samsung · 본 제안</div>
+          <div class="pname">BudsAI</div>
+          <div class="tag">직전 사운드 + 음성 질의 결합 AI 이어버드</div>
+          <ul class="plist">
+            <li class="pro">출력 PCM 30초 링버퍼 (~150KB) — <strong>유일한 본질 차별점</strong></li>
+            <li class="pro">표준 BT PAN, 앱 설치 0, 호스트 무관</li>
+            <li class="pro">버즈 종단 mTLS (SE 인증서)</li>
+            <li class="con">AI 응답 자유도·세션 연속 대화는 Gemini Live에 못 미침</li>
+            <li class="con">신규 카테고리 — 사용자 학습 필요</li>
+          </ul>
+          <div class="meta">~3s 응답 · Opus 코덱 · Galaxy 시너지 풀 지원</div>
+        </div>
+
+        <div class="mc">
+          <div class="brand">Samsung · 자사 후속</div>
+          <div class="pname">Galaxy Buds4 Pro</div>
+          <div class="tag">Bixby + Galaxy AI Interpreter 연장</div>
+          <ul class="plist">
+            <li class="pro">실시간 Interpreter (통역) 강력</li>
+            <li class="pro">Samsung Sound by AKG 음질 · ANC</li>
+            <li class="pro">SSC 고음질 코덱 · One UI 통합</li>
+            <li class="con">Galaxy 폰 페어링 시에만 풀 기능</li>
+            <li class="con">듣던 사운드는 컨텍스트로 안 씀</li>
+          </ul>
+          <div class="meta">~2-3s 응답 · Wearable 앱 필수 · 통역 메뉴 분리</div>
+        </div>
+
+        <div class="mc">
+          <div class="brand">Apple</div>
+          <div class="pname">AirPods Pro 2</div>
+          <div class="tag">Siri + Apple Intelligence + Conversation Awareness</div>
+          <ul class="plist">
+            <li class="pro">H2 칩 ANC · Hearing Aid · Adaptive Audio</li>
+            <li class="pro">iPhone↔Mac 무중단 핸드오프</li>
+            <li class="pro">Live Translation (Apple Intelligence)</li>
+            <li class="con">iPhone 15 Pro+ 강제 · Mac 단독 불가</li>
+            <li class="con">듣던 사운드 자체는 컨텍스트 미사용</li>
+          </ul>
+          <div class="meta">~2-3s 응답(추정) · iCloud 계정 sync · AAC</div>
+        </div>
+
+        <div class="mc">
+          <div class="brand">Sony</div>
+          <div class="pname">WF-1000XM5</div>
+          <div class="tag">ANC 클래스 최고 · 음질 정통파</div>
+          <ul class="plist">
+            <li class="pro">LDAC · 360 Reality Audio</li>
+            <li class="pro">업계 최고 수준 ANC</li>
+            <li class="pro">Speak-to-Chat (말하면 일시정지)</li>
+            <li class="con">AI 자체 기능 없음 — 폰 비서 패스스루</li>
+            <li class="con">통역 · 번역 · 음악 식별 모두 외부 의존</li>
+          </ul>
+          <div class="meta">N/A 응답 · Headphones Connect 앱 · LDAC</div>
+        </div>
+
+        <div class="mc">
+          <div class="brand">Nothing</div>
+          <div class="pname">Nothing Ear (2024)</div>
+          <div class="tag">ChatGPT 직접 호출 (Nothing Phone 한정)</div>
+          <ul class="plist">
+            <li class="pro">Pinch 제스처 → Nothing OS ChatGPT</li>
+            <li class="pro">LDAC 코덱 · 합리적 가격</li>
+            <li class="pro">투명 디자인 차별화</li>
+            <li class="con">타사 폰에서 ChatGPT 단축키 사망</li>
+            <li class="con">듣던 오디오는 컨텍스트 미사용</li>
+          </ul>
+          <div class="meta">~3-5s 응답 · Nothing X 앱 · ANC 지원</div>
+        </div>
+
+        <div class="mc">
+          <div class="brand">Timekettle</div>
+          <div class="pname">WT2 Edge / M3</div>
+          <div class="tag">실시간 양방향 통역 단일 특화</div>
+          <ul class="plist">
+            <li class="pro">40+ 언어 동시 통역</li>
+            <li class="pro">카드 기반 화자 분리 UX</li>
+            <li class="pro">대면 비즈니스 통역 시장 점유</li>
+            <li class="con">번역 외 의도 처리 불가</li>
+            <li class="con">전용 앱 + 클라우드 STT/MT 필수</li>
+          </ul>
+          <div class="meta">~2-4s 응답(추정) · M3 30dB ANC · AI 의도는 번역만</div>
+        </div>
+
+        <div class="mc">
+          <div class="brand">Meta (참고)</div>
+          <div class="pname">Ray-Ban Meta</div>
+          <div class="tag">스마트글래스 · "Hey Meta" + 카메라</div>
+          <ul class="plist">
+            <li class="pro">시각 컨텍스트 강함 (카메라 캡처)</li>
+            <li class="pro">Meta AI Live · 인터럽티블 대화</li>
+            <li class="pro">자체 폼팩터 · 오픈 이어 스피커</li>
+            <li class="con">오디오 컨텍스트 약함 (환경음만)</li>
+            <li class="con">Meta AI 앱 + 폰 종속</li>
+          </ul>
+          <div class="meta">~2-3s 응답 · 이어폰 아님 · 보완재 카테고리</div>
+        </div>
+
+      </div>
+
+      <div class="common-flaw">
+        <strong>공통 한계 (BudsAI 제외 6종 전체)</strong> — 모두 "사용자가 질문하는 순간부터의 마이크 입력"만 AI에 보낸다.
+        듣고 있던 출력 사운드 자체를 컨텍스트로 동봉하는 제품은 시장에 단 하나도 존재하지 않는다.
+        "방금 그 노래/대사/단어"를 묻기 위해 사용자가 다시 마이크에 대고 캡처하거나 별도 앱(Shazam 등)을 켜야 한다.
+      </div>
+    </section>
+
+    <!-- ============ Slide 02 — Full matrix ============ -->
+    <section class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">02 / 04</span>
+        <h2 class="slide-title">10개 축 × 7개 제품 비교 매트릭스</h2>
+        <span class="slide-tag">Matrix</span>
+      </div>
+      <p class="slide-lead">
+        LLM 시대에 누구나 가능한 "의도 라우팅 자유도", "세션 연속 대화" 같은 축은 차별점이 아니므로 매트릭스에서 제외.
+        진짜로 BudsAI 컬럼만 ●인 축은 4개 — 컨텍스트·호스트 무관·앱 0·E2E 보안.
+      </p>
+
+      <div class="matrix-box">
+        <table class="dm">
+          <thead>
+            <tr>
+              <th>비교 축</th>
+              <th class="self">BudsAI</th>
+              <th>Buds4 Pro</th>
+              <th>AirPods Pro 2</th>
+              <th>Sony XM5</th>
+              <th>Nothing Ear</th>
+              <th>Timekettle</th>
+              <th>Ray-Ban Meta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>듣던 사운드를 AI 컨텍스트로 사용</td>
+              <td class="self"><span class="y">●</span><span class="note">30s 링버퍼</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="m">△</span><span class="note">시각만</span></td>
+            </tr>
+            <tr>
+              <td>호스트 무관 (노트북·TV·차량)</td>
+              <td class="self"><span class="y">●</span><span class="note">BT PAN 표준</span></td>
+              <td><span class="n">—</span><span class="note">Galaxy 필수</span></td>
+              <td><span class="n">—</span><span class="note">iPhone 종속</span></td>
+              <td><span class="m">△</span><span class="note">음악만</span></td>
+              <td><span class="n">—</span><span class="note">Nothing Phone</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+            </tr>
+            <tr>
+              <td>앱 설치 불필요 (Zero-Install)</td>
+              <td class="self"><span class="y">●</span><span class="note">OS 빌트인 BT만</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+            </tr>
+            <tr>
+              <td>버즈 종단 E2E (mTLS)</td>
+              <td class="self"><span class="y">●</span><span class="note">SE 인증서</span></td>
+              <td><span class="m">△</span></td>
+              <td><span class="m">△</span><span class="note">iCloud</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span><span class="note">앱 종단</span></td>
+              <td><span class="n">—</span></td>
+            </tr>
+            <tr>
+              <td>호스트 페이로드 접근 차단</td>
+              <td class="self"><span class="y">●</span><span class="note">Dumb Pipe</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span><span class="note">iPhone 처리</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+            </tr>
+            <tr>
+              <td>실시간 통역</td>
+              <td class="self"><span class="y">●</span><span class="note">8 의도 중</span></td>
+              <td><span class="y">●</span><span class="note">Interpreter</span></td>
+              <td><span class="m">△</span><span class="note">Live Translation</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="y">●</span><span class="note">40+ 언어</span></td>
+              <td><span class="y">●</span></td>
+            </tr>
+            <tr>
+              <td>음악 식별 (Shazam류)</td>
+              <td class="self"><span class="y">●</span><span class="note">동일 입력</span></td>
+              <td><span class="m">△</span><span class="note">Bixby (폰)</span></td>
+              <td><span class="y">●</span><span class="note">Siri+Shazam</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="y">●</span><span class="note">Shazam v11</span></td>
+            </tr>
+            <tr>
+              <td>고음질 코덱 (LDAC/SSC/AAC)</td>
+              <td class="self"><span class="y">●</span><span class="note">A2DP 독립</span></td>
+              <td><span class="y">●</span><span class="note">SSC</span></td>
+              <td><span class="y">●</span><span class="note">AAC</span></td>
+              <td><span class="y">●</span><span class="note">LDAC</span></td>
+              <td><span class="y">●</span><span class="note">LDAC</span></td>
+              <td><span class="n">—</span></td>
+              <td><span class="m">△</span></td>
+            </tr>
+            <tr>
+              <td>ANC</td>
+              <td class="self"><span class="m">△</span><span class="note">HW 의존</span></td>
+              <td><span class="y">●</span></td>
+              <td><span class="y">●</span></td>
+              <td><span class="y">●</span><span class="note">클래스 최고</span></td>
+              <td><span class="y">●</span></td>
+              <td><span class="m">△</span><span class="note">M3 30dB</span></td>
+              <td><span class="n">—</span><span class="note">오픈형</span></td>
+            </tr>
+            <tr>
+              <td>종단간 응답 지연</td>
+              <td class="self"><span class="y">~3s</span></td>
+              <td><span class="y">~2-3s</span></td>
+              <td><span class="y">~2-3s</span></td>
+              <td><span class="n">N/A</span></td>
+              <td><span class="m">~3-5s</span></td>
+              <td><span class="m">~2-4s</span></td>
+              <td><span class="y">~2-3s</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="legend-row">
+        <span><span class="y">●</span> 지원/강점</span>
+        <span><span class="m">△</span> 부분/제한적</span>
+        <span><span class="n">—</span> 미지원</span>
+        <span style="margin-left:auto;">※ ANC/코덱 BudsAI는 Buds Pro 차세대 HW 기준 · 응답 지연은 음성 호출 → TTS 시작 추정</span>
+      </div>
+    </section>
+
+    <!-- ============ Slide 03 — Differentiator details (3개로 압축) ============ -->
+    <section class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">03 / 04</span>
+        <h2 class="slide-title">진짜 단독 차별점 4개 + 솔직히 동등하거나 약한 부분</h2>
+        <span class="slide-tag">Differentiators</span>
+      </div>
+      <p class="slide-lead">
+        LLM 시대엔 "의도 라우팅"·"세션 연속 대화"는 누구나 한다. 정직하게 BudsAI만 단독으로 가지는 본질적 차별점 4개(기술 3 + 생태계 1)만 남기고, 동등하거나 약한 부분은 따로 인정한다.
+      </p>
+
+      <table class="diff-table">
+        <thead>
+          <tr>
+            <th style="width:28px;">#</th>
+            <th>차별 축 (What)</th>
+            <th>어떻게 (How)</th>
+            <th>구현 증거 (Evidence)</th>
+            <th>타사가 왜 못 하나 (Why none)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">01</td>
+            <td class="what">"이미 들은 사운드"가 컨텍스트</td>
+            <td class="how">버즈가 출력 PCM 마지막 30초를 Opus로 압축해 링버퍼에 항상 보관. 질문 발생 시 자동 동봉. 사용자가 "방금 그거"라고만 해도 시스템이 이미 무엇을 들었는지 알고 있음.</td>
+            <td class="evidence">30s · ~150KB · Opus 16kbps · Track A 패킷</td>
+            <td class="none">모든 경쟁사는 사용자 발화 시점부터의 마이크 입력만 캡처. "방금 그 노래"를 다시 캡처하거나 Shazam 같은 앱을 별도 호출해야 함. <strong>이 한 가지가 BudsAI의 진짜 해자.</strong></td>
+          </tr>
+          <tr>
+            <td class="num">02</td>
+            <td class="what">호스트 무관 · 앱 설치 0</td>
+            <td class="how">표준 BT PAN(BNEP) 프로파일만 사용. OS 빌트인 "Bluetooth 테더링" 토글 한 번이면 노트북·MP3·TV·차량·eSIM 동글에서 동일 동작. 자사 폰 없어도 모든 핵심 기능 그대로.</td>
+            <td class="evidence">BNEP · IETF RFC 3220 · OS 빌트인</td>
+            <td class="none">AirPods=iPhone, Buds4 Pro=Galaxy, Nothing=Nothing Phone에 강하게 종속 — 기술 문제가 아니라 락인 비즈니스 모델. 시장 6종 중 아무도 의도적으로 풀지 않음.</td>
+          </tr>
+          <tr>
+            <td class="num">03</td>
+            <td class="what">버즈 종단 mTLS · Dumb Pipe</td>
+            <td class="how">디바이스 인증서를 버즈의 Secure Element에 보관. 버즈가 직접 서버와 mTLS 핸드셰이크. 호스트는 IP 패킷만 라우팅하므로 평문 페이로드를 못 봄.</td>
+            <td class="evidence">SE + X.509 · TLS 1.3 · Knox Vault 호환</td>
+            <td class="none">타사는 모두 폰이 평문 페이로드 처리 → 분실 폰·공유 노트북·렌터카 사용 시 음성 노출 위험. 호스트 무관(#02)을 추구하지 않으면 mTLS 종단을 버즈에 둘 동기 자체가 없음.</td>
+          </tr>
+          <tr>
+            <td class="num">04</td>
+            <td class="what">Galaxy 생태계 자동 통합 <span style="color:var(--c-galaxy); font-size:10px; background:var(--c-galaxy-soft); padding:1px 5px; border-radius:3px; margin-left:4px; vertical-align:middle;">생태계</span></td>
+            <td class="how">버즈 응답을 Galaxy 컴패니언 앱이 받아 Spotify·Samsung Notes·Calendar·Internet·Watch·Tab·Auto·DeX·SmartThings로 자동 라우팅. Bixby Routines가 위치·시간 기반으로 BudsAI 모드 자체를 자동 트리거. 한 번 묻고 모든 Galaxy 화면에 결과 도착.</td>
+            <td class="evidence">컴패니언 앱 · Bixby Routines · SmartThings · One UI Auto · DeX · Knox Vault</td>
+            <td class="none">자사 OS·앱·차량·웨어러블·태블릿·DeX·SE 보안 모듈을 <strong>모두</strong> 가진 회사는 삼성과 애플뿐. 그런데 애플은 호스트 무관 아키텍처(#02)를 만들 동기 자체가 없음(iPhone 락인이 사업 모델). <strong>두 조건을 동시에 만족하는 회사는 사실상 삼성 하나.</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:16px; padding:14px 18px; background:var(--c-warn-soft); border:1px solid #fcd34d; border-left:4px solid var(--c-warn); border-radius:8px; font-size:12.5px; color:#78350f; line-height:1.6;">
+        <strong style="color:var(--c-warn);">솔직 인정 — 차별점이 아닌 영역</strong><br/>
+        <ul style="margin:6px 0 0; padding-left:18px; color:#78350f;">
+          <li><strong>의도 자유도</strong> — Gemini Live·Apple Intelligence·ChatGPT 모두 자연어로 임의 의도 처리 가능. BudsAI의 "8개 의도 분류기"는 결국 같은 LLM 시대 패턴이며 단독 우위가 아니다.</li>
+          <li><strong>세션 연속 대화</strong> — Gemini Live·Apple Intelligence가 이미 인터럽티블 후속 대화를 더 자연스럽게 처리한다. BudsAI의 PrevSessionID는 "직전 사운드 트랙"을 같이 끌고 간다는 점에서만 의미.</li>
+          <li><strong>실시간 통역</strong> — Buds4 Pro Interpreter·Timekettle·Pixel Buds Pro 2의 Gemini가 동등 또는 더 강함. BudsAI는 8개 의도 중 하나로 처리할 뿐.</li>
+          <li><strong>ANC · 음질</strong> — Sony XM5·AirPods Pro 2가 최고. BudsAI는 차세대 Buds Pro HW에 의존.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ Slide 04 — Galaxy + BudsAI synergy (가장 중요) ============ -->
+    <section class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">04 / 04</span>
+        <h2 class="slide-title">Galaxy + BudsAI 시너지 — One UI 통합이 만드는 절대적 우위</h2>
+        <span class="slide-tag galaxy">Galaxy Synergy</span>
+      </div>
+      <p class="slide-lead">
+        BudsAI는 타사 호스트에서도 동작하지만, <strong>Galaxy 환경에서는 다른 차원</strong>이 된다.
+        버즈가 받아온 응답이 Galaxy 폰 앱·워치·태블릿·차량·DeX로 자동 라우팅되며, Bixby Routines가 위치·시간 기반으로 BudsAI 자체를 자동 트리거한다.
+        타사 제품에서는 구현 불가능한 통합 경험 — 이게 Galaxy 구매 동인의 핵심.
+      </p>
+
+      <div class="galaxy-banner">
+        <strong>핵심 원리</strong> — Galaxy 컴패니언 앱이 BudsAI 서버 응답을 받아 폰의 적절한 앱(Spotify·Samsung Notes·Calendar·Internet)으로 액션을 자동 라우팅한다.
+        기술 자체는 어떤 OEM도 만들 수 있지만, <strong>자사 앱·OS·차량·웨어러블 생태계를 모두 가진 회사는 삼성과 애플뿐</strong> — 그리고 애플은 호스트 무관 아키텍처가 아니라 BudsAI 같은 시스템을 만들 동기가 없다.
+        결과적으로 "한 번 묻고 모든 화면에 도착하는" 통합 경험은 사실상 Galaxy + BudsAI 조합에서만 가능.
+      </div>
+
+      <table class="galaxy-scen-table">
+        <thead>
+          <tr>
+            <th>일상 시나리오</th>
+            <th>BudsAI 단독 (타사 호스트)</th>
+            <th class="galaxy">+ Galaxy 폰 페어링 시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="trigger">카페에서 음악 식별</td>
+            <td class="standalone">"아이유의 Love wins all입니다" TTS 응답 들음. 더 듣고 싶으면 사용자가 직접 음악 앱을 열어 검색해야 함.</td>
+            <td class="with-galaxy">위 TTS 응답 + <strong>Spotify/YouTube Music이 곡을 자동 재생 큐에 추가</strong>, 좋아요 자동 처리, Bixby가 잠금화면에 앨범 아트 표시, Galaxy Watch에도 알림.</td>
+          </tr>
+          <tr>
+            <td class="trigger">영어 단어 뜻 질문</td>
+            <td class="standalone">"전형적인이란 뜻이에요" TTS 응답만. 단어장 정리는 사용자 몫.</td>
+            <td class="with-galaxy"><strong>Samsung Notes의 영단어장에 자동 저장</strong> (날짜·예문 포함), Galaxy AI Note Assist가 주간 복습 카드 생성, Samsung Internet 사전 탭과 동기화.</td>
+          </tr>
+          <tr>
+            <td class="trigger">회의 통화 "방금 부장님 뭐라셨지"</td>
+            <td class="standalone">직전 30초 요약을 TTS로 들음. 기록은 사용자가 다시 폰을 꺼내 옮겨 적어야 함.</td>
+            <td class="with-galaxy"><strong>Samsung Notes에 자동 받아쓰기</strong> + Galaxy AI가 액션 아이템 추출 → <strong>Calendar에 일정 자동 등록</strong> → Galaxy Watch 알림으로 마감 리마인더.</td>
+          </tr>
+          <tr>
+            <td class="trigger">운전 중 라디오 곡 식별</td>
+            <td class="standalone">TTS만 들음. 차량 디스플레이는 그대로 라디오.</td>
+            <td class="with-galaxy"><strong>One UI Auto가 차량 디스플레이에 곡명·아티스트·앨범 아트 띄움</strong>, "좋아요" 음성 명령으로 플레이리스트 자동 저장, 다음 신호 대기 시 비슷한 곡 추천.</td>
+          </tr>
+          <tr>
+            <td class="trigger">미드 대사 번역</td>
+            <td class="standalone">번역 TTS 응답.</td>
+            <td class="with-galaxy"><strong>Galaxy Tab/DeX 외부 모니터에 직전 30초 자막 + 번역 결과 동시 표시</strong>, Multi-Control로 폰에서 후속 질문 입력, SmartThings로 거실 TV에 결과 미러링도 가능.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="galaxy-features">
+        <div class="gf">
+          <div class="ico">F1 · Routines</div>
+          <h4>Bixby Routines 자동 트리거</h4>
+          <p>위치(회의실·카페·차량)·시간·앱 컨텍스트 기반으로 BudsAI 트리거 감도를 자동 조정. 회의실 도착 → 자동 받아쓰기 모드.</p>
+          <span class="ex">위치 → 모드 자동 전환</span>
+        </div>
+        <div class="gf">
+          <div class="ico">F2 · Auto-Route</div>
+          <h4>앱 자동 라우팅</h4>
+          <p>의도별 결과를 Spotify·Samsung Notes·Calendar·Samsung Internet에 자동 저장 + 후속 액션 실행. 사용자 별도 조작 없음.</p>
+          <span class="ex">x-galaxy-intent 메타 디스패치</span>
+        </div>
+        <div class="gf">
+          <div class="ico">F3 · SmartThings</div>
+          <h4>다중 디바이스 동기화</h4>
+          <p>Galaxy Watch에 결과 알림, Tab에서 후속 작업, 거실 TV에 미러링, 차량에 컨텍스트 전달. 한 번 묻고 모든 화면에 도착.</p>
+          <span class="ex">Watch · Tab · TV · Auto</span>
+        </div>
+        <div class="gf">
+          <div class="ico">F4 · One UI Auto</div>
+          <h4>차량 디스플레이 통합</h4>
+          <p>운전 중 음악 식별·번역·길찾기 응답이 차량 디스플레이에 자동 시각화. Galaxy 폰 미러링/Android Auto 위에 컨텍스트 레이어.</p>
+          <span class="ex">운전 중 안전한 시각 응답</span>
+        </div>
+        <div class="gf">
+          <div class="ico">F5 · DeX</div>
+          <h4>DeX 외부 모니터 확장</h4>
+          <p>회의·강의 보조 모드에서 직전 30초 오디오 파형 + 응답을 외부 모니터에 시각화. 발표자 모드와 동시 사용 가능.</p>
+          <span class="ex">회의·강의 보조 화면</span>
+        </div>
+        <div class="gf">
+          <div class="ico">F6 · Knox Vault</div>
+          <h4>Knox Vault 보안 강화</h4>
+          <p>버즈 SE 인증서를 Galaxy의 Knox Vault에 백업·동기화. 엔터프라이즈 등급 보안, 기업 고객 대응 가능.</p>
+          <span class="ex">SE + Knox 이중 보호</span>
+        </div>
+      </div>
+
+      <div class="final-galaxy">
+        <strong>한 줄 포지셔닝</strong> — BudsAI의 진짜 단독 차별점은 4개다.
+        기술 3개(직전 사운드 컨텍스트 · 호스트 무관 · E2E 보안)는 어떤 OEM이 따라할 수 있을지 몰라도,
+        <em>4번째인 Galaxy 자사 생태계 자동 통합</em>은 호스트 무관(#02)을 풀 의지가 있고 자사 앱·차량·웨어러블·DeX·SE 보안을 모두 가진 회사가 삼성 하나뿐이기 때문에 구조적으로 복제 불가능.
+        <strong>이 4번째가 BudsAI의 진짜 사업적 해자.</strong>
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="compare.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">전체 비교</span>
+      </a>
+      <a href="simulation.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">시뮬레이션</span>
+      </a>
+    </nav>
+  </main>
+
+  <div class="present-controls" id="present-controls">
+    <button id="prev-slide" aria-label="이전 슬라이드">‹</button>
+    <span class="counter" id="slide-counter">1 / 4</span>
+    <button id="next-slide" aria-label="다음 슬라이드">›</button>
+    <a href="?" aria-label="발표 모드 종료">esc</a>
+  </div>
+
+  <footer class="site-footer">
+    <span class="page-mark">COMPARE · DECK</span>
+    <span class="doc-tag">BudsAI Design Doc · 타사 비교 발표 4장</span>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (function () {
+      var isPresent = window.location.search.indexOf('present') !== -1;
+      if (!isPresent) return;
+      document.body.classList.add('is-present');
+      var slides = Array.from(document.querySelectorAll('.slide'));
+      var idx = 0;
+      var counter = document.getElementById('slide-counter');
+      function show(i) {
+        idx = Math.max(0, Math.min(slides.length - 1, i));
+        slides.forEach(function (s, n) { s.classList.toggle('is-current', n === idx); });
+        if (counter) counter.textContent = (idx + 1) + ' / ' + slides.length;
+        window.scrollTo(0, 0);
+      }
+      show(0);
+      document.getElementById('prev-slide').addEventListener('click', function () { show(idx - 1); });
+      document.getElementById('next-slide').addEventListener('click', function () { show(idx + 1); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { show(idx + 1); e.preventDefault(); }
+        else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { show(idx - 1); e.preventDefault(); }
+        else if (e.key === 'Escape') { window.location.search = ''; }
+      });
+    })();
+  </script>
+</body>
+</html>

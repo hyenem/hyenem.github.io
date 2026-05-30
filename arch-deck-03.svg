@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<foreignObject x="0" y="0" width="1920" height="1080">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<style><![CDATA[
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.min.css");
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --blue:#0074FF; --blue2:#0059c9; --ink:#16263F; --muted:#54647d;
+    --bg:#F6F9FE; --card:#ffffff; --bd:#E6ECF5; --soft:#EFF5FF; --soft2:#E3EEFF;
+    --slate:#49617D; --red:#E5484D; --green:#0f9d58; --amber:#d97706; --violet:#6d28d9;
+    --mono:'JetBrains Mono',monospace;
+    --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+  }
+  html,body{background:#cdd6e3;font-family:var(--sans);-webkit-font-smoothing:antialiased;color:var(--ink);}
+  .toolbar{position:fixed;top:0;left:0;right:0;height:44px;background:#16263F;color:#cdd6e3;
+    display:flex;align-items:center;gap:18px;padding:0 18px;z-index:99;font-size:13px;}
+  .toolbar a{color:#9ec1ff;text-decoration:none;font-weight:600;}
+  .toolbar a:hover{color:#fff;}
+  .toolbar .sp{flex:1;}
+  .toolbar .hint{font-family:var(--mono);color:#7d93b3;font-size:12px;}
+
+  #deck{width:1920px;transform-origin:top left;padding-top:60px;}
+  .slide{position:relative;width:1920px;height:1080px;background:var(--bg);overflow:hidden;
+    padding:58px 88px 60px;display:flex;flex-direction:column;margin:0 auto 40px;border-radius:2px;
+    box-shadow:0 10px 50px rgba(20,40,80,.18);}
+  .slide::before{content:"";position:absolute;top:-380px;left:50%;transform:translateX(-50%);
+    width:1500px;height:720px;background:radial-gradient(ellipse,rgba(0,116,255,.15),transparent 68%);pointer-events:none;}
+  .slide>*{position:relative;z-index:1;}
+
+  .eyebrow{font-size:20px;font-weight:600;color:#8aa0bf;}
+  .h{font-size:44px;font-weight:800;line-height:1.12;letter-spacing:-.022em;margin-top:3px;}
+  .sub{font-size:21px;color:var(--muted);margin-top:9px;line-height:1.45;font-weight:500;max-width:1600px;}
+  .body{flex:1;margin-top:14px;min-height:0;display:flex;flex-direction:column;gap:14px;}
+
+  .tag{position:absolute;top:56px;right:88px;font:700 18px var(--mono);color:var(--blue);
+    background:#E9F1FF;border-radius:999px;padding:7px 18px;letter-spacing:.04em;}
+
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:20px;
+    box-shadow:0 6px 24px rgba(20,40,80,.05);padding:22px 26px;}
+  .card.soft{background:var(--soft);border-color:#dbe8ff;}
+  .card.blue{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
+  .card.blue *{color:#fff;}
+  .card h3{font-size:23px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .card p,.card li{font-size:20px;color:var(--muted);line-height:1.46;}
+  .num-badge{font:800 18px var(--mono);color:#fff;background:var(--blue);border-radius:8px;padding:2px 11px;}
+  .card.blue .num-badge{background:rgba(255,255,255,.25);}
+
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:7px;}
+  ul.clean li{padding-left:24px;position:relative;}
+  ul.clean li::before{content:"";position:absolute;left:5px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--blue);}
+  .card.blue ul.clean li::before{background:#fff;}
+  ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:7px;}
+  ol.steps li{counter-increment:s;padding-left:38px;position:relative;font-size:20px;color:var(--muted);line-height:1.45;}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:26px;height:26px;
+    background:#E9F1FF;color:var(--blue2);border-radius:8px;font:800 16px var(--mono);
+    display:flex;align-items:center;justify-content:center;}
+
+  b,strong{color:var(--ink);font-weight:700;}
+  .card.blue b,.card.blue strong{color:#fff;}
+  .k{font-family:var(--mono);background:#eef3fb;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;color:var(--blue2);font-size:.85em;}
+  .src{position:absolute;left:100px;bottom:36px;font-size:16px;color:#9aabc4;max-width:1500px;}
+  .pg{position:absolute;right:100px;bottom:34px;font:700 18px var(--mono);color:#9aabc4;}
+
+  .grid{display:grid;gap:20px;}
+  .muted{color:var(--muted);} .small{font-size:18px;}
+
+  .tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;
+    border:1px solid var(--bd);font-size:21px;}
+  .tbl th,.tbl td{padding:12px 18px;border-bottom:1px solid var(--bd);text-align:right;}
+  .tbl th:first-child,.tbl td:first-child{text-align:left;color:var(--muted);}
+  .tbl thead th{background:#f3f8ff;font-weight:800;color:var(--ink);}
+  .tbl tr:last-child td{border-bottom:none;font-weight:800;}
+  .tbl .raw{color:#94a8c4;} .tbl .lc3{color:var(--blue);}
+
+  /* flow steps */
+  .flow{display:flex;flex-direction:column;gap:0;}
+  .step{display:flex;align-items:flex-start;gap:16px;background:#fff;border:1px solid var(--bd);
+    border-radius:14px;padding:12px 20px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
+  .step .num{font:800 18px var(--mono);color:#fff;background:var(--blue);min-width:38px;height:38px;
+    border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px;}
+  .step .name{font-size:21px;font-weight:800;min-width:188px;flex:none;}
+  .step .desc{font-size:19px;color:var(--muted);line-height:1.4;}
+  .conn{width:3px;height:13px;background:#bcd3f5;margin-left:39px;}
+
+  .pipe{display:flex;align-items:stretch;gap:0;}
+  .node{flex:1;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:18px 20px;
+    box-shadow:0 5px 18px rgba(20,40,80,.05);display:flex;flex-direction:column;gap:6px;}
+  .node .who{font:700 16px var(--mono);color:#8aa0bf;letter-spacing:.03em;text-transform:uppercase;}
+  .node .t{font-size:22px;font-weight:800;}
+  .node p{font-size:18px;color:var(--muted);line-height:1.4;}
+  .arrowx{display:flex;align-items:center;justify-content:center;width:52px;color:var(--blue);font-size:36px;font-weight:800;}
+
+  .bar{height:48px;border-radius:11px;display:flex;align-items:center;padding:0 20px;color:#fff;font-size:23px;font-weight:800;}
+  .bar.raw{background:#94a8c4;width:100%;}
+  .bar.lc3{background:linear-gradient(90deg,#0a78ff,#0059c9);width:14%;min-width:150px;}
+
+  .wave{display:flex;align-items:center;gap:4px;height:52px;}
+  .wave i{width:6px;border-radius:3px;background:var(--blue);opacity:.85;}
+
+  .pkt{border:2px solid #cdddf5;border-radius:16px;overflow:hidden;background:#fff;}
+  .pkt .row{display:flex;align-items:stretch;border-top:1px solid #e7eefa;}
+  .pkt .row:first-child{border-top:none;}
+  .pkt .lab{width:130px;flex:none;background:#f3f8ff;font:800 20px var(--sans);color:var(--blue2);
+    padding:14px 14px;display:flex;align-items:center;justify-content:center;border-right:1px solid #e7eefa;}
+  .pkt .val{padding:13px 18px;font-size:20px;color:var(--ink);font-weight:600;display:flex;align-items:center;}
+  .pkt .three{display:flex;flex:1;}
+  .pkt .three .s{flex:1;padding:12px 10px;text-align:center;border-right:1px dashed #cdddf5;font-size:19px;font-weight:700;}
+  .pkt .three .s:last-child{border-right:none;}
+  .pkt .s.int{background:#eef6ff;color:#0059c9;} .pkt .s.ext{background:#eafff4;color:#0f9d58;} .pkt .s.b{background:#fff4ec;color:#c2410c;}
+
+  .ring .cells{display:flex;gap:4px;}
+  .ring .cells span{flex:1;height:42px;border-radius:6px;background:#e4edfb;border:1px solid #cfe0f7;}
+  .ring .cells span.new{background:var(--blue);border-color:var(--blue);}
+  .ring .cells span.old{background:#fde2e2;border-color:#f6b9b9;}
+
+  .pillrow{display:flex;gap:12px;flex-wrap:wrap;}
+  .mini{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
+  .mini .n{font:800 21px var(--sans);color:var(--blue);} .mini .d{font-size:17px;color:var(--muted);margin-top:1px;}
+
+  .note-strip{background:#E9F1FF;border:1px solid #cfe0f7;border-radius:13px;padding:14px 22px;font-size:21px;color:#0059c9;font-weight:600;line-height:1.45;}
+  .codeflow{background:#0f2036;color:#cfe3ff;border-radius:13px;padding:16px 20px;font-family:var(--mono);font-size:19px;line-height:1.75;}
+
+  /* branch (분기 구조도) */
+  .branch{margin-top:12px;}
+  .branch .bsrc{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--bd);
+    border-radius:11px;padding:8px 16px;font-weight:800;font-size:19px;box-shadow:0 3px 10px rgba(20,40,80,.05);}
+  .branch .brows{margin:8px 0 0 18px;padding-left:18px;border-left:2px dashed #bcd3f5;
+    display:flex;flex-direction:column;gap:9px;}
+  .brow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:18px;position:relative;}
+  .brow::before{content:"";position:absolute;left:-18px;top:50%;width:16px;height:2px;background:#bcd3f5;}
+  .brow .cond{background:#eef3fb;border:1px solid var(--bd);border-radius:8px;padding:5px 11px;font-weight:700;color:var(--ink);}
+  .brow .arr{color:var(--blue);font-weight:900;}
+  .brow .act{font-weight:700;color:var(--muted);}
+  .brow.ok .cond{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
+  .brow.ok .act{color:var(--green);}
+
+  /* capture flow (소리 → PCM) */
+  .caps{display:flex;flex-direction:column;gap:8px;}
+  .caprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:18px;}
+  .caprow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 12px;font-weight:700;color:var(--ink);}
+  .caprow .nd.op{background:#f3f8ff;color:var(--blue2);}
+  .caprow .nd.pcm{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);font-weight:800;}
+  .caprow .ar{color:var(--blue);font-weight:900;font-size:20px;}
+
+  /* S03 DMA two-lane structure */
+  .dma{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:8px;}
+  .dma .two{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
+  .dma .lane{display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .dma .nd2{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;font-weight:700;
+    font-size:18px;text-align:center;box-shadow:0 3px 12px rgba(20,40,80,.05);width:100%;}
+  .dma .nd2 .s{font-family:var(--mono);font-size:14px;color:#8aa0bf;margin-left:6px;}
+  .dma .nd2.anc{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
+  .dma .down{color:var(--blue);font-weight:800;font-size:15px;line-height:.9;}
+  .dma .merge{color:var(--blue);font-weight:800;font-size:17px;}
+  .dma .enc{background:#fff;border:2px solid var(--blue);border-radius:12px;padding:11px 22px;font-weight:800;font-size:20px;text-align:center;}
+  .dma .bufs{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
+  .dma .buf{background:var(--soft);border:1px solid #dbe8ff;border-radius:12px;padding:12px;text-align:center;font-weight:800;font-size:18px;}
+
+  /* S06 tethering structure (스케치 참고) */
+  .tflow{display:flex;align-items:stretch;gap:6px;}
+  .tstage{background:#fff;border:1px solid var(--bd);border-radius:15px;padding:14px 12px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:center;min-width:140px;box-shadow:0 5px 18px rgba(20,40,80,.05);}
+  .tstage .ic{font-size:30px;line-height:1;}
+  .tstage .t{font-weight:800;font-size:18px;}
+  .tstage .d{font-size:14px;color:var(--muted);line-height:1.3;}
+  .tstage .ip{font-family:var(--mono);font-size:14px;color:var(--blue2);background:#eef3fb;border-radius:6px;padding:1px 7px;}
+  .tstage.srv{background:linear-gradient(135deg,#0a78ff,#0059c9);border:none;} .tstage.srv .t,.tstage.srv .d{color:#fff;}
+  .tarr{display:flex;align-items:center;color:var(--blue);font-size:26px;font-weight:800;}
+  .btbox{background:#eef6ff;border:2px solid #9ec1ff;border-radius:16px;padding:11px;display:flex;flex-direction:column;gap:7px;min-width:236px;}
+  .btbox .bttitle{font-weight:800;font-size:17px;color:var(--blue2);}
+  .btbox .bnep{background:#fff;border:1.5px solid #cdddf5;border-radius:11px;padding:9px 10px;font-weight:800;font-size:15px;color:var(--ink);line-height:1.3;}
+  .btbox .bnep .enc{margin-top:7px;background:#16263F;color:#cfe3ff;border:none;border-radius:8px;padding:8px 9px;font-weight:700;font-size:14px;}
+  .natbox{background:#f7f5ff;border:2px solid #a78bfa;border-radius:15px;padding:12px 14px;min-width:230px;display:flex;flex-direction:column;gap:4px;justify-content:center;}
+  .natbox .t{font-weight:800;font-size:16px;color:#6d28d9;}
+  .natbox .map{font-family:var(--mono);font-size:14px;color:var(--ink);line-height:1.4;}
+  .natbox .map .tbl2{font-family:var(--sans);font-size:13px;color:#8a7bbf;margin-top:2px;}
+
+  /* S03 ring-buffer dials */
+  .rbwrap{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:10px;}
+  .rb{display:flex;align-items:center;gap:20px;}
+  .dialwrap{position:relative;width:156px;height:156px;flex:none;margin-top:6px;}
+  .dial{width:156px;height:156px;border-radius:50%;
+    background:conic-gradient(#0a78ff 0deg 344deg,#ff6b6b 344deg 357deg,#ffffff 357deg 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 46px, #000 47px);
+            mask:radial-gradient(circle, transparent 46px, #000 47px);
+    box-shadow:0 4px 16px rgba(20,40,80,.10);}
+  .dialwrap .ptr{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:0;height:0;
+    border-left:10px solid transparent;border-right:10px solid transparent;border-top:15px solid #16263F;z-index:2;}
+  .dialwrap .ptr::after{content:"write";position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    font:800 12px var(--mono);color:#16263F;}
+  .dlabel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;
+    font-size:15px;color:var(--blue2);font-weight:700;line-height:1.15;}
+  .dlabel b{display:block;font-size:23px;color:var(--ink);}
+  .rblist{list-style:none;display:flex;flex-direction:column;gap:6px;}
+  .rblist li{font-size:16px;color:var(--muted);line-height:1.4;}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:5px;}
+  .dot.blue{background:#0a78ff;} .dot.red{background:#ff6b6b;}
+
+  /* S06 per-device action cards */
+  .actrow{display:flex;align-items:stretch;gap:7px;}
+  .act{flex:1;min-width:0;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:11px 13px;
+    display:flex;flex-direction:column;gap:3px;box-shadow:0 4px 14px rgba(20,40,80,.05);}
+  .act .dev{font:700 12px var(--mono);letter-spacing:.02em;display:flex;align-items:center;gap:4px;}
+  .act .at{font-size:17px;font-weight:800;line-height:1.2;}
+  .act .ad{font-size:13.5px;color:var(--muted);line-height:1.32;}
+  .act.buds{border-top:4px solid #0074FF;} .act.buds .dev{color:#0074FF;}
+  .act.host{border-top:4px solid #6d28d9;background:#faf9ff;} .act.host .dev{color:#6d28d9;}
+  .act.srv{border-top:4px solid #16263F;} .act.srv .dev{color:#16263F;}
+  .actrow .ar{display:flex;align-items:center;color:var(--blue);font-size:22px;font-weight:800;}
+
+  /* S07 digital signature flow */
+  .sig{display:flex;flex-direction:column;gap:10px;margin:4px 0 2px;}
+  .sigrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .sigrow .lbl{font:700 14px var(--sans);min-width:84px;color:var(--ink);line-height:1.2;}
+  .sigrow .lbl small{display:block;color:#8aa0bf;font-weight:600;font-size:12px;}
+  .sigrow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 10px;font-weight:700;font-size:15px;}
+  .sigrow .nd.key{background:#fff4ec;border-color:#f6c9a8;color:#c2410c;}
+  .sigrow .nd.pub{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
+  .sigrow .nd.fn{background:#16263F;color:#cfe3ff;border:none;}
+  .sigrow .nd.out{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);}
+  .sigrow .op{font-weight:900;color:#8aa0bf;font-size:16px;}
+  .sigrow .ar{color:var(--blue);font-weight:900;font-size:17px;}
+  .sigrow .ok{color:#0f7a43;font-weight:800;font-size:15px;}
+
+  @media print{ @page{size:1920px auto;margin:0;} html,body{background:#fff;} .toolbar{display:none;}
+    #deck{padding-top:0;transform:none!important;} .slide{margin:0;box-shadow:none;border-radius:0;page-break-after:always;} }
+
+html,body{background:transparent;margin:0;padding:0;}
+#deck{padding:0;}
+.slide{margin:0 !important;box-shadow:none !important;border-radius:0 !important;}
+
+]]></style>
+<section class="slide">
+    <span class="tag">CODEC · LC3</span>
+    <div class="eyebrow">S03 · 코덱</div>
+    <h1 class="h">이 작은 버즈에 30초를 어떻게 담지? — LC3</h1>
+    <p class="sub">귀에 스치는 소리도 숫자로는 거대하다 — <b>6MB짜리 원본</b>을, 칩에 이미 있는 LC3가 <b>'들리는 것만'</b> 남겨 <b>200KB</b>로 줄인다.</p>
+
+    <div class="body">
+      <div class="grid" style="grid-template-columns:0.92fr 1.32fr;align-items:start;">
+        <div class="card">
+          <h3><span class="num-badge">1</span> PCM이 뭐냐 — 소리의 '원본 숫자'</h3>
+          <p style="margin-bottom:10px;"><b>PCM = Pulse Code Modulation(펄스 부호 변조)</b>. 소리(공기의 떨림)를 1초에 수만 번 '찰칵' 찍어, 그 순간의 세기를 <b>숫자로 적은 것</b> — 압축이 전혀 안 된 <b>원본 디지털 소리</b>.</p>
+          <div class="caps" style="margin:4px 0 12px;">
+            <div class="caprow"><span class="nd">🎙️ 외부(마이크)</span><span class="ar">▶</span><span class="nd op">ADC(아날로그→디지털)</span><span class="ar">▶</span><span class="nd pcm">PCM</span></div>
+            <div class="caprow"><span class="nd">🔊 내부(이어폰 출력)</span><span class="ar">▶</span><span class="nd op">decomp 압축 풀기</span><span class="ar">▶</span><span class="nd pcm">PCM</span></div>
+          </div>
+          <ul class="clean">
+            <li>48kHz = <b>1초에 숫자 4만 8천 개</b> (각 숫자 = 진동판 위치, 16bit −32768~32767)</li>
+            <li>48kHz·16bit·mono = <b>1초당 96KB</b> → <b>30초 한 채널 2.88MB</b></li>
+            <li>구조도 압축도 없어 <b>그냥 크다</b> → 그대로는 못 보냄</li>
+          </ul>
+        </div>
+        <div class="card soft">
+          <h3><span class="num-badge">2</span> 압축하면 얼마나 작아지나 <span class="muted small" style="font-weight:600;">한 요청 · 전부 LC3 24kbps</span></h3>
+          <!-- visual bars -->
+          <div style="display:flex;flex-direction:column;gap:12px;margin:4px 0 10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:19px;margin-bottom:4px;">
+                <span class="muted">생 PCM (원본)</span><b style="color:#94a8c4;">≈ 6 MB</b>
+              </div>
+              <div class="bar raw" style="width:100%;font-size:19px;">블루투스로 보내면 40초+ → 제품 불가</div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:19px;margin-bottom:4px;">
+                <span class="muted">LC3 24kbps</span><b style="color:var(--blue);">≈ 200 KB</b>
+              </div>
+              <div style="display:flex;align-items:center;gap:16px;">
+                <div class="bar lc3" style="width:44px;min-width:44px;padding:0;"></div>
+                <b style="font-size:24px;color:var(--blue);">약 1/30 크기 · ~2초 전송</b>
+              </div>
+            </div>
+          </div>
+          <table class="tbl" style="font-size:18px;">
+            <thead><tr><th></th><th>생 PCM</th><th>LC3 24kbps</th></tr></thead>
+            <tbody>
+              <tr><td>내부(이어폰) 30초</td><td class="raw">2.88 MB</td><td class="lc3">~90 KB</td></tr>
+              <tr><td>외부(주변음) 30초</td><td class="raw">2.88 MB</td><td class="lc3">~90 KB</td></tr>
+              <tr><td>발화 5초</td><td class="raw">0.16 MB</td><td class="lc3">~15 KB</td></tr>
+              <tr><td>한 요청 합계</td><td class="raw">~6 MB</td><td class="lc3">~200 KB</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:1.25fr 1fr;align-items:start;">
+        <div class="card">
+          <h3><span class="num-badge">3</span> 왜 여러 코덱 중 LC3?</h3>
+          <ul class="clean" style="font-size:19px;">
+            <li>버즈4 프로 지원 <b>SBC(Subband Codec)·AAC(Advanced Audio Coding)·SSC UHQ(Samsung Seamless Codec)·LC3</b> 중 <b>저비트레이트 압축 1등 = LC3</b></li>
+            <li><b>LC3 = '요즘 블루투스 소리 표준(LE Audio〔Low Energy Audio〕)'의 기본 압축기</b> <span class="muted">(블루투스가 이어폰에 소리 보내는 새 방식)</span> → 칩에 이미 내장, 추가 비용 0</li>
+            <li><b>버즈엔 이미 LC3 압축기·해제기가 둘 다 있다</b> — 통화 땐 마이크 소리를 <b>압축(comp)</b>해 폰에 보내고(업링크), 음악 땐 폰이 준 LC3를 <b>풀어서(decomp)</b> 재생(다운링크). 그래서 '내 발화(압축)'도 '듣던 소리(해제)'도 <b>추가 부품 없이</b> 같은 LC3로.</li>
+            <li><b>재압축 0</b>: 이미 LC3로 온 내부음은 그대로 저장</li>
+            <li class="small muted">SSC UHQ=고음질·갤럭시 전용 / SBC·AAC=효율 열위 / Opus=미지원</li>
+          </ul>
+        </div>
+        <div class="card soft">
+          <h3><span class="num-badge">4</span> 압축 원리 — "들리는 것만"</h3>
+          <ol class="steps" style="font-size:17px;">
+            <li><b>시간 → 주파수로 바꿔 본다</b>: 출렁이는 파형을 "어떤 음높이가 얼마나 섞였나"로 바꿔 보는데, 소리는 음높이들의 합이라 이렇게 보면 다루기 훨씬 쉽다.</li>
+            <li><b>안 들리는 소리는 버린다</b>: 큰 소리 옆 작은 소리나 사람이 둔감한 너무 높고 낮은 음처럼, 어차피 귀에 안 들리는 성분은 통째로 버린다.</li>
+            <li><b>중요한 곳에 비트를 몰아준다</b>: 잘 들리는 주파수는 촘촘하게, 덜 중요한 곳은 듬성듬성 표현해 데이터를 중요한 데 집중시킨다.</li>
+            <li><b>남은 걸 한 번 더 짠다</b>: 남은 숫자들 중 자주 나오는 값에 짧은 코드를 붙여 한 번 더 압축한다.</li>
+          </ol>
+          <p style="margin-top:8px;font-weight:700;color:var(--blue);">→ 귀엔 거의 똑같은데 데이터는 1/30</p>
+        </div>
+      </div>
+
+      <div class="note-strip">
+        🎧 <b>왜 24kbps면 충분?</b> &#160;Spotify '데이터 절약'·📻 디지털 라디오·📞 HD 통화가 딱 이 수준 — 무슨 곡·무슨 말인지 알아듣기 충분. 우리 목적은 '감상'이 아니라 <b>'식별·이해'</b> → 더 높이면 용량 낭비, 더 낮추면 식별 불안. <b>24kbps = sweet spot.</b>
+      </div>
+    </div>
+    <div class="pg">03 / 10</div>
+  </section>
+</div>
+</foreignObject>
+</svg>

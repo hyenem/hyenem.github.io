@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Opus 오디오 코덱 — 한 장 정리 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============ White deck override (bnep-slide와 동일 톤) ============ */
+    body.is-deck-light {
+      background: #ffffff;
+      color: #111827;
+      font-family: var(--sans);
+    }
+    body.is-deck-light .site-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    body.is-deck-light .nav a { color: #4b5563; }
+    body.is-deck-light .nav a:hover { background: #f3f4f6; color: #111827; }
+    body.is-deck-light .nav a.active {
+      background: #ccfbf1;
+      color: #0d9488;
+    }
+    body.is-deck-light .logo { color: #111827; }
+    body.is-deck-light .logo-mark {
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: white;
+    }
+    body.is-deck-light .site-footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+    body.is-deck-light .site-footer .page-mark { color: #0d9488; }
+    body.is-deck-light .pager { border-color: #e5e7eb; }
+    body.is-deck-light .pager a { color: #111827; }
+    body.is-deck-light .pager-label { color: #6b7280; }
+
+    .deck {
+      --c-bg: #ffffff;
+      --c-bg-soft: #f9fafb;
+      --c-bg-elev: #f3f4f6;
+      --c-border: #e5e7eb;
+      --c-border-strong: #d1d5db;
+      --c-text: #111827;
+      --c-text-dim: #4b5563;
+      --c-text-muted: #6b7280;
+      --c-accent: #0d9488;
+      --c-accent-dim: #14b8a6;
+      --c-accent-soft: #ccfbf1;
+      --c-accent-bg: #f0fdfa;
+      --c-warn: #b45309;
+      --c-warn-soft: #fef3c7;
+      --c-danger: #b91c1c;
+      --c-danger-soft: #fee2e2;
+      --c-blue: #1d4ed8;
+      --c-blue-soft: #dbeafe;
+      --c-blue-bg: #eff6ff;
+      --c-violet: #6d28d9;
+      --c-violet-soft: #ede9fe;
+
+      /* bnep-slide의 packet color 팔레트 재활용 */
+      --c-silk-bg: #fde68a;      /* payload yellow → SILK(음성) */
+      --c-silk-border: #f59e0b;
+      --c-silk-text: #78350f;
+      --c-celt-bg: #ddd6fe;      /* l2cap violet → CELT(음악) */
+      --c-celt-border: #8b5cf6;
+      --c-celt-text: #4c1d95;
+      --c-hybrid-bg: #fbcfe8;    /* bnep pink → Hybrid */
+      --c-hybrid-border: #ec4899;
+      --c-hybrid-text: #831843;
+    }
+
+    .deck-main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 28px 60px;
+      background: var(--c-bg);
+      color: var(--c-text);
+    }
+    .deck-intro {
+      padding: 8px 0 14px;
+      border-bottom: 1px solid var(--c-border);
+      margin-bottom: 16px;
+    }
+    .deck-intro h1 { font-size: 19px; margin-bottom: 4px; color: var(--c-text); font-weight: 700; }
+    .deck-intro p { color: var(--c-text-dim); font-size: 13px; margin: 0; }
+
+    /* ============ Slide ============ */
+    .slide {
+      min-height: 92vh;
+      padding: 28px 32px 24px;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      background: var(--c-bg);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .slide-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .slide-num {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--c-text);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .slide-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      background: var(--c-accent-soft);
+      padding: 4px 9px;
+      border-radius: 4px;
+    }
+    .slide-lead {
+      font-size: 13px;
+      color: var(--c-text-dim);
+      margin: 0 0 16px;
+      line-height: 1.55;
+    }
+
+    /* ============ Two-column grid ============ */
+    .opus-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      flex: 1;
+    }
+    @media (max-width: 1024px) {
+      .opus-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== LEFT: definitions ===== */
+    .defs { display: flex; flex-direction: column; gap: 12px; }
+    .def-card {
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: var(--c-bg-soft);
+    }
+    .def-card.accent {
+      border-color: var(--c-accent-dim);
+      background: var(--c-accent-bg);
+    }
+    .def-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin: 0 0 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .def-card.accent h3 { color: var(--c-accent); }
+    .def-card .key {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--c-text-muted);
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      letter-spacing: 0.04em;
+    }
+    .def-card p {
+      font-size: 12px;
+      color: var(--c-text-dim);
+      line-height: 1.55;
+      margin: 0 0 6px;
+    }
+    .def-card p:last-child { margin-bottom: 0; }
+    .def-card .facts {
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .def-card .facts li {
+      font-size: 11.5px;
+      color: var(--c-text);
+      padding-left: 12px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .def-card .facts li::before {
+      content: "·";
+      position: absolute;
+      left: 4px;
+      color: var(--c-accent);
+      font-weight: 900;
+    }
+    .def-card .facts code {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 0 4px;
+      color: var(--c-violet);
+    }
+
+    /* mini engine tags inside def-card */
+    .engine-row {
+      display: flex;
+      gap: 6px;
+      margin: 8px 0 4px;
+      flex-wrap: wrap;
+    }
+    .engine-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      padding: 3px 7px;
+      border-radius: 4px;
+      border: 1px solid;
+      font-weight: 700;
+    }
+    .engine-tag.silk   { background: var(--c-silk-bg);   border-color: var(--c-silk-border);   color: var(--c-silk-text); }
+    .engine-tag.celt   { background: var(--c-celt-bg);   border-color: var(--c-celt-border);   color: var(--c-celt-text); }
+    .engine-tag.hybrid { background: var(--c-hybrid-bg); border-color: var(--c-hybrid-border); color: var(--c-hybrid-text); }
+
+    /* ===== RIGHT: blocks ===== */
+    .blocks { display: flex; flex-direction: column; gap: 14px; }
+
+    .block-section {
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      background: white;
+      padding: 12px 14px;
+    }
+    .block-section.quality { border-left: 3px solid var(--c-accent); }
+    .block-section.size    { border-left: 3px solid var(--c-blue); }
+    .block-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--c-border);
+    }
+    .block-head h3 {
+      font-size: 13.5px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--c-text);
+    }
+    .block-head .meta {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--c-text-muted);
+    }
+
+    /* ===== Quality bars ===== */
+    .qbars {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .qrow {
+      display: grid;
+      grid-template-columns: 92px 1fr 96px;
+      align-items: center;
+      gap: 10px;
+    }
+    .qrow .qbr {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--c-text);
+      font-weight: 700;
+    }
+    .qrow .qbr .mode {
+      display: block;
+      font-size: 9px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.04em;
+      font-weight: 400;
+      margin-top: 1px;
+    }
+    .qtrack {
+      position: relative;
+      height: 22px;
+      background: var(--c-bg-soft);
+      border: 1px solid var(--c-border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .qfill {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      border-right: 1px solid rgba(0,0,0,0.05);
+    }
+    .qfill.silk   { background: var(--c-silk-bg);   color: var(--c-silk-text); }
+    .qfill.celt   { background: var(--c-celt-bg);   color: var(--c-celt-text); }
+    .qfill.hybrid { background: var(--c-hybrid-bg); color: var(--c-hybrid-text); }
+    .qrow .qlabel {
+      font-size: 10.5px;
+      color: var(--c-text-dim);
+      line-height: 1.3;
+      text-align: right;
+    }
+    .qlegend {
+      display: flex;
+      gap: 14px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--c-border);
+      font-size: 10.5px;
+      color: var(--c-text-dim);
+      flex-wrap: wrap;
+    }
+    .qlegend .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border: 1px solid;
+      border-radius: 2px;
+      margin-right: 5px;
+      vertical-align: -1px;
+    }
+    .qlegend .swatch.silk   { background: var(--c-silk-bg);   border-color: var(--c-silk-border); }
+    .qlegend .swatch.celt   { background: var(--c-celt-bg);   border-color: var(--c-celt-border); }
+    .qlegend .swatch.hybrid { background: var(--c-hybrid-bg); border-color: var(--c-hybrid-border); }
+    .qscale {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--c-text-muted);
+      margin-top: 4px;
+      padding: 0 2px;
+    }
+
+    /* ===== Size table ===== */
+    .stable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+    }
+    .stable th, .stable td {
+      padding: 7px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--c-border);
+      vertical-align: middle;
+    }
+    .stable th {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--c-text-muted);
+      font-weight: 700;
+      background: var(--c-bg-soft);
+      border-bottom: 1px solid var(--c-border-strong);
+    }
+    .stable td.br {
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--c-text);
+      white-space: nowrap;
+    }
+    .stable td.br .pill {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid;
+      margin-left: 4px;
+      vertical-align: 1px;
+      font-weight: 700;
+    }
+    .stable td.br .pill.silk   { background: var(--c-silk-bg);   border-color: var(--c-silk-border);   color: var(--c-silk-text); }
+    .stable td.br .pill.celt   { background: var(--c-celt-bg);   border-color: var(--c-celt-border);   color: var(--c-celt-text); }
+    .stable td.br .pill.hybrid { background: var(--c-hybrid-bg); border-color: var(--c-hybrid-border); color: var(--c-hybrid-text); }
+    .stable td.use {
+      font-size: 11px;
+      color: var(--c-text-dim);
+      line-height: 1.4;
+    }
+    .stable td.num {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--c-text);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .stable td.num.hi {
+      color: var(--c-accent);
+      font-weight: 700;
+    }
+    .stable tr.budsai-row {
+      background: var(--c-accent-bg);
+    }
+    .stable tr.budsai-row td {
+      border-bottom-color: var(--c-accent-dim);
+    }
+    .stable .tag-buds {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--c-accent);
+      color: white;
+      margin-left: 6px;
+      vertical-align: 1px;
+      font-weight: 700;
+    }
+    .formula {
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--c-text-muted);
+      padding: 6px 9px;
+      background: var(--c-bg-soft);
+      border: 1px dashed var(--c-border);
+      border-radius: 4px;
+    }
+    .formula code {
+      color: var(--c-violet);
+    }
+
+    /* ============ Bottom callout ============ */
+    .tldr {
+      margin-top: 14px;
+      background: var(--c-accent-bg);
+      border: 1px solid var(--c-accent-dim);
+      border-left: 3px solid var(--c-accent);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #064e3b;
+      line-height: 1.55;
+    }
+    .tldr strong { color: var(--c-accent); }
+    .tldr code {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: white;
+      border: 1px solid var(--c-accent-dim);
+      border-radius: 3px;
+      padding: 0 4px;
+      color: var(--c-accent);
+    }
+
+    /* Print */
+    @media print {
+      body.is-deck-light { background: white; }
+      .site-header, .site-footer, .pager, .deck-intro { display: none; }
+      .slide { border: none; box-shadow: none; page-break-after: avoid; margin: 0; min-height: auto; }
+      .deck-main { padding: 0 !important; max-width: none !important; }
+    }
+  </style>
+</head>
+<body class="is-deck-light">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="compare.html">타사 비교</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="deck-main deck">
+
+    <div class="deck-intro">
+      <h1>Opus 오디오 코덱 — 한 장 정리</h1>
+      <p>어떤 원리로 압축하는지, 어느 정도 퀄리티인지, 얼마의 공간으로 얼마의 시간을 담는지 — 한 장에.</p>
+    </div>
+
+    <section class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">01 / 01</span>
+        <h2 class="slide-title">Opus — 한 코덱으로 음성과 음악을 다 잡는 IETF 표준</h2>
+        <span class="slide-tag">Codec · RFC 6716</span>
+      </div>
+      <p class="slide-lead">
+        Opus는 <strong>SILK(음성용 LPC) + CELT(음악용 MDCT)</strong>를 한 비트스트림 안에서 자동 전환·하이브리드로 묶은 IETF 표준 코덱이다.
+        6 ~ 510 kbps, 8 ~ 48 kHz, 2.5 ~ 60 ms 프레임을 한 디코더가 다 받는다.
+      </p>
+
+      <div class="opus-grid">
+
+        <!-- ============= LEFT: definitions ============= -->
+        <div class="defs">
+
+          <div class="def-card">
+            <h3>Opus가 뭔가? <span class="key">RFC 6716 · 2012</span></h3>
+            <p>
+              IETF가 표준화한 <strong>로열티 프리</strong> 오디오 코덱.
+              Skype의 SILK와 Xiph의 CELT를 합쳐, VoIP부터 음악 스트리밍·라이브 방송까지 한 코덱으로 커버한다.
+            </p>
+            <ul class="facts">
+              <li>비트레이트 <code>6 ~ 510 kbps</code> (VBR 기본, CBR 가능)</li>
+              <li>샘플레이트 <code>8 / 12 / 16 / 24 / 48 kHz</code></li>
+              <li>프레임 <code>2.5 / 5 / 10 / 20 / 40 / 60 ms</code></li>
+              <li>모노 / 스테레오 / 멀티채널</li>
+              <li>WebRTC · Discord · YouTube Live · Zoom에서 사용</li>
+            </ul>
+          </div>
+
+          <div class="def-card accent">
+            <h3>압축 원리 <span class="key">hybrid engine</span></h3>
+            <p>
+              Opus는 콘텐츠·비트레이트에 따라 두 엔진을 <strong>프레임 단위로 전환</strong>한다.
+              경계 구간에서는 두 엔진을 동시에 돌리는 하이브리드 모드를 쓴다.
+            </p>
+            <div class="engine-row">
+              <span class="engine-tag silk">SILK</span>
+              <span class="engine-tag celt">CELT</span>
+              <span class="engine-tag hybrid">HYBRID</span>
+            </div>
+            <ul class="facts">
+              <li><strong>SILK</strong>: 음성용. <code>LPC</code> 선형 예측으로 성도(聲道) 모델링 → 저비트레이트에서도 자연스러운 음성. NB/MB/WB 모드.</li>
+              <li><strong>CELT</strong>: 음악·저지연용. <code>MDCT</code> 변환 코딩 → 음악·과도음(transient)에 강함. SWB/FB 모드.</li>
+              <li><strong>Hybrid</strong>: 저주파는 SILK, 고주파는 CELT — 12 ~ 40 kbps 음성에서 자동.</li>
+              <li>DTX(무음 구간 송신 정지), 인밴드 FEC, PLC(패킷 손실 은닉) 내장.</li>
+            </ul>
+          </div>
+
+          <div class="def-card">
+            <h3>왜 BudsAI에 맞나</h3>
+            <ul class="facts">
+              <li>한 코덱이 <strong>음성·음악</strong>을 다 잡음 — "방금 듣던 곡" 보내기에 최적.</li>
+              <li>12 kbps WB면 30초 음성 ≈ <code>45 KB</code>, BT PAN 위 mTLS에 가볍게 실림.</li>
+              <li>지연 <code>5 ms</code> 모드까지 — 링버퍼 회전에 부담 없음.</li>
+              <li>표준이라 서버 측 <code>libopus</code> 디코딩 검증·무료.</li>
+              <li>모든 모던 OS·브라우저에 디코더 내장 — 클라이언트 호환성 0 비용.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- ============= RIGHT: quality + size ============= -->
+        <div class="blocks">
+
+          <!-- ===== QUALITY ===== -->
+          <div class="block-section quality">
+            <div class="block-head">
+              <h3>퀄리티 — 비트레이트별 체감 (MUSHRA 계열 평가 종합)</h3>
+              <span class="meta">listening tests / xiph.org</span>
+            </div>
+
+            <div class="qbars">
+
+              <div class="qrow">
+                <div class="qbr">6 kbps<span class="mode">NB · 음성</span></div>
+                <div class="qtrack"><div class="qfill silk" style="width:32%;">알아들음</div></div>
+                <div class="qlabel">전화선보다<br/>소폭 거침</div>
+              </div>
+
+              <div class="qrow">
+                <div class="qbr">12 kbps<span class="mode">WB · 음성</span></div>
+                <div class="qtrack"><div class="qfill hybrid" style="width:62%;">자연스러움</div></div>
+                <div class="qlabel">PSTN(64 kbps)<br/>훨씬 상회</div>
+              </div>
+
+              <div class="qrow">
+                <div class="qbr">16 kbps<span class="mode">WB · 음성</span></div>
+                <div class="qtrack"><div class="qfill hybrid" style="width:74%;">VoIP 권장</div></div>
+                <div class="qlabel">WebRTC<br/>기본값</div>
+              </div>
+
+              <div class="qrow">
+                <div class="qbr">24 kbps<span class="mode">WB · 음성</span></div>
+                <div class="qtrack"><div class="qfill hybrid" style="width:86%;">사실상 투명</div></div>
+                <div class="qlabel">음성 기준<br/>원음 구분 난</div>
+              </div>
+
+              <div class="qrow">
+                <div class="qbr">64 kbps<span class="mode">FB · 음악 mono</span></div>
+                <div class="qtrack"><div class="qfill celt" style="width:78%;">AAC 96 kbps 동급</div></div>
+                <div class="qlabel">스트리밍<br/>준수</div>
+              </div>
+
+              <div class="qrow">
+                <div class="qbr">96 kbps<span class="mode">FB · 음악 stereo</span></div>
+                <div class="qtrack"><div class="qfill celt" style="width:90%;">거의 투명</div></div>
+                <div class="qlabel">동영상<br/>오디오 트랙</div>
+              </div>
+
+              <div class="qrow">
+                <div class="qbr">128 kbps<span class="mode">FB · 음악 stereo</span></div>
+                <div class="qtrack"><div class="qfill celt" style="width:97%;">투명 (ABX 불가)</div></div>
+                <div class="qlabel">CD급<br/>무손실 체감</div>
+              </div>
+
+            </div>
+
+            <div class="qscale">
+              <span>0 kbps</span>
+              <span>품질 →</span>
+              <span>투명(원음 구분 불가)</span>
+            </div>
+
+            <div class="qlegend">
+              <span><span class="swatch silk"></span>SILK (음성 LPC)</span>
+              <span><span class="swatch hybrid"></span>Hybrid (SILK+CELT)</span>
+              <span><span class="swatch celt"></span>CELT (음악 MDCT)</span>
+            </div>
+          </div>
+
+          <!-- ===== SIZE / TIME ===== -->
+          <div class="block-section size">
+            <div class="block-head">
+              <h3>공간 ↔ 시간 — 같은 1 MB에 얼마나 담기나</h3>
+              <span class="meta">bitrate × 60 / 8 = KB/min</span>
+            </div>
+
+            <table class="stable">
+              <thead>
+                <tr>
+                  <th style="width: 110px;">비트레이트</th>
+                  <th>용도</th>
+                  <th style="text-align:right; width: 80px;">KB / 분</th>
+                  <th style="text-align:right; width: 100px;">1 MB로 저장</th>
+                  <th style="text-align:right; width: 70px;">30초</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="br">6 kbps <span class="pill silk">SILK</span></td>
+                  <td class="use">NB 음성 (협대역, DTX on)</td>
+                  <td class="num">45 KB</td>
+                  <td class="num hi">22 분</td>
+                  <td class="num">23 KB</td>
+                </tr>
+                <tr class="budsai-row">
+                  <td class="br">12 kbps <span class="pill hybrid">HYB</span></td>
+                  <td class="use">WB 음성, 일상 통화 수준<span class="tag-buds">BUDS</span></td>
+                  <td class="num">90 KB</td>
+                  <td class="num hi">11 분</td>
+                  <td class="num">45 KB</td>
+                </tr>
+                <tr>
+                  <td class="br">16 kbps <span class="pill hybrid">HYB</span></td>
+                  <td class="use">WB 음성, WebRTC 권장</td>
+                  <td class="num">120 KB</td>
+                  <td class="num hi">8.5 분</td>
+                  <td class="num">60 KB</td>
+                </tr>
+                <tr>
+                  <td class="br">24 kbps <span class="pill hybrid">HYB</span></td>
+                  <td class="use">WB 음성, 사실상 투명</td>
+                  <td class="num">180 KB</td>
+                  <td class="num hi">5.5 분</td>
+                  <td class="num">90 KB</td>
+                </tr>
+                <tr>
+                  <td class="br">64 kbps <span class="pill celt">CELT</span></td>
+                  <td class="use">FB 음악 mono, AAC 96k 동급</td>
+                  <td class="num">480 KB</td>
+                  <td class="num hi">2.1 분</td>
+                  <td class="num">240 KB</td>
+                </tr>
+                <tr>
+                  <td class="br">128 kbps <span class="pill celt">CELT</span></td>
+                  <td class="use">FB 음악 stereo, 거의 투명</td>
+                  <td class="num">960 KB</td>
+                  <td class="num hi">~65 초</td>
+                  <td class="num">480 KB</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="formula">
+              환산 공식: <code>bitrate(kbps) × 60 / 8 = KB/min</code> · 패킷·컨테이너 오버헤드는 ±5% 수준이라 표에서는 무시.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="tldr">
+        <strong>TL;DR</strong> — Opus는 <strong>SILK(음성) + CELT(음악)</strong>를 한 코덱에 묶어 <code>6 ~ 510 kbps</code>를 자유롭게 오간다.
+        BudsAI의 30초 음성 링버퍼는 <strong>12 kbps WB</strong> 기준 약 <code>45 KB</code>로 충분하고,
+        같은 30초를 "방금 듣던 음악"(64 kbps mono)으로 보내도 <code>240 KB</code> — BT PAN 위 mTLS에 부담 없는 크기다.
+        한 디코더가 음성·음악·라이브를 다 받기 때문에, 서버는 <strong>입력 종류를 의식할 필요가 없다</strong>.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="bnep-slide.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">BT 테더링 & BNEP 한 장 정리</span>
+      </a>
+      <a href="appendix.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">부록 인덱스</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · OPUS ONE-PAGER</span>
+    <span class="doc-tag">BudsAI Design Doc · Opus 코덱 한 장 정리</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

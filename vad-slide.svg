@@ -1,0 +1,234 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#ffffff"/>
+  <text x="50" y="60" font-size="12" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">01 / 01</text>
+  <text x="140" y="62" font-size="22" fill="#111827" font-weight="700">VAD — "지금 사람이 말하고 있는가"를 1/0으로 답하는 신호처리 게이트</text>
+  <rect x="1702" y="46" width="168" height="24" rx="4" fill="#ccfbf1"/>
+  <text x="1786.0" y="62" font-size="11" font-weight="700" fill="#0d9488" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">VAD · SPEECH DETECTION</text>
+  <line x1="50" y1="88" x2="1870" y2="88" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="50" y="112" font-size="13.5" fill="#4b5563">VAD(Voice Activity Detection)는 오디오 프레임마다 음성 / 무음을 판정하는 모듈이다. 에너지 임계(70년대) → 통계 모델(WebRTC GMM, 90~10년대) → DNN(Silero, 2014~)로 진화했고,</text>
+  <text x="50" y="132" font-size="13.5" fill="#4b5563">BudsAI의 30초 링버퍼·DTX·서버 비용·배터리는 전부 이 1비트 판정에 매달려 있다.</text>
+  <rect x="50" y="170" width="430" height="220" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="64" y="194" font-size="14" fill="#111827" font-weight="700">VAD가 뭔가?</text>
+  <rect x="152" y="180" width="80" height="18" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="192.0" y="193" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">frame → 0/1</text>
+  <text x="64" y="218" font-size="12" fill="#4b5563">10~30 ms 단위 오디오 프레임에 대해 음성 확률</text>
+  <text x="64" y="235" font-size="12" fill="#4b5563">p(speech | frame)를 뱉는 분류기. 임계값을 넘으면 1,</text>
+  <text x="64" y="252" font-size="12" fill="#4b5563">아니면 0. ASR·코덱·통화·음성비서의 입구 게이트.</text>
+  <text x="72" y="275" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="275" font-size="11.5" fill="#111827">입력 단위: 10/20/30 ms 프레임 (160~480 샘플 @ 16 kHz)</text>
+  <text x="72" y="292" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="292" font-size="11.5" fill="#111827">출력: 이진 라벨 또는 [0,1] 확률</text>
+  <text x="72" y="309" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="309" font-size="11.5" fill="#111827">주 사용처: WebRTC, Opus DTX, G.729 Annex B / AMR,</text>
+  <text x="76" y="326" font-size="11.5" fill="#111827">항상켜진 음성비서</text>
+  <text x="72" y="343" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="343" font-size="11.5" fill="#111827">지연 목표 5 ~ 30 ms — 대화에 끼어들 수 있을 만큼</text>
+  <rect x="50" y="404" width="430" height="260" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1"/>
+  <text x="64" y="428" font-size="14" fill="#0d9488" font-weight="700">왜 어려운가?</text>
+  <rect x="142" y="414" width="50" height="18" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="167.0" y="427" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">SNR 문제</text>
+  <text x="64" y="452" font-size="12" fill="#4b5563">무음 ≠ 0이다. 환풍기·도로·바람·키보드·다른 사람</text>
+  <text x="64" y="469" font-size="12" fill="#4b5563">목소리가 항상 깔려있고, 그 위로 음성이 살짝 올라오는</text>
+  <text x="64" y="486" font-size="12" fill="#4b5563">게 일반적. SNR이 낮을수록 단순 에너지로는 못 가른다.</text>
+  <text x="72" y="509" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="509" font-size="11.5" fill="#111827">핵심 트레이드오프: miss(말한 거 놓침) ↔</text>
+  <text x="76" y="526" font-size="11.5" fill="#111827">false alarm(잡음에 켜짐)</text>
+  <text x="72" y="543" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="543" font-size="11.5" fill="#111827">잡음이 비정상(non-stationary)일수록 단순 임계 실패</text>
+  <text x="72" y="560" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="560" font-size="11.5" fill="#111827">반향·다화자·음악 BGM은 더 어려움 → DNN이 압도</text>
+  <text x="72" y="577" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="577" font-size="11.5" fill="#111827">온디바이스 제약: 메모리 KB 단위, 연산 mW 단위</text>
+  <rect x="64" y="636" width="63" height="20" rx="4" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+  <text x="95.5" y="650" font-size="10" fill="#78350f" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">1세대 에너지</text>
+  <rect x="133" y="636" width="56" height="20" rx="4" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="161.0" y="650" font-size="10" fill="#4c1d95" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">2세대 통계</text>
+  <rect x="195" y="636" width="63" height="20" rx="4" fill="#bbf7d0" stroke="#22c55e" stroke-width="1"/>
+  <text x="226.5" y="650" font-size="10" fill="#14532d" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">3세대 DNN</text>
+  <rect x="50" y="678" width="430" height="290" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="64" y="702" font-size="14" fill="#111827" font-weight="700">BudsAI에서 왜 핵심인가</text>
+  <text x="72" y="726" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="726" font-size="11.5" fill="#111827">항상켜진 마이크에서 "내가 말한 순간만" 잘라 30s PCM</text>
+  <text x="76" y="743" font-size="11.5" fill="#111827">링버퍼에 보관</text>
+  <text x="72" y="760" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="760" font-size="11.5" fill="#111827">VAD off → Opus DTX → 무음 구간 BT 전송 0 byte</text>
+  <text x="76" y="777" font-size="11.5" fill="#111827">(배터리·QoS)</text>
+  <text x="72" y="794" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="794" font-size="11.5" fill="#111827">VAD on 게이트 → 서버 ASR로 흘려보내는 초 단축</text>
+  <text x="76" y="811" font-size="11.5" fill="#111827">= 비용 절감</text>
+  <text x="72" y="828" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="828" font-size="11.5" fill="#111827">오탐 1번 = 잡음을 30s 통째로 업로드 = mTLS·LTE</text>
+  <text x="76" y="845" font-size="11.5" fill="#111827">비용·프라이버시 리스크</text>
+  <text x="72" y="862" font-size="13" fill="#0d9488" font-weight="900">·</text>
+  <text x="82" y="862" font-size="11.5" fill="#111827">그래서 펌웨어는 Silero v5 급(~2 MB, 1 ms/frame)을</text>
+  <text x="76" y="879" font-size="11.5" fill="#111827">NPU에 올린다</text>
+  <rect x="500" y="170" width="1370" height="320" rx="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="500" y="170" width="3" height="320" rx="1" fill="#0d9488"/>
+  <text x="516" y="194" font-size="14" fill="#111827" font-weight="700">원리의 진화 — 세대별 판정 메커니즘</text>
+  <text x="1854" y="194" font-size="11" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">1970s → 1990s → 2014~</text>
+  <line x1="512" y1="206" x2="1858" y2="206" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <rect x="512" y="216" width="1346" height="28" rx="0" fill="#f9fafb"/>
+  <line x1="512" y1="244" x2="1858" y2="244" stroke="#d1d5db" stroke-width="1"/>
+  <text x="522" y="234" font-size="10" fill="#6b7280" font-weight="700" letter-spacing="0.06em">세대 / 시기</text>
+  <text x="672" y="234" font-size="10" fill="#6b7280" font-weight="700" letter-spacing="0.06em">판정 신호</text>
+  <text x="1042" y="234" font-size="10" fill="#6b7280" font-weight="700" letter-spacing="0.06em">수학 / 모델</text>
+  <text x="1402" y="234" font-size="10" fill="#6b7280" font-weight="700" letter-spacing="0.06em">강점 · 약점</text>
+  <rect x="512" y="244" width="150" height="78" rx="0" fill="#fde68a"/>
+  <line x1="512" y1="322" x2="662" y2="322" stroke="#f59e0b" stroke-width="1"/>
+  <text x="522" y="264" font-size="12" fill="#78350f" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">1세대</text>
+  <text x="522" y="282" font-size="11" fill="#78350f" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">Energy + ZCR</text>
+  <text x="522" y="302" font-size="9.5" fill="#78350f" letter-spacing="0.04em">1970s ~</text>
+  <text x="672" y="262" font-size="11" fill="#111827">RMS 에너지가 임계 넘으면 음성. 보조로 ZCR(부호 바뀐</text>
+  <text x="672" y="277" font-size="11" fill="#111827">횟수)로 마찰음(s, f, h) 보강.</text>
+  <rect x="1040" y="251" width="77.0" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="262" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">E = Σx[n]²</text>
+  <rect x="1040" y="270" width="207.0" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="281" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">ZCR = Σ|sgn(x[n])−sgn(x[n−1])|</text>
+  <rect x="1040" y="289" width="161.5" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="300" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">적응 임계 θ = α·noise_floor</text>
+  <text x="1402" y="266" font-size="10.5" fill="#111827">+ 곱셈 거의 없음, mW급</text>
+  <text x="1402" y="292" font-size="10.5" fill="#111827">− SNR &lt; 10 dB이면 망함, 비정상 잡음에 흔들림</text>
+  <line x1="662" y1="244" x2="662" y2="322" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="1032" y1="244" x2="1032" y2="322" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="1392" y1="244" x2="1392" y2="322" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="512" y1="322" x2="1858" y2="322" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="512" y="322" width="150" height="78" rx="0" fill="#ddd6fe"/>
+  <line x1="512" y1="400" x2="662" y2="400" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="522" y="342" font-size="12" fill="#4c1d95" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">2세대</text>
+  <text x="522" y="360" font-size="11" fill="#4c1d95" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">Statistical / GMM</text>
+  <text x="522" y="380" font-size="9.5" fill="#4c1d95" letter-spacing="0.04em">1990s ~ 2010s</text>
+  <text x="672" y="340" font-size="11" fill="#111827">FFT로 6 sub-band 에너지를 뽑고, 노이즈 vs</text>
+  <text x="672" y="355" font-size="11" fill="#111827">노이즈+음성 PDF 우도비 검정. G.729B, AMR,</text>
+  <text x="672" y="370" font-size="11" fill="#111827">WebRTC VAD(GMM 4밴드).</text>
+  <rect x="1040" y="329" width="200.5" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="340" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">Λ = log p(X|H1) − log p(X|H0)</text>
+  <rect x="1040" y="348" width="161.5" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="359" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">p(X|H) = Σ wᵢ N(μᵢ, Σᵢ)</text>
+  <rect x="1040" y="367" width="174.5" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="378" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">노이즈 트래킹: MCRA / Min Stats</text>
+  <text x="1402" y="344" font-size="10.5" fill="#111827">+ 잡음 추정 적응적, aggressiveness 0~3 튜닝</text>
+  <text x="1402" y="370" font-size="10.5" fill="#111827">− 정상 가우시안 가정, 반향·음악 BGM 약함</text>
+  <line x1="662" y1="322" x2="662" y2="400" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="1032" y1="322" x2="1032" y2="400" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="1392" y1="322" x2="1392" y2="400" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="512" y1="400" x2="1858" y2="400" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="512" y="400" width="150" height="78" rx="0" fill="#bbf7d0"/>
+  <line x1="512" y1="478" x2="662" y2="478" stroke="#22c55e" stroke-width="1"/>
+  <text x="522" y="420" font-size="12" fill="#14532d" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">3세대</text>
+  <text x="522" y="438" font-size="11" fill="#14532d" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">DNN / RNN</text>
+  <text x="522" y="458" font-size="9.5" fill="#14532d" letter-spacing="0.04em">2014 ~</text>
+  <text x="672" y="418" font-size="11" fill="#111827">log-mel(또는 raw waveform)을 작은</text>
+  <text x="672" y="433" font-size="11" fill="#111827">CNN+GRU에 통과. Silero VAD, Picovoice</text>
+  <text x="672" y="448" font-size="11" fill="#111827">Cobra, NVIDIA MarbleNet.</text>
+  <rect x="1040" y="407" width="187.5" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="418" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">p = σ(GRU(CNN(log-mel(x))))</text>
+  <rect x="1040" y="426" width="220.0" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="437" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">학습: LibriSpeech + AudioSet noise</text>
+  <rect x="1040" y="445" width="168.0" height="15" rx="3" fill="#f9fafb" stroke="#e5e7eb" stroke-width="0.5"/>
+  <text x="1046" y="456" font-size="9.5" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">크기 ~2 MB, 추론 ~1 ms/frame</text>
+  <text x="1402" y="422" font-size="10.5" fill="#111827">+ 저SNR·반향·다화자에서 압도적, AUC 0.99+</text>
+  <text x="1402" y="448" font-size="10.5" fill="#111827">− 학습 분포 밖 도메인엔 취약, NPU/SIMD 필요</text>
+  <line x1="662" y1="400" x2="662" y2="478" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="1032" y1="400" x2="1032" y2="478" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="1392" y1="400" x2="1392" y2="478" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="500" y="504" width="1370" height="200" rx="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="500" y="504" width="3" height="200" rx="1" fill="#1d4ed8"/>
+  <text x="516" y="528" font-size="14" fill="#111827" font-weight="700">실제 한 프레임이 흘러가는 길 — 5단계</text>
+  <text x="1854" y="528" font-size="11" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">20 ms frame @ 16 kHz, 320 samples</text>
+  <line x1="512" y1="540" x2="1858" y2="540" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <rect x="512" y="554" width="256.4" height="130" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="522" y="572" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">① 캡처</text>
+  <text x="522" y="594" font-size="12" fill="#111827" font-weight="700">PCM 프레임</text>
+  <text x="522" y="616" font-size="10.5" fill="#4b5563">마이크 ADC → 16-bit PCM</text>
+  <text x="522" y="632" font-size="10.5" fill="#4b5563">320 샘플 (20 ms)</text>
+  <rect x="522" y="646" width="124.5" height="18" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="529" y="659" font-size="10" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">int16[320] @16kHz</text>
+  <path d="M 770.4 613.0 L 782.4 619.0 L 770.4 625.0 Z" fill="#1d4ed8"/>
+  <rect x="784.4" y="554" width="256.4" height="130" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="794.4" y="572" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">② 전처리</text>
+  <text x="794.4" y="594" font-size="12" fill="#111827" font-weight="700">DC컷·프리엠퍼시스</text>
+  <text x="794.4" y="616" font-size="10.5" fill="#4b5563">고역 강조 y[n]=x[n]−0.97x[n−1],</text>
+  <text x="794.4" y="632" font-size="10.5" fill="#4b5563">해닝 윈도우</text>
+  <rect x="794.4" y="646" width="92.0" height="18" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="801.4" y="659" font-size="10" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">HPF · window</text>
+  <path d="M 1042.8 613.0 L 1054.8 619.0 L 1042.8 625.0 Z" fill="#1d4ed8"/>
+  <rect x="1056.8" y="554" width="256.4" height="130" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1066.8" y="572" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">③ 특징추출</text>
+  <text x="1066.8" y="594" font-size="12" fill="#111827" font-weight="700">FFT → log-mel / 밴드E</text>
+  <text x="1066.8" y="616" font-size="10.5" fill="#4b5563">512-pt FFT → 40 mel bin → log</text>
+  <text x="1066.8" y="632" font-size="10.5" fill="#4b5563">(또는 6 sub-band E)</text>
+  <rect x="1066.8" y="646" width="85.5" height="18" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1073.8" y="659" font-size="10" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">log-mel[40]</text>
+  <path d="M 1315.1999999999998 613.0 L 1327.1999999999998 619.0 L 1315.1999999999998 625.0 Z" fill="#1d4ed8"/>
+  <rect x="1329.1999999999998" y="554" width="256.4" height="130" rx="6" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1"/>
+  <rect x="1327.1999999999998" y="552" width="260.4" height="134" rx="8" fill="none" stroke="#14b8a6" stroke-width="1"/>
+  <text x="1339.1999999999998" y="572" font-size="11" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">④ 판정</text>
+  <text x="1339.1999999999998" y="594" font-size="12" fill="#111827" font-weight="700">GMM LRT / DNN 추론</text>
+  <text x="1339.1999999999998" y="616" font-size="10.5" fill="#4b5563">우도비 또는 CNN+GRU →</text>
+  <text x="1339.1999999999998" y="632" font-size="10.5" fill="#4b5563">p ∈ [0, 1]</text>
+  <rect x="1339.1999999999998" y="646" width="118.0" height="18" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1346.1999999999998" y="659" font-size="10" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">p(speech) = 0.87</text>
+  <path d="M 1587.6 613.0 L 1599.6 619.0 L 1587.6 625.0 Z" fill="#1d4ed8"/>
+  <rect x="1601.6" y="554" width="256.4" height="130" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1611.6" y="572" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.05em">⑤ 후처리</text>
+  <text x="1611.6" y="594" font-size="12" fill="#111827" font-weight="700">Hangover · 비대칭 임계</text>
+  <text x="1611.6" y="616" font-size="10.5" fill="#4b5563">임계 비교 + N프레임 hangover</text>
+  <text x="1611.6" y="632" font-size="10.5" fill="#4b5563">→ final 0/1</text>
+  <rect x="1611.6" y="646" width="118.0" height="18" rx="3" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1618.6" y="659" font-size="10" fill="#6d28d9" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">VAD = 1 (sticky)</text>
+  <rect x="500" y="718" width="1370" height="230" rx="8" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="500" y="718" width="3" height="230" rx="1" fill="#6d28d9"/>
+  <text x="516" y="742" font-size="14" fill="#111827" font-weight="700">성능을 짜내는 보조 메커니즘 · 평가 지표</text>
+  <text x="1854" y="742" font-size="11" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end">prod tricks + how we measure</text>
+  <line x1="512" y1="754" x2="1858" y2="754" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4 3"/>
+  <rect x="512.0" y="768" width="442.0" height="86" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="522.0" y="788" font-size="12" fill="#111827" font-weight="700">Hangover</text>
+  <rect x="893.0" y="776" width="51.0" height="16" rx="3" fill="#ffffff" stroke="#ede9fe" stroke-width="1"/>
+  <text x="918.5" y="787" font-size="9.5" fill="#6d28d9" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">sticky</text>
+  <text x="522.0" y="808" font-size="10.5" fill="#4b5563">음성 끝나도 N=10~20 프레임 동안 "말하는 중"</text>
+  <text x="522.0" y="822" font-size="10.5" fill="#4b5563">유지. 단어 사이 짧은 침묵(150~300 ms)에서</text>
+  <text x="522.0" y="836" font-size="10.5" fill="#4b5563">끊겨 ASR이 잘리는 걸 막음.</text>
+  <rect x="964.0" y="768" width="442.0" height="86" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="974.0" y="788" font-size="12" fill="#111827" font-weight="700">비대칭 임계</text>
+  <rect x="1345.0" y="776" width="51.0" height="16" rx="3" fill="#ffffff" stroke="#ede9fe" stroke-width="1"/>
+  <text x="1370.5" y="787" font-size="9.5" fill="#6d28d9" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">on/off</text>
+  <text x="974.0" y="808" font-size="10.5" fill="#4b5563">켤 땐 보수적 θ_on=0.7, 끌 땐 너그럽게</text>
+  <text x="974.0" y="822" font-size="10.5" fill="#4b5563">θ_off=0.3. 히스테리시스로 경계에서</text>
+  <text x="974.0" y="836" font-size="10.5" fill="#4b5563">깜빡임(chatter) 방지.</text>
+  <rect x="1416.0" y="768" width="442.0" height="86" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1426.0" y="788" font-size="12" fill="#111827" font-weight="700">노이즈 트래킹</text>
+  <rect x="1810.0" y="776" width="38.0" height="16" rx="3" fill="#ffffff" stroke="#ede9fe" stroke-width="1"/>
+  <text x="1829.0" y="787" font-size="9.5" fill="#6d28d9" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">MCRA</text>
+  <text x="1426.0" y="808" font-size="10.5" fill="#4b5563">무음 구간 통계로 노이즈 PSD를 계속</text>
+  <text x="1426.0" y="822" font-size="10.5" fill="#4b5563">업데이트(Minimum Statistics, MCRA).</text>
+  <text x="1426.0" y="836" font-size="10.5" fill="#4b5563">환경이 바뀌어도 따라감.</text>
+  <rect x="512.0" y="862" width="442.0" height="86" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="522.0" y="882" font-size="12" fill="#111827" font-weight="700">음성 대역 가중</text>
+  <rect x="880.0" y="870" width="64.0" height="16" rx="3" fill="#ffffff" stroke="#ede9fe" stroke-width="1"/>
+  <text x="912.0" y="881" font-size="9.5" fill="#6d28d9" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">300–3400</text>
+  <text x="522.0" y="902" font-size="10.5" fill="#4b5563">사람 목소리는 대부분 300 Hz ~ 3.4 kHz에</text>
+  <text x="522.0" y="916" font-size="10.5" fill="#4b5563">몰림. 이 대역 sub-band E에 가중치 ↑,</text>
+  <text x="522.0" y="930" font-size="10.5" fill="#4b5563">고주파 잡음은 ↓.</text>
+  <rect x="964.0" y="862" width="442.0" height="86" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="974.0" y="882" font-size="12" fill="#111827" font-weight="700">지표 — DET / ROC</text>
+  <rect x="1364.5" y="870" width="31.5" height="16" rx="3" fill="#ffffff" stroke="#dbeafe" stroke-width="1"/>
+  <text x="1380.25" y="881" font-size="9.5" fill="#1d4ed8" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">AUC</text>
+  <text x="974.0" y="902" font-size="10.5" fill="#4b5563">false alarm vs miss rate 곡선(DET).</text>
+  <text x="974.0" y="916" font-size="10.5" fill="#4b5563">프레임 정확도, AUC, EER.</text>
+  <text x="974.0" y="930" font-size="10.5" fill="#4b5563">응용 관점에선 ASR WER이 진짜 평가.</text>
+  <rect x="1416.0" y="862" width="442.0" height="86" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="1426.0" y="882" font-size="12" fill="#111827" font-weight="700">지연 — Algorithmic</text>
+  <rect x="1790.5" y="870" width="57.5" height="16" rx="3" fill="#ffffff" stroke="#dbeafe" stroke-width="1"/>
+  <text x="1819.25" y="881" font-size="9.5" fill="#1d4ed8" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="middle" letter-spacing="0.04em">latency</text>
+  <text x="1426.0" y="902" font-size="10.5" fill="#4b5563">프레임 + 룩어헤드 + hangover 결정까지.</text>
+  <text x="1426.0" y="916" font-size="10.5" fill="#4b5563">통화·비서는 ≤ 30 ms 필수,</text>
+  <text x="1426.0" y="930" font-size="10.5" fill="#4b5563">녹음·트랜스크립트는 100 ms도 허용.</text>
+  <rect x="50" y="962" width="1820" height="88" rx="8" fill="#f0fdfa" stroke="#14b8a6" stroke-width="1"/>
+  <rect x="50" y="962" width="4" height="88" rx="2" fill="#0d9488"/>
+  <text x="70" y="988" font-size="14" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">TL;DR</text>
+  <text x="78" y="1012" font-size="12" fill="#064e3b">VAD는 결국 "이 20 ms 프레임이 음성인가?"를 1비트로 답하는 분류기다. 에너지+ZCR(~70년대) → GMM 우도비(WebRTC, ~10년대) → DNN(Silero, 2014~)로 정확도는 올라가고 모델은</text>
+  <text x="78" y="1030" font-size="12" fill="#064e3b">더 작아졌다. BudsAI는 항상켜진 마이크의 게이트로 VAD를 깔아, 말한 순간만 30 s 링버퍼에 채우고 무음 구간엔 BT에 0 byte를 흘린다 — 오탐 1번이 그대로 LTE 비용·프라이버시·</text>
+  <text x="78" y="1048" font-size="12" fill="#064e3b">배터리 손실이라, 펌웨어가 작은 DNN VAD(Silero v5 ~2 MB)를 NPU에 올리는 건 옵션이 아니라 필수다.</text>
+  <text x="50" y="1066" font-size="10" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">BudsAI Design Doc · VAD one-pager</text>
+  <text x="1870" y="1066" font-size="10" fill="#0d9488" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" text-anchor="end" letter-spacing="0.08em">APPENDIX · VAD ONE-PAGER</text>
+</svg>

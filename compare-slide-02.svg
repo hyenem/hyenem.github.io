@@ -1,0 +1,243 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#ffffff"/>
+  <text x="50" y="60" font-size="12" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">02 / 04</text>
+  <text x="140" y="62" font-size="22" fill="#111827" font-weight="700">10개 축 × 7개 제품 비교 매트릭스</text>
+  <rect x="1814" y="46" width="56" height="24" rx="4" fill="#ccfbf1"/>
+  <text x="1842.0" y="62" font-size="11" font-weight="700" fill="#0d9488" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">MATRIX</text>
+  <line x1="50" y1="88" x2="1870" y2="88" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="50" y="112" font-size="13.5" fill="#4b5563">LLM 시대에 누구나 가능한 "의도 라우팅 자유도", "세션 연속 대화" 같은 축은 차별점이 아니므로 제외.</text>
+  <text x="50" y="132" font-size="13.5" fill="#4b5563">진짜로 BudsAI만 ●인 축은 4개 — 컨텍스트·호스트 무관·앱 0·E2E 보안. (검증 출처: compare.html#refs)</text>
+  <rect x="50" y="180" width="1822" height="44" rx="0" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/>
+  <line x1="290" y1="180" x2="290" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="62" y="208" font-size="12" fill="#111827" font-weight="700">비교 축</text>
+  <rect x="290" y="180" width="226" height="44" rx="0" fill="#ccfbf1"/>
+  <line x1="516" y1="180" x2="516" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="403.0" y="208" font-size="11" fill="#0d9488" font-weight="700" text-anchor="middle">BudsAI</text>
+  <line x1="742" y1="180" x2="742" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="208" font-size="11" fill="#111827" font-weight="700" text-anchor="middle">Buds4 Pro</text>
+  <line x1="968" y1="180" x2="968" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="208" font-size="11" fill="#111827" font-weight="700" text-anchor="middle">AirPods Pro 2</text>
+  <line x1="1194" y1="180" x2="1194" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="208" font-size="11" fill="#111827" font-weight="700" text-anchor="middle">Sony XM5</text>
+  <line x1="1420" y1="180" x2="1420" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="208" font-size="11" fill="#111827" font-weight="700" text-anchor="middle">Nothing Ear</text>
+  <line x1="1646" y1="180" x2="1646" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="208" font-size="11" fill="#111827" font-weight="700" text-anchor="middle">Timekettle</text>
+  <line x1="1872" y1="180" x2="1872" y2="224" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="208" font-size="11" fill="#111827" font-weight="700" text-anchor="middle">Ray-Ban Meta</text>
+  <rect x="50" y="224" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="224" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="256" font-size="12" fill="#111827" font-weight="600">듣던 사운드를 AI 컨텍스트</text>
+  <rect x="290" y="224" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="250" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="268" font-size="10" fill="#6b7280" text-anchor="middle">30s 링버퍼</text>
+  <line x1="516" y1="224" x2="516" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="250" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="742" y1="224" x2="742" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="250" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="968" y1="224" x2="968" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="250" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1194" y1="224" x2="1194" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="250" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1420" y1="224" x2="1420" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="250" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1646" y1="224" x2="1646" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="250" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <text x="1759.0" y="268" font-size="10" fill="#6b7280" text-anchor="middle">시각만</text>
+  <line x1="1872" y1="224" x2="1872" y2="280" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="280" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="280" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="312" font-size="12" fill="#111827" font-weight="600">호스트 무관 (노트북·TV·차량)</text>
+  <rect x="290" y="280" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="306" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="324" font-size="10" fill="#6b7280" text-anchor="middle">BT PAN 표준</text>
+  <line x1="516" y1="280" x2="516" y2="336" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="306" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <text x="629.0" y="324" font-size="10" fill="#6b7280" text-anchor="middle">Galaxy 필수</text>
+  <line x1="742" y1="280" x2="742" y2="336" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="306" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <text x="855.0" y="324" font-size="10" fill="#6b7280" text-anchor="middle">iPhone 종속</text>
+  <line x1="968" y1="280" x2="968" y2="336" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="306" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <text x="1081.0" y="324" font-size="10" fill="#6b7280" text-anchor="middle">음악만</text>
+  <line x1="1194" y1="280" x2="1194" y2="336" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="306" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <text x="1307.0" y="324" font-size="10" fill="#6b7280" text-anchor="middle">Nothing Phone</text>
+  <line x1="1420" y1="280" x2="1420" y2="336" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="306" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1646" y1="280" x2="1646" y2="336" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="306" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1872" y1="280" x2="1872" y2="336" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="336" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="336" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="368" font-size="12" fill="#111827" font-weight="600">앱 설치 불필요 (Zero-Install)</text>
+  <rect x="290" y="336" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="362" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="380" font-size="10" fill="#6b7280" text-anchor="middle">OS 빌트인 BT</text>
+  <line x1="516" y1="336" x2="516" y2="392" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="362" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="742" y1="336" x2="742" y2="392" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="362" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="968" y1="336" x2="968" y2="392" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="362" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1194" y1="336" x2="1194" y2="392" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="362" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1420" y1="336" x2="1420" y2="392" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="362" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1646" y1="336" x2="1646" y2="392" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="362" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1872" y1="336" x2="1872" y2="392" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="392" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="392" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="424" font-size="12" fill="#111827" font-weight="600">버즈 종단 E2E (mTLS)</text>
+  <rect x="290" y="392" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="418" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="436" font-size="10" fill="#6b7280" text-anchor="middle">SE 인증서</text>
+  <line x1="516" y1="392" x2="516" y2="448" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="418" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <line x1="742" y1="392" x2="742" y2="448" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="418" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <text x="855.0" y="436" font-size="10" fill="#6b7280" text-anchor="middle">iCloud</text>
+  <line x1="968" y1="392" x2="968" y2="448" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="418" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1194" y1="392" x2="1194" y2="448" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="418" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1420" y1="392" x2="1420" y2="448" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="418" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <text x="1533.0" y="436" font-size="10" fill="#6b7280" text-anchor="middle">앱 종단</text>
+  <line x1="1646" y1="392" x2="1646" y2="448" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="418" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1872" y1="392" x2="1872" y2="448" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="448" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="448" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="480" font-size="12" fill="#111827" font-weight="600">호스트 페이로드 접근 차단</text>
+  <rect x="290" y="448" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="474" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="492" font-size="10" fill="#6b7280" text-anchor="middle">Dumb Pipe</text>
+  <line x1="516" y1="448" x2="516" y2="504" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="474" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="742" y1="448" x2="742" y2="504" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="474" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <text x="855.0" y="492" font-size="10" fill="#6b7280" text-anchor="middle">iPhone 처리</text>
+  <line x1="968" y1="448" x2="968" y2="504" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="474" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1194" y1="448" x2="1194" y2="504" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="474" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1420" y1="448" x2="1420" y2="504" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="474" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1646" y1="448" x2="1646" y2="504" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="474" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1872" y1="448" x2="1872" y2="504" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="504" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="504" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="536" font-size="12" fill="#111827" font-weight="600">실시간 통역</text>
+  <rect x="290" y="504" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="530" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="548" font-size="10" fill="#6b7280" text-anchor="middle">8 의도 중</text>
+  <line x1="516" y1="504" x2="516" y2="560" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="530" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="629.0" y="548" font-size="10" fill="#6b7280" text-anchor="middle">Interpreter</text>
+  <line x1="742" y1="504" x2="742" y2="560" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="530" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <text x="855.0" y="548" font-size="10" fill="#6b7280" text-anchor="middle">Live Trans</text>
+  <line x1="968" y1="504" x2="968" y2="560" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="530" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1194" y1="504" x2="1194" y2="560" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="530" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1420" y1="504" x2="1420" y2="560" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="530" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="1533.0" y="548" font-size="10" fill="#6b7280" text-anchor="middle">40+ 언어</text>
+  <line x1="1646" y1="504" x2="1646" y2="560" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="530" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <line x1="1872" y1="504" x2="1872" y2="560" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="560" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="560" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="592" font-size="12" fill="#111827" font-weight="600">음악 식별 (Shazam류)</text>
+  <rect x="290" y="560" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="586" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="604" font-size="10" fill="#6b7280" text-anchor="middle">동일 입력</text>
+  <line x1="516" y1="560" x2="516" y2="616" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="586" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <text x="629.0" y="604" font-size="10" fill="#6b7280" text-anchor="middle">Bixby(폰)</text>
+  <line x1="742" y1="560" x2="742" y2="616" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="586" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="855.0" y="604" font-size="10" fill="#6b7280" text-anchor="middle">Siri+Shazam</text>
+  <line x1="968" y1="560" x2="968" y2="616" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="586" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1194" y1="560" x2="1194" y2="616" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="586" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1420" y1="560" x2="1420" y2="616" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="586" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1646" y1="560" x2="1646" y2="616" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="586" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="1759.0" y="604" font-size="10" fill="#6b7280" text-anchor="middle">Shazam v11</text>
+  <line x1="1872" y1="560" x2="1872" y2="616" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="616" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="616" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="648" font-size="12" fill="#111827" font-weight="600">고음질 코덱</text>
+  <rect x="290" y="616" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="642" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="403.0" y="660" font-size="10" fill="#6b7280" text-anchor="middle">A2DP 독립</text>
+  <line x1="516" y1="616" x2="516" y2="672" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="642" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="629.0" y="660" font-size="10" fill="#6b7280" text-anchor="middle">SSC</text>
+  <line x1="742" y1="616" x2="742" y2="672" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="642" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="855.0" y="660" font-size="10" fill="#6b7280" text-anchor="middle">AAC</text>
+  <line x1="968" y1="616" x2="968" y2="672" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="642" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="1081.0" y="660" font-size="10" fill="#6b7280" text-anchor="middle">LDAC</text>
+  <line x1="1194" y1="616" x2="1194" y2="672" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="642" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="1307.0" y="660" font-size="10" fill="#6b7280" text-anchor="middle">LDAC</text>
+  <line x1="1420" y1="616" x2="1420" y2="672" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="642" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <line x1="1646" y1="616" x2="1646" y2="672" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="642" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <line x1="1872" y1="616" x2="1872" y2="672" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="672" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="672" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="704" font-size="12" fill="#111827" font-weight="600">ANC</text>
+  <rect x="290" y="672" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="698" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <text x="403.0" y="716" font-size="10" fill="#6b7280" text-anchor="middle">HW 의존</text>
+  <line x1="516" y1="672" x2="516" y2="728" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="698" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <line x1="742" y1="672" x2="742" y2="728" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="698" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <line x1="968" y1="672" x2="968" y2="728" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="698" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <text x="1081.0" y="716" font-size="10" fill="#6b7280" text-anchor="middle">최고</text>
+  <line x1="1194" y1="672" x2="1194" y2="728" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="698" font-size="16" fill="#0d9488" font-weight="700" text-anchor="middle">●</text>
+  <line x1="1420" y1="672" x2="1420" y2="728" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="698" font-size="14" fill="#b45309" font-weight="700" text-anchor="middle">△</text>
+  <text x="1533.0" y="716" font-size="10" fill="#6b7280" text-anchor="middle">M3 30dB</text>
+  <line x1="1646" y1="672" x2="1646" y2="728" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="698" font-size="14" fill="#6b7280" text-anchor="middle">—</text>
+  <text x="1759.0" y="716" font-size="10" fill="#6b7280" text-anchor="middle">오픈형</text>
+  <line x1="1872" y1="672" x2="1872" y2="728" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="728" width="1822" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="728" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="760" font-size="12" fill="#111827" font-weight="600">종단간 응답 지연</text>
+  <rect x="290" y="728" width="226" height="56" rx="0" fill="#f0fdfa"/>
+  <text x="403.0" y="754" font-size="13" fill="#0d9488" font-weight="700" text-anchor="middle">~3s</text>
+  <line x1="516" y1="728" x2="516" y2="784" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="629.0" y="754" font-size="13" fill="#0d9488" font-weight="700" text-anchor="middle">~2-3s</text>
+  <line x1="742" y1="728" x2="742" y2="784" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="855.0" y="754" font-size="13" fill="#0d9488" font-weight="700" text-anchor="middle">~2-3s</text>
+  <line x1="968" y1="728" x2="968" y2="784" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1081.0" y="754" font-size="13" fill="#6b7280" font-weight="700" text-anchor="middle">N/A</text>
+  <line x1="1194" y1="728" x2="1194" y2="784" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1307.0" y="754" font-size="13" fill="#0d9488" font-weight="700" text-anchor="middle">~3-5s</text>
+  <line x1="1420" y1="728" x2="1420" y2="784" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1533.0" y="754" font-size="13" fill="#0d9488" font-weight="700" text-anchor="middle">~2-4s</text>
+  <line x1="1646" y1="728" x2="1646" y2="784" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1759.0" y="754" font-size="13" fill="#0d9488" font-weight="700" text-anchor="middle">~2-3s</text>
+  <line x1="1872" y1="728" x2="1872" y2="784" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="180" width="1822" height="604" rx="0" fill="none" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="50" y="800" font-size="12" fill="#0d9488" font-weight="700">● 지원/강점</text>
+  <text x="180" y="800" font-size="12" fill="#b45309" font-weight="700">△ 부분/제한적</text>
+  <text x="320" y="800" font-size="12" fill="#6b7280">— 미지원</text>
+  <text x="1870" y="800" font-size="11" fill="#6b7280" text-anchor="end">※ ANC/코덱 BudsAI는 Buds Pro 차세대 HW 기준 · 응답 지연은 음성 호출 → TTS 시작 추정</text>
+</svg>

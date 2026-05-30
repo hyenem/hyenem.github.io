@@ -1,0 +1,124 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, -apple-system, sans-serif">
+  <rect width="1920" height="1080" fill="#ffffff"/>
+  <text x="50" y="60" font-size="12" fill="#6b7280" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">04 / 04</text>
+  <text x="140" y="62" font-size="22" fill="#111827" font-weight="700">Galaxy + BudsAI 시너지 — One UI 통합이 만드는 절대적 우위</text>
+  <rect x="1758" y="46" width="112" height="24" rx="4" fill="#e0e7ff"/>
+  <text x="1814.0" y="62" font-size="11" font-weight="700" fill="#1428a0" text-anchor="middle" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.08em">GALAXY SYNERGY</text>
+  <line x1="50" y1="88" x2="1870" y2="88" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="50" y="112" font-size="13.5" fill="#4b5563">BudsAI는 타사 호스트에서도 동작하지만, Galaxy 환경에서는 다른 차원이 된다.</text>
+  <text x="50" y="132" font-size="13.5" fill="#4b5563">버즈 응답이 Galaxy 폰 앱·워치·태블릿·차량·DeX로 자동 라우팅되며, Bixby Routines가 위치·시간 기반으로 BudsAI 자체를 자동 트리거. 이게 Galaxy 구매 동인의 핵심.</text>
+  <rect x="50" y="165" width="1820" height="80" rx="8" fill="#eef2ff" stroke="#e0e7ff" stroke-width="1"/>
+  <rect x="50" y="165" width="4" height="80" rx="2" fill="#1428a0"/>
+  <text x="70" y="191" font-size="13" fill="#1428a0" font-weight="700">핵심 원리</text>
+  <text x="70" y="211" font-size="12" fill="#111827">Galaxy 컴패니언 앱이 BudsAI 서버 응답을 받아 폰의 적절한 앱(Spotify·Samsung Notes·Calendar·Internet)으로 액션을 자동 라우팅.</text>
+  <text x="70" y="229" font-size="12" fill="#111827">자사 앱·OS·차량·웨어러블 생태계를 모두 가진 회사는 삼성과 애플뿐이고, 애플은 호스트 무관 아키텍처를 만들 동기가 없음 → 사실상 Galaxy + BudsAI 조합에서만 가능.</text>
+  <rect x="50" y="263" width="1820" height="36" rx="0" fill="#f3f4f6" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="62" y="286" font-size="11" fill="#111827" font-weight="700" letter-spacing="0.04em">일상 시나리오</text>
+  <line x1="290" y1="263" x2="290" y2="299" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="302" y="286" font-size="11" fill="#111827" font-weight="700" letter-spacing="0.04em">BUDSAI 단독 (타사 호스트)</text>
+  <line x1="990" y1="263" x2="990" y2="299" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="990" y="263" width="880" height="36" rx="0" fill="#e0e7ff"/>
+  <text x="1002" y="286" font-size="11" fill="#1428a0" font-weight="700" letter-spacing="0.04em">+ GALAXY 폰 페어링 시</text>
+  <rect x="50" y="299" width="1820" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="299" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="331" font-size="12" fill="#111827" font-weight="700">카페에서 음악 식별</text>
+  <line x1="290" y1="299" x2="290" y2="355" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="302" y="321" font-size="11" fill="#4b5563">"아이유의 Love wins all입니다" TTS만. 더 듣고 싶으면 사용자가 음악 앱 직접 열어야.</text>
+  <line x1="990" y1="299" x2="990" y2="355" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="990" y="299" width="880" height="56" rx="0" fill="#eef2ff"/>
+  <line x1="990" y1="299" x2="990" y2="355" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1002" y="321" font-size="11" fill="#111827">TTS + Spotify/YouTube Music이 곡을 자동 재생 큐 추가, 좋아요 자동, 잠금화면 앨범아트, Galaxy Watch</text>
+  <text x="1002" y="337" font-size="11" fill="#111827">알림.</text>
+  <rect x="50" y="355" width="1820" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="355" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="387" font-size="12" fill="#111827" font-weight="700">영어 단어 뜻</text>
+  <line x1="290" y1="355" x2="290" y2="411" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="302" y="377" font-size="11" fill="#4b5563">"전형적인이란 뜻" TTS만. 단어장 정리는 사용자 몫.</text>
+  <line x1="990" y1="355" x2="990" y2="411" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="990" y="355" width="880" height="56" rx="0" fill="#eef2ff"/>
+  <line x1="990" y1="355" x2="990" y2="411" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1002" y="377" font-size="11" fill="#111827">Samsung Notes의 영단어장에 자동 저장 (날짜·예문 포함), Galaxy AI Note Assist가 주간 복습 카드 생성.</text>
+  <rect x="50" y="411" width="1820" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="411" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="443" font-size="12" fill="#111827" font-weight="700">회의 통화 "부장님 뭐라셨지"</text>
+  <line x1="290" y1="411" x2="290" y2="467" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="302" y="433" font-size="11" fill="#4b5563">직전 30초 요약을 TTS로. 기록은 사용자가 폰 꺼내 옮겨 적어야.</text>
+  <line x1="990" y1="411" x2="990" y2="467" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="990" y="411" width="880" height="56" rx="0" fill="#eef2ff"/>
+  <line x1="990" y1="411" x2="990" y2="467" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1002" y="433" font-size="11" fill="#111827">Samsung Notes 자동 받아쓰기 + Galaxy AI가 액션 아이템 추출 → Calendar 일정 자동 등록, Watch 리마인더.</text>
+  <rect x="50" y="467" width="1820" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="467" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="499" font-size="12" fill="#111827" font-weight="700">운전 중 라디오 곡 식별</text>
+  <line x1="290" y1="467" x2="290" y2="523" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="302" y="489" font-size="11" fill="#4b5563">TTS만. 차량 디스플레이는 그대로 라디오.</text>
+  <line x1="990" y1="467" x2="990" y2="523" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="990" y="467" width="880" height="56" rx="0" fill="#eef2ff"/>
+  <line x1="990" y1="467" x2="990" y2="523" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1002" y="489" font-size="11" fill="#111827">One UI Auto가 차량 디스플레이에 곡명·아티스트 표시, "좋아요" 음성으로 플레이리스트 자동 저장.</text>
+  <rect x="50" y="523" width="1820" height="56" rx="0" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50" y="523" width="240" height="56" rx="0" fill="#f9fafb"/>
+  <text x="62" y="555" font-size="12" fill="#111827" font-weight="700">미드 대사 번역</text>
+  <line x1="290" y1="523" x2="290" y2="579" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="302" y="545" font-size="11" fill="#4b5563">번역 TTS 응답.</text>
+  <line x1="990" y1="523" x2="990" y2="579" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="990" y="523" width="880" height="56" rx="0" fill="#eef2ff"/>
+  <line x1="990" y1="523" x2="990" y2="579" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="1002" y="545" font-size="11" fill="#111827">Galaxy Tab/DeX 외부 모니터에 직전 30초 자막+번역 동시 표시, Multi-Control로 후속 질문, SmartThings로</text>
+  <text x="1002" y="561" font-size="11" fill="#111827">TV 미러링.</text>
+  <rect x="50.0" y="597" width="293.3333333333333" height="120" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="50.0" y="597" width="3" height="120" rx="1" fill="#1428a0"/>
+  <text x="62.0" y="615" font-size="10" fill="#1428a0" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">F1 · ROUTINES</text>
+  <text x="62.0" y="635" font-size="12" fill="#111827" font-weight="700">Bixby Routines 자동 트리거</text>
+  <text x="62.0" y="655" font-size="10.5" fill="#4b5563">위치(회의실·카페·차량)·시간 기반으로</text>
+  <text x="62.0" y="669" font-size="10.5" fill="#4b5563">BudsAI 트리거 감도를 자동 조정.</text>
+  <line x1="62.0" y1="693" x2="331.3333333333333" y2="693" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="62.0" y="709" font-size="10" fill="#1428a0" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">위치 → 모드 자동 전환</text>
+  <rect x="355.3333333333333" y="597" width="293.3333333333333" height="120" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="355.3333333333333" y="597" width="3" height="120" rx="1" fill="#1428a0"/>
+  <text x="367.3333333333333" y="615" font-size="10" fill="#1428a0" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">F2 · AUTO-ROUTE</text>
+  <text x="367.3333333333333" y="635" font-size="12" fill="#111827" font-weight="700">앱 자동 라우팅</text>
+  <text x="367.3333333333333" y="655" font-size="10.5" fill="#4b5563">의도별 결과를</text>
+  <text x="367.3333333333333" y="669" font-size="10.5" fill="#4b5563">Spotify·Notes·Calendar에 자동</text>
+  <text x="367.3333333333333" y="683" font-size="10.5" fill="#4b5563">저장 + 후속 액션 실행.</text>
+  <line x1="367.3333333333333" y1="693" x2="636.6666666666666" y2="693" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="367.3333333333333" y="709" font-size="10" fill="#1428a0" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">컴패니언 앱 디스패치</text>
+  <rect x="660.6666666666666" y="597" width="293.3333333333333" height="120" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="660.6666666666666" y="597" width="3" height="120" rx="1" fill="#1428a0"/>
+  <text x="672.6666666666666" y="615" font-size="10" fill="#1428a0" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">F3 · SMARTTHINGS</text>
+  <text x="672.6666666666666" y="635" font-size="12" fill="#111827" font-weight="700">다중 디바이스 동기화</text>
+  <text x="672.6666666666666" y="655" font-size="10.5" fill="#4b5563">Watch에 결과 알림, Tab에서 후속 작업,</text>
+  <text x="672.6666666666666" y="669" font-size="10.5" fill="#4b5563">거실 TV 미러링, 차량에 컨텍스트.</text>
+  <line x1="672.6666666666666" y1="693" x2="942.0" y2="693" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="672.6666666666666" y="709" font-size="10" fill="#1428a0" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">Watch · Tab · TV · Auto</text>
+  <rect x="966.0" y="597" width="293.3333333333333" height="120" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="966.0" y="597" width="3" height="120" rx="1" fill="#1428a0"/>
+  <text x="978.0" y="615" font-size="10" fill="#1428a0" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">F4 · ONE UI AUTO</text>
+  <text x="978.0" y="635" font-size="12" fill="#111827" font-weight="700">차량 디스플레이 통합</text>
+  <text x="978.0" y="655" font-size="10.5" fill="#4b5563">운전 중 음악 식별·번역·길찾기 응답이 차량</text>
+  <text x="978.0" y="669" font-size="10.5" fill="#4b5563">디스플레이에 자동 시각화.</text>
+  <line x1="978.0" y1="693" x2="1247.3333333333333" y2="693" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="978.0" y="709" font-size="10" fill="#1428a0" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">운전 중 안전한 시각 응답</text>
+  <rect x="1271.3333333333333" y="597" width="293.3333333333333" height="120" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="1271.3333333333333" y="597" width="3" height="120" rx="1" fill="#1428a0"/>
+  <text x="1283.3333333333333" y="615" font-size="10" fill="#1428a0" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">F5 · DEX</text>
+  <text x="1283.3333333333333" y="635" font-size="12" fill="#111827" font-weight="700">DeX 외부 모니터 확장</text>
+  <text x="1283.3333333333333" y="655" font-size="10.5" fill="#4b5563">회의·강의 보조 모드에서 직전 30초 파형 +</text>
+  <text x="1283.3333333333333" y="669" font-size="10.5" fill="#4b5563">응답을 외부 모니터에 시각화.</text>
+  <line x1="1283.3333333333333" y1="693" x2="1552.6666666666665" y2="693" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="1283.3333333333333" y="709" font-size="10" fill="#1428a0" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">회의·강의 보조 화면</text>
+  <rect x="1576.6666666666665" y="597" width="293.3333333333333" height="120" rx="6" fill="#ffffff" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="1576.6666666666665" y="597" width="3" height="120" rx="1" fill="#1428a0"/>
+  <text x="1588.6666666666665" y="615" font-size="10" fill="#1428a0" font-weight="700" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" letter-spacing="0.06em">F6 · KNOX VAULT</text>
+  <text x="1588.6666666666665" y="635" font-size="12" fill="#111827" font-weight="700">Knox Vault 보안 강화</text>
+  <text x="1588.6666666666665" y="655" font-size="10.5" fill="#4b5563">버즈 SE 인증서를 Galaxy의 Knox</text>
+  <text x="1588.6666666666665" y="669" font-size="10.5" fill="#4b5563">Vault에 백업·동기화. 엔터프라이즈 등급.</text>
+  <line x1="1588.6666666666665" y1="693" x2="1857.9999999999998" y2="693" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="1588.6666666666665" y="709" font-size="10" fill="#1428a0" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace">SE + Knox 이중 보호</text>
+  <rect x="50" y="731" width="1820" height="100" rx="8" fill="#eef2ff" stroke="#e0e7ff" stroke-width="1"/>
+  <rect x="50" y="731" width="4" height="100" rx="2" fill="#1428a0"/>
+  <text x="70" y="759" font-size="13" fill="#1428a0" font-weight="700">한 줄 포지셔닝</text>
+  <text x="70" y="781" font-size="12" fill="#111827">BudsAI의 진짜 단독 차별점은 4개다. 기술 3개(직전 사운드 컨텍스트 · 호스트 무관 · E2E 보안)는 어떤 OEM이 따라할 수 있을지 몰라도,</text>
+  <text x="70" y="799" font-size="12" fill="#111827">4번째인 Galaxy 자사 생태계 자동 통합은 호스트 무관(#02)을 풀 의지가 있고 자사 앱·차량·웨어러블·DeX·SE 보안을 모두 가진 회사가 삼성 하나뿐이기 때문에 구조적으로 복제 불가능.</text>
+  <text x="70" y="817" font-size="12" fill="#111827">이 4번째가 BudsAI의 진짜 사업적 해자.</text>
+</svg>

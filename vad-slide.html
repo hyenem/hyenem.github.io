@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAD 음성 활동 감지 — 한 장 정리 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============ White deck override (bnep-slide / opus-slide와 동일 톤) ============ */
+    body.is-deck-light {
+      background: #ffffff;
+      color: #111827;
+      font-family: var(--sans);
+    }
+    body.is-deck-light .site-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    body.is-deck-light .nav a { color: #4b5563; }
+    body.is-deck-light .nav a:hover { background: #f3f4f6; color: #111827; }
+    body.is-deck-light .nav a.active {
+      background: #ccfbf1;
+      color: #0d9488;
+    }
+    body.is-deck-light .logo { color: #111827; }
+    body.is-deck-light .logo-mark {
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: white;
+    }
+    body.is-deck-light .site-footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+    body.is-deck-light .site-footer .page-mark { color: #0d9488; }
+    body.is-deck-light .pager { border-color: #e5e7eb; }
+    body.is-deck-light .pager a { color: #111827; }
+    body.is-deck-light .pager-label { color: #6b7280; }
+
+    .deck {
+      --c-bg: #ffffff;
+      --c-bg-soft: #f9fafb;
+      --c-bg-elev: #f3f4f6;
+      --c-border: #e5e7eb;
+      --c-border-strong: #d1d5db;
+      --c-text: #111827;
+      --c-text-dim: #4b5563;
+      --c-text-muted: #6b7280;
+      --c-accent: #0d9488;
+      --c-accent-dim: #14b8a6;
+      --c-accent-soft: #ccfbf1;
+      --c-accent-bg: #f0fdfa;
+      --c-warn: #b45309;
+      --c-warn-soft: #fef3c7;
+      --c-danger: #b91c1c;
+      --c-danger-soft: #fee2e2;
+      --c-blue: #1d4ed8;
+      --c-blue-soft: #dbeafe;
+      --c-blue-bg: #eff6ff;
+      --c-violet: #6d28d9;
+      --c-violet-soft: #ede9fe;
+
+      /* VAD 세대별 팔레트 */
+      --c-g1-bg: #fde68a;        /* 1세대: 에너지+ZCR (yellow) */
+      --c-g1-border: #f59e0b;
+      --c-g1-text: #78350f;
+      --c-g2-bg: #ddd6fe;        /* 2세대: 통계/GMM (violet) */
+      --c-g2-border: #8b5cf6;
+      --c-g2-text: #4c1d95;
+      --c-g3-bg: #bbf7d0;        /* 3세대: DNN/RNN (green) */
+      --c-g3-border: #22c55e;
+      --c-g3-text: #14532d;
+    }
+
+    .deck-main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 28px 60px;
+      background: var(--c-bg);
+      color: var(--c-text);
+    }
+    .deck-intro {
+      padding: 8px 0 14px;
+      border-bottom: 1px solid var(--c-border);
+      margin-bottom: 16px;
+    }
+    .deck-intro h1 { font-size: 19px; margin-bottom: 4px; color: var(--c-text); font-weight: 700; }
+    .deck-intro p { color: var(--c-text-dim); font-size: 13px; margin: 0; }
+
+    /* ============ Slide ============ */
+    .slide {
+      min-height: 92vh;
+      padding: 28px 32px 24px;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      background: var(--c-bg);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .slide-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .slide-num {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--c-text);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .slide-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      background: var(--c-accent-soft);
+      padding: 4px 9px;
+      border-radius: 4px;
+    }
+    .slide-lead {
+      font-size: 13px;
+      color: var(--c-text-dim);
+      margin: 0 0 16px;
+      line-height: 1.55;
+    }
+
+    /* ============ Two-column grid ============ */
+    .vad-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      flex: 1;
+    }
+    @media (max-width: 1024px) {
+      .vad-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== LEFT: definitions ===== */
+    .defs { display: flex; flex-direction: column; gap: 12px; }
+    .def-card {
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: var(--c-bg-soft);
+    }
+    .def-card.accent {
+      border-color: var(--c-accent-dim);
+      background: var(--c-accent-bg);
+    }
+    .def-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin: 0 0 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .def-card.accent h3 { color: var(--c-accent); }
+    .def-card .key {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--c-text-muted);
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      letter-spacing: 0.04em;
+    }
+    .def-card p {
+      font-size: 12px;
+      color: var(--c-text-dim);
+      line-height: 1.55;
+      margin: 0 0 6px;
+    }
+    .def-card p:last-child { margin-bottom: 0; }
+    .def-card .facts {
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .def-card .facts li {
+      font-size: 11.5px;
+      color: var(--c-text);
+      padding-left: 12px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .def-card .facts li::before {
+      content: "·";
+      position: absolute;
+      left: 4px;
+      color: var(--c-accent);
+      font-weight: 900;
+    }
+    .def-card .facts code {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 0 4px;
+      color: var(--c-violet);
+    }
+
+    /* gen tag row */
+    .gen-row {
+      display: flex;
+      gap: 6px;
+      margin: 8px 0 4px;
+      flex-wrap: wrap;
+    }
+    .gen-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      padding: 3px 7px;
+      border-radius: 4px;
+      border: 1px solid;
+      font-weight: 700;
+    }
+    .gen-tag.g1 { background: var(--c-g1-bg); border-color: var(--c-g1-border); color: var(--c-g1-text); }
+    .gen-tag.g2 { background: var(--c-g2-bg); border-color: var(--c-g2-border); color: var(--c-g2-text); }
+    .gen-tag.g3 { background: var(--c-g3-bg); border-color: var(--c-g3-border); color: var(--c-g3-text); }
+
+    /* ===== RIGHT: blocks ===== */
+    .blocks { display: flex; flex-direction: column; gap: 14px; }
+
+    .block-section {
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      background: white;
+      padding: 12px 14px;
+    }
+    .block-section.gens   { border-left: 3px solid var(--c-accent); }
+    .block-section.pipe   { border-left: 3px solid var(--c-blue); }
+    .block-section.tricks { border-left: 3px solid var(--c-violet); }
+    .block-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--c-border);
+    }
+    .block-head h3 {
+      font-size: 13.5px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--c-text);
+    }
+    .block-head .meta {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--c-text-muted);
+    }
+
+    /* ===== Generation table ===== */
+    .gtable {
+      display: grid;
+      grid-template-columns: 110px 1fr 1fr 1fr;
+      gap: 0;
+      font-size: 11.5px;
+    }
+    .gtable .gh {
+      font-size: 9.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--c-text-muted);
+      font-weight: 700;
+      background: var(--c-bg-soft);
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--c-border-strong);
+    }
+    .gtable .gcell {
+      padding: 8px 9px;
+      border-bottom: 1px solid var(--c-border);
+      line-height: 1.45;
+      color: var(--c-text);
+      font-size: 11px;
+    }
+    .gtable .gcell.label {
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .gtable .gcell.label .era {
+      display: block;
+      font-size: 9.5px;
+      color: var(--c-text-muted);
+      font-weight: 400;
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+    .gtable .gcell.label.g1 { background: var(--c-g1-bg); color: var(--c-g1-text); border-bottom-color: var(--c-g1-border); }
+    .gtable .gcell.label.g1 .era { color: var(--c-g1-text); opacity: 0.75; }
+    .gtable .gcell.label.g2 { background: var(--c-g2-bg); color: var(--c-g2-text); border-bottom-color: var(--c-g2-border); }
+    .gtable .gcell.label.g2 .era { color: var(--c-g2-text); opacity: 0.75; }
+    .gtable .gcell.label.g3 { background: var(--c-g3-bg); color: var(--c-g3-text); border-bottom-color: var(--c-g3-border); }
+    .gtable .gcell.label.g3 .era { color: var(--c-g3-text); opacity: 0.75; }
+    .gtable .gcell code {
+      font-family: var(--mono);
+      font-size: 10px;
+      background: var(--c-bg-soft);
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 0 4px;
+      color: var(--c-violet);
+    }
+    .gtable .gcell strong { color: var(--c-text); font-weight: 700; }
+
+    /* ===== Pipeline ===== */
+    .pipe-flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      align-items: stretch;
+    }
+    .pstep {
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 8px 9px;
+      background: var(--c-bg-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      position: relative;
+    }
+    .pstep .pnum {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.05em;
+      color: var(--c-text-muted);
+      text-transform: uppercase;
+    }
+    .pstep .ptitle {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--c-text);
+      line-height: 1.35;
+    }
+    .pstep .pdesc {
+      font-size: 10.5px;
+      color: var(--c-text-dim);
+      line-height: 1.4;
+    }
+    .pstep .pcode {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 3px 5px;
+      color: var(--c-violet);
+      line-height: 1.3;
+    }
+    .pstep .arrow {
+      position: absolute;
+      right: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--c-blue);
+      font-size: 14px;
+      z-index: 2;
+      font-weight: 900;
+    }
+    .pstep:last-child .arrow { display: none; }
+    .pstep.decide {
+      background: var(--c-accent-bg);
+      border-color: var(--c-accent-dim);
+      box-shadow: 0 0 0 2px rgba(20,184,166,0.15);
+    }
+    .pstep.decide .pnum { color: var(--c-accent); }
+
+    /* ===== Tricks (3 col) ===== */
+    .trick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 720px) {
+      .trick-grid { grid-template-columns: 1fr; }
+      .pipe-flow { grid-template-columns: 1fr; }
+      .gtable { grid-template-columns: 1fr; }
+      .gtable .gh:not(:first-child) { display: none; }
+    }
+    .trick {
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 9px 11px;
+      background: var(--c-bg-soft);
+    }
+    .trick h4 {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin: 0 0 4px;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .trick h4 .ic {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.05em;
+      color: var(--c-violet);
+      background: white;
+      border: 1px solid var(--c-violet-soft);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    .trick p {
+      font-size: 10.5px;
+      color: var(--c-text-dim);
+      line-height: 1.45;
+      margin: 0;
+    }
+    .trick p code {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 0 3px;
+      color: var(--c-violet);
+    }
+    .trick.metric { background: var(--c-blue-bg); border-color: #93c5fd; }
+    .trick.metric h4 .ic { color: var(--c-blue); border-color: var(--c-blue-soft); }
+
+    /* ============ Bottom callout ============ */
+    .tldr {
+      margin-top: 14px;
+      background: var(--c-accent-bg);
+      border: 1px solid var(--c-accent-dim);
+      border-left: 3px solid var(--c-accent);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #064e3b;
+      line-height: 1.55;
+    }
+    .tldr strong { color: var(--c-accent); }
+    .tldr code {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: white;
+      border: 1px solid var(--c-accent-dim);
+      border-radius: 3px;
+      padding: 0 4px;
+      color: var(--c-accent);
+    }
+
+    /* Print */
+    @media print {
+      body.is-deck-light { background: white; }
+      .site-header, .site-footer, .pager, .deck-intro { display: none; }
+      .slide { border: none; box-shadow: none; page-break-after: avoid; margin: 0; min-height: auto; }
+      .deck-main { padding: 0 !important; max-width: none !important; }
+    }
+  </style>
+</head>
+<body class="is-deck-light">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="compare.html">타사 비교</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="deck-main deck">
+
+    <div class="deck-intro">
+      <h1>VAD 음성 활동 감지 — 한 장 정리</h1>
+      <p>어떻게 무음과 음성을 구분하는가 — 에너지부터 GMM·DNN까지, 50년 동안 발전한 원리를 한 장에.</p>
+    </div>
+
+    <section class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">01 / 01</span>
+        <h2 class="slide-title">VAD — "지금 사람이 말하고 있는가"를 1/0으로 답하는 신호처리 게이트</h2>
+        <span class="slide-tag">VAD · Speech Detection</span>
+      </div>
+      <p class="slide-lead">
+        VAD(Voice Activity Detection)는 오디오 프레임마다 <strong>음성 / 무음</strong>을 판정하는 모듈이다.
+        에너지 임계(70년대) → 통계 모델(WebRTC GMM, 90~10년대) → DNN(Silero, 2014~)로 진화했고,
+        BudsAI의 30초 링버퍼·DTX·서버 비용·배터리는 전부 이 1비트 판정에 매달려 있다.
+      </p>
+
+      <div class="vad-grid">
+
+        <!-- ============= LEFT: definitions ============= -->
+        <div class="defs">
+
+          <div class="def-card">
+            <h3>VAD가 뭔가? <span class="key">frame → 0/1</span></h3>
+            <p>
+              10~30 ms 단위 오디오 프레임에 대해 <strong>음성 확률 p(speech | frame)</strong>를 뱉는 분류기.
+              임계값을 넘으면 1, 아니면 0. ASR·코덱·통화·음성비서의 <strong>입구 게이트</strong>.
+            </p>
+            <ul class="facts">
+              <li>입력 단위: <code>10/20/30 ms</code> 프레임 (160~480 샘플 @ 16 kHz)</li>
+              <li>출력: 이진 라벨 또는 [0,1] 확률</li>
+              <li>주 사용처: WebRTC, Opus DTX, 통화 코덱(G.729B, AMR), 항상켜진 음성비서</li>
+              <li>지연 목표 <code>5 ~ 30 ms</code> — 대화에 끼어들 수 있을 만큼</li>
+            </ul>
+          </div>
+
+          <div class="def-card accent">
+            <h3>왜 어려운가? <span class="key">SNR 문제</span></h3>
+            <p>
+              <strong>무음 ≠ 0</strong>이다. 환풍기·도로·바람·키보드·다른 사람 목소리가 항상 깔려있고,
+              그 위로 음성이 살짝 올라오는 게 일반적. SNR이 낮을수록 단순 에너지로는 못 가른다.
+            </p>
+            <div class="gen-row">
+              <span class="gen-tag g1">1세대 에너지</span>
+              <span class="gen-tag g2">2세대 통계</span>
+              <span class="gen-tag g3">3세대 DNN</span>
+            </div>
+            <ul class="facts">
+              <li>핵심 트레이드오프: <strong>miss</strong>(말한 거 놓침) ↔ <strong>false alarm</strong>(잡음에 켜짐)</li>
+              <li>잡음이 비정상(non-stationary)일수록 단순 임계 실패</li>
+              <li>반향·다화자·음악 BGM은 더 어려움 → DNN이 압도</li>
+              <li>온디바이스 제약: 메모리 KB 단위, 연산 mW 단위</li>
+            </ul>
+          </div>
+
+          <div class="def-card">
+            <h3>BudsAI에서 왜 핵심인가</h3>
+            <ul class="facts">
+              <li>항상켜진 마이크에서 <strong>"내가 말한 순간만"</strong> 잘라 30s PCM 링버퍼에 보관</li>
+              <li>VAD off → Opus DTX → 무음 구간 <strong>BT 전송 0 byte</strong>(배터리·QoS)</li>
+              <li>VAD on 게이트 → 서버 ASR로 <strong>흘려보내는 초 단축</strong> = 비용 절감</li>
+              <li>오탐 1번 = 잡음을 30s 통째로 업로드 = mTLS·LTE 비용·프라이버시 리스크</li>
+              <li>그래서 펌웨어는 <strong>Silero v5 급(~2 MB, 1 ms/frame)</strong>을 NPU에 올린다</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- ============= RIGHT: generations + pipeline + tricks ============= -->
+        <div class="blocks">
+
+          <!-- ===== GENERATIONS ===== -->
+          <div class="block-section gens">
+            <div class="block-head">
+              <h3>원리의 진화 — 세대별 판정 메커니즘</h3>
+              <span class="meta">1970s → 1990s → 2014~</span>
+            </div>
+
+            <div class="gtable">
+              <div class="gh">세대 / 시기</div>
+              <div class="gh">판정 신호</div>
+              <div class="gh">수학 / 모델</div>
+              <div class="gh">강점 · 약점</div>
+
+              <div class="gcell label g1">
+                1세대<br/>Energy + ZCR
+                <span class="era">1970s ~</span>
+              </div>
+              <div class="gcell">
+                프레임 <strong>RMS 에너지</strong>가 임계 넘으면 음성.
+                보조로 <strong>ZCR</strong>(부호 바뀐 횟수)로 마찰음(s, f, h) 보강.
+              </div>
+              <div class="gcell">
+                <code>E = Σx[n]²</code> &nbsp; <code>ZCR = Σ|sgn(x[n])−sgn(x[n−1])|</code>
+                <br/>적응 임계 <code>θ = α·noise_floor</code>
+              </div>
+              <div class="gcell">
+                <strong>+</strong> 곱셈 거의 없음, mW급<br/>
+                <strong>−</strong> SNR &lt; 10 dB이면 망함, 비정상 잡음에 흔들림
+              </div>
+
+              <div class="gcell label g2">
+                2세대<br/>Statistical / GMM
+                <span class="era">1990s ~ 2010s</span>
+              </div>
+              <div class="gcell">
+                FFT로 <strong>6 sub-band 에너지</strong>를 뽑고, "노이즈 PDF" vs "노이즈+음성 PDF" 우도비 검정.
+                G.729B, AMR, <strong>WebRTC VAD</strong>(GMM 4밴드).
+              </div>
+              <div class="gcell">
+                <code>Λ = log p(X|H1) − log p(X|H0)</code>
+                <br/>가우시안 혼합 <code>p(X|H) = Σwᵢ N(μᵢ,Σᵢ)</code>
+                <br/>노이즈 트래킹: <strong>Minimum Statistics / MCRA</strong>
+              </div>
+              <div class="gcell">
+                <strong>+</strong> 잡음 추정 적응적, "aggressiveness 0~3" 튜닝<br/>
+                <strong>−</strong> 정상 가우시안 가정, 반향·음악 BGM 약함
+              </div>
+
+              <div class="gcell label g3">
+                3세대<br/>DNN / RNN
+                <span class="era">2014 ~</span>
+              </div>
+              <div class="gcell">
+                <strong>log-mel</strong>(또는 raw waveform)을 작은 <strong>CNN+GRU</strong>에 통과.
+                Silero VAD, Picovoice Cobra, NVIDIA MarbleNet, Google mobile VAD.
+              </div>
+              <div class="gcell">
+                <code>p = σ(GRU(CNN(log-mel(x))))</code>
+                <br/>학습: <code>LibriSpeech + AudioSet noise</code> 수천 시간 믹스
+                <br/>크기 <code>~2 MB</code>, 추론 <code>~1 ms/frame</code>
+              </div>
+              <div class="gcell">
+                <strong>+</strong> 저SNR·반향·다화자에서 압도적, AUC 0.99+<br/>
+                <strong>−</strong> 학습 분포 밖 도메인엔 취약, NPU/SIMD 필요
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== PIPELINE ===== -->
+          <div class="block-section pipe">
+            <div class="block-head">
+              <h3>실제 한 프레임이 흘러가는 길 — 5단계</h3>
+              <span class="meta">20 ms frame @ 16 kHz, 320 samples</span>
+            </div>
+
+            <div class="pipe-flow">
+
+              <div class="pstep">
+                <div class="pnum">① 캡처</div>
+                <div class="ptitle">PCM 프레임</div>
+                <div class="pdesc">마이크 ADC → 16-bit PCM 320샘플(20 ms)</div>
+                <div class="pcode">int16[320] @16kHz</div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <div class="pstep">
+                <div class="pnum">② 전처리</div>
+                <div class="ptitle">DC컷·프리엠퍼시스</div>
+                <div class="pdesc">고역 강조 <code>y[n]=x[n]−0.97x[n−1]</code>, 해닝 윈도우</div>
+                <div class="pcode">HPF · window</div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <div class="pstep">
+                <div class="pnum">③ 특징추출</div>
+                <div class="ptitle">FFT → log-mel / 밴드E</div>
+                <div class="pdesc">512-pt FFT → 40 mel bin → log → (또는 6 sub-band E)</div>
+                <div class="pcode">log-mel[40]</div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <div class="pstep decide">
+                <div class="pnum">④ 판정</div>
+                <div class="ptitle">GMM LRT / DNN 추론</div>
+                <div class="pdesc">우도비 또는 CNN+GRU → <strong>p ∈ [0,1]</strong></div>
+                <div class="pcode">p(speech) = 0.87</div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <div class="pstep">
+                <div class="pnum">⑤ 후처리</div>
+                <div class="ptitle">Hangover · 비대칭 임계</div>
+                <div class="pdesc">임계 비교 + N프레임 hangover → <strong>final 0/1</strong></div>
+                <div class="pcode">VAD = 1 (sticky)</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ===== TRICKS & METRICS ===== -->
+          <div class="block-section tricks">
+            <div class="block-head">
+              <h3>성능을 짜내는 보조 메커니즘 · 평가 지표</h3>
+              <span class="meta">prod tricks + how we measure</span>
+            </div>
+
+            <div class="trick-grid">
+
+              <div class="trick">
+                <h4>Hangover <span class="ic">sticky</span></h4>
+                <p>
+                  음성 끝나도 <code>N=10~20</code> 프레임 동안 "말하는 중" 유지.
+                  단어 사이 짧은 침묵(150~300 ms)에서 끊겨 ASR이 잘리는 걸 막음.
+                </p>
+              </div>
+
+              <div class="trick">
+                <h4>비대칭 임계 <span class="ic">on/off</span></h4>
+                <p>
+                  켤 땐 보수적 <code>θ_on=0.7</code>, 끌 땐 너그럽게 <code>θ_off=0.3</code>.
+                  히스테리시스 — 경계에서 깜빡임(chatter) 방지.
+                </p>
+              </div>
+
+              <div class="trick">
+                <h4>노이즈 트래킹 <span class="ic">MCRA</span></h4>
+                <p>
+                  무음 구간 통계로 노이즈 PSD를 계속 업데이트
+                  (Minimum Statistics, MCRA). 환경이 바뀌어도 따라감.
+                </p>
+              </div>
+
+              <div class="trick">
+                <h4>음성 대역 가중 <span class="ic">300–3400</span></h4>
+                <p>
+                  사람 목소리는 대부분 <code>300 Hz ~ 3.4 kHz</code>에 몰림.
+                  이 대역 sub-band E에 가중치 ↑, 고주파 잡음은 ↓.
+                </p>
+              </div>
+
+              <div class="trick metric">
+                <h4>지표 — DET / ROC <span class="ic">AUC</span></h4>
+                <p>
+                  <strong>false alarm vs miss rate</strong> 곡선(DET).
+                  프레임 정확도, AUC, EER. 응용 관점에선 <strong>ASR WER</strong>이 진짜 평가.
+                </p>
+              </div>
+
+              <div class="trick metric">
+                <h4>지연 — Algorithmic <span class="ic">latency</span></h4>
+                <p>
+                  프레임 + 룩어헤드 + hangover 결정까지. 통화·비서는 <code>≤ 30 ms</code> 필수,
+                  녹음·트랜스크립트는 100 ms도 허용.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="tldr">
+        <strong>TL;DR</strong> — VAD는 결국 <strong>"이 20 ms 프레임이 음성인가?"</strong>를 1비트로 답하는 분류기다.
+        에너지+ZCR(<code>~70년대</code>) → GMM 우도비(<code>WebRTC, ~10년대</code>) → DNN(<code>Silero, 2014~</code>)로 정확도는 올라가고 모델은 더 작아졌다.
+        BudsAI는 항상켜진 마이크의 게이트로 VAD를 깔아, <strong>말한 순간만 30 s 링버퍼에 채우고 무음 구간엔 BT에 0 byte를 흘린다</strong> —
+        오탐 1번이 그대로 LTE 비용·프라이버시·배터리 손실이라, 펌웨어가 작은 DNN VAD를 NPU에 올리는 건 옵션이 아니라 필수다.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="opus-slide.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">Opus 코덱 한 장 정리</span>
+      </a>
+      <a href="appendix.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">부록 인덱스</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · VAD ONE-PAGER</span>
+    <span class="doc-tag">BudsAI Design Doc · 음성 활동 감지 한 장 정리</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

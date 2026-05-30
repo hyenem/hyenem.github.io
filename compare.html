@@ -17,7 +17,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
-      min-width: 980px;
+      min-width: 820px;
     }
     table.matrix th, table.matrix td {
       padding: 10px 12px;
@@ -46,6 +46,16 @@
     }
     table.matrix tbody tr:hover td { background: rgba(94, 234, 212, 0.04); }
     table.matrix tbody tr:hover td:first-child { background: var(--bg-card); }
+
+    /* BudsAI 컬럼 강조 */
+    table.matrix th.self, table.matrix td.self {
+      background: rgba(94, 234, 212, 0.08);
+      color: var(--text);
+    }
+    table.matrix th.self {
+      background: rgba(94, 234, 212, 0.18);
+      color: var(--accent);
+    }
 
     /* support cell symbols */
     .cell-yes { color: var(--accent); font-weight: 700; }
@@ -202,21 +212,30 @@
       <span class="eyebrow">COMPETITIVE LANDSCAPE</span>
       <h1>타사 제품과의 비교</h1>
       <p class="subtitle">
-        시장 장악력이 있는 블루투스 이어폰 11종을 BudsAI와 6개 축(청취 컨텍스트·의도 자유도·호스트 호환성·앱 종속·보안·세션 연속성)으로 비교했습니다.
+        시장 장악력이 있는 블루투스 이어폰/관련 디바이스 6종을 BudsAI와 6개 축(청취 컨텍스트·의도 자유도·호스트 호환성·앱 종속·보안·세션 연속성)으로 비교했습니다.
       </p>
-      <p class="dim" style="margin-top:10px;">기준: 2026년 5월 기준 공개 사양. 일부 항목은 제조사 공식 발표·언론 보도·실제 제품 동작을 종합한 추정.</p>
+      <p class="dim" style="margin-top:10px;">기준: 2026년 5월 기준 공개 사양 (Galaxy Buds4 Pro 2026-03-11 출시). 일부 항목(특히 종단간 응답 지연)은 출처가 약한 추정이며, 실제 측정값과 다를 수 있음. 검증 출처는 <a href="#refs">하단 참고</a>.</p>
+
+      <a href="compare-slides.html" class="cta-banner" style="display:flex; text-decoration:none; cursor:pointer; margin-top:24px;">
+        <div class="cta-text">
+          <h2>🎯 발표용 4장으로 보기</h2>
+          <p>전체 비교를 핵심 메시지 4장으로 압축한 슬라이드. <code>?present</code>로 진입 시 한 장씩 넘기는 발표 모드.</p>
+        </div>
+        <span class="cta-button">슬라이드 열기 <span class="arrow">→</span></span>
+      </a>
     </section>
 
     <div class="toc">
       <div class="toc-title">목차</div>
       <ul>
-        <li><a href="#products">1. 비교 대상 11종 + BudsAI</a></li>
-        <li><a href="#matrix">2. 12×12 풀 비교 매트릭스</a></li>
+        <li><a href="#products">1. 비교 대상 6종 + BudsAI</a></li>
+        <li><a href="#matrix">2. 12×7 풀 비교 매트릭스</a></li>
         <li><a href="#common">3. 공통점 — 시장 표준</a></li>
         <li><a href="#diff">4. 차이점 — 카테고리별 심층 비교</a></li>
         <li><a href="#unique">5. BudsAI만의 본질적 강점 5가지</a></li>
         <li><a href="#radar">6. 6축 정량 비교 (점수표)</a></li>
         <li><a href="#summary">7. 한 줄 요약 · 포지셔닝</a></li>
+        <li><a href="#refs">8. 검증 출처 (Sources)</a></li>
       </ul>
     </div>
 
@@ -224,8 +243,8 @@
     <!-- 1. PRODUCTS -->
     <!-- =================================================== -->
     <section id="products">
-      <h2>1. 비교 대상 11종 + BudsAI</h2>
-      <p>프리미엄 TWS · 통역 특화 · 보청 특화 · AI 디바이스 4개 카테고리를 모두 포함해 시장의 대표 선수를 골랐습니다.</p>
+      <h2>1. 비교 대상 6종 + BudsAI</h2>
+      <p>자사 후속(Buds4 Pro) · Apple · Sony · Nothing · Timekettle · Meta — 각각 다른 카테고리의 대표 1개씩만 남겼습니다.</p>
 
       <div class="product-grid">
         <div class="product-card self">
@@ -241,49 +260,26 @@
         </div>
 
         <div class="product-card">
+          <div class="brand">Samsung · 자사 후속</div>
+          <h3>Galaxy Buds4 Pro</h3>
+          <p class="tagline">Bixby + Galaxy AI Interpreter 연장선 · Live Translation 강화.</p>
+          <ul class="traits">
+            <li>Galaxy 폰 페어링 시 풀 기능 (Galaxy AI)</li>
+            <li>실시간 통역 · 환경음 인지 강화 예상</li>
+            <li>Wearable 앱 필수, 타사 폰 호환 제한</li>
+            <li>듣고 있던 사운드 컨텍스트는 여전히 미사용</li>
+          </ul>
+        </div>
+
+        <div class="product-card">
           <div class="brand">Apple</div>
-          <h3>AirPods Pro 2 (USB-C, Apple Intelligence)</h3>
+          <h3>AirPods Pro 2 (Apple Intelligence)</h3>
           <p class="tagline">Siri + Apple Intelligence + Conversation Awareness.</p>
           <ul class="traits">
             <li>iPhone H2 칩 종속 (Apple Intelligence는 iPhone 15 Pro+)</li>
             <li>음성 응답은 폰을 거쳐 Siri/AI 호출</li>
             <li>출력 중인 오디오는 컨텍스트로 사용 안 함</li>
             <li>Hearing Aid · Conversation Boost</li>
-          </ul>
-        </div>
-
-        <div class="product-card">
-          <div class="brand">Apple</div>
-          <h3>AirPods 4 ANC</h3>
-          <p class="tagline">Siri 핸즈프리 호출 · 헤드 제스처 응답.</p>
-          <ul class="traits">
-            <li>iOS/iPadOS/macOS 한정 풀 기능</li>
-            <li>안드로이드는 페어링만 됨</li>
-            <li>AI는 Siri 한정, 직전 사운드 미참조</li>
-          </ul>
-        </div>
-
-        <div class="product-card">
-          <div class="brand">Samsung</div>
-          <h3>Galaxy Buds3 Pro</h3>
-          <p class="tagline">Bixby + Galaxy AI Interpreter · Live Translation.</p>
-          <ul class="traits">
-            <li>Galaxy 폰 페어링 시 풀 기능 (Galaxy AI)</li>
-            <li>실시간 통역(Interpreter) 강력</li>
-            <li>Wearable 앱 필수, 타사 폰 호환 제한</li>
-            <li>듣고 있던 사운드 컨텍스트 미사용</li>
-          </ul>
-        </div>
-
-        <div class="product-card">
-          <div class="brand">Google</div>
-          <h3>Pixel Buds Pro 2</h3>
-          <p class="tagline">Gemini Live · Real-time Translation (40+ 언어).</p>
-          <ul class="traits">
-            <li>Tensor A1 칩, Pixel 폰과 최적</li>
-            <li>Gemini Live 인터럽티블 음성 대화</li>
-            <li>실시간 통역 우수, 단 안드로이드 전용</li>
-            <li>듣던 미디어는 컨텍스트 미사용</li>
           </ul>
         </div>
 
@@ -295,17 +291,6 @@
             <li>AI 어시스턴트는 폰의 Google/Siri 패스스루</li>
             <li>Speak-to-Chat (말하면 음악 일시정지)</li>
             <li>독자 AI 컨텍스트 기능 없음</li>
-          </ul>
-        </div>
-
-        <div class="product-card">
-          <div class="brand">Bose</div>
-          <h3>QC Ultra Earbuds</h3>
-          <p class="tagline">ANC · Bose Immersive Audio.</p>
-          <ul class="traits">
-            <li>AI/번역 기능 없음 (음질·ANC 중심)</li>
-            <li>음성 비서는 폰 OS 의존</li>
-            <li>aptX Lossless 지원</li>
           </ul>
         </div>
 
@@ -327,29 +312,7 @@
           <ul class="traits">
             <li>40+ 언어 동시 통역, 카드 기반 화자 분리</li>
             <li>전용 앱 + 클라우드 STT/MT 필수</li>
-            <li>번역 외 의도 처리 불가 (단일 기능)</li>
-          </ul>
-        </div>
-
-        <div class="product-card">
-          <div class="brand">Olive Union</div>
-          <h3>Olive Max / Olive Pro</h3>
-          <p class="tagline">FDA 등록 OTC 보청 + TWS 하이브리드.</p>
-          <ul class="traits">
-            <li>환경음 증폭·청력 보정 중심</li>
-            <li>AI 응답 기능 없음, 음악 컨텍스트 미사용</li>
-            <li>BT 스트리밍 가능</li>
-          </ul>
-        </div>
-
-        <div class="product-card">
-          <div class="brand">Bose</div>
-          <h3>Ultra Open Earbuds</h3>
-          <p class="tagline">오픈 이어, 외부 인지 최대 + 음악 동시.</p>
-          <ul class="traits">
-            <li>AI 비서는 폰 패스스루</li>
-            <li>듣던 오디오 컨텍스트 없음</li>
-            <li>샤워·운동 친화 폼팩터</li>
+            <li>AI 의도 처리는 번역만 (M3는 음악·통화 패스스루 추가)</li>
           </ul>
         </div>
 
@@ -358,9 +321,9 @@
           <h3>Ray-Ban Meta (스마트글래스)</h3>
           <p class="tagline">Meta AI · "Hey Meta" 음성 호출 + 카메라.</p>
           <ul class="traits">
-            <li>이어폰은 아니지만 같은 사용 의도</li>
+            <li>이어폰은 아니지만 같은 사용 의도 (주변 컨텍스트 AI)</li>
             <li>비주얼 컨텍스트는 강함, 오디오 컨텍스트는 약함</li>
-            <li>전용 앱(Meta View) 필수, 폰 종속</li>
+            <li>전용 앱(Meta AI 앱) 필수, 폰 종속</li>
           </ul>
         </div>
       </div>
@@ -370,8 +333,8 @@
     <!-- 2. FULL MATRIX -->
     <!-- =================================================== -->
     <section id="matrix">
-      <h2>2. 12×12 풀 비교 매트릭스</h2>
-      <p>12개 기능 축으로 12개 제품을 한 장에 압축했습니다. 가로 스크롤로 전체 확인.</p>
+      <h2>2. 12×7 풀 비교 매트릭스</h2>
+      <p>12개 기능 축으로 7개 제품을 한 장에 압축했습니다. 가로 스크롤로 전체 확인.</p>
 
       <div class="legend">
         <span><span class="dot" style="background:var(--accent);"></span> ● 지원 / 강점</span>
@@ -384,29 +347,19 @@
           <thead>
             <tr>
               <th>축 \ 제품</th>
-              <th>BudsAI</th>
+              <th class="self">BudsAI</th>
+              <th>Buds4 Pro</th>
               <th>AirPods Pro 2</th>
-              <th>AirPods 4 ANC</th>
-              <th>Buds3 Pro</th>
-              <th>Pixel Buds Pro 2</th>
               <th>Sony XM5</th>
-              <th>Bose QC Ultra</th>
               <th>Nothing Ear</th>
               <th>Timekettle</th>
-              <th>Olive Max</th>
-              <th>Bose Open</th>
               <th>Ray-Ban Meta</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>듣던 사운드를 AI 컨텍스트로 사용</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">30s 링버퍼 동봉</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">30s 링버퍼 동봉</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
@@ -416,42 +369,27 @@
             </tr>
             <tr>
               <td>음성 질의 자연어 자유도 (8+ 의도)</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">식별·전사·요약·사전·번역·분류·검색·추천</span></td>
-              <td><span class="cell-mid">◐</span><span class="cell-note">Siri/AI 일반</span></td>
-              <td><span class="cell-mid">◐</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">식별·전사·요약·사전·번역·분류·검색·추천</span></td>
               <td><span class="cell-mid">◐</span><span class="cell-note">Bixby/Galaxy AI</span></td>
-              <td><span class="cell-yes">●</span><span class="cell-note">Gemini Live</span></td>
+              <td><span class="cell-mid">◐</span><span class="cell-note">Siri/AI 일반</span></td>
               <td><span class="cell-mid">◐</span><span class="cell-note">폰 비서 패스스루</span></td>
-              <td><span class="cell-no">✗</span></td>
               <td><span class="cell-mid">◐</span><span class="cell-note">ChatGPT</span></td>
               <td><span class="cell-no">✗</span><span class="cell-note">번역만</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-yes">●</span></td>
+              <td><span class="cell-yes">●</span><span class="cell-note">Meta AI</span></td>
             </tr>
             <tr>
               <td>호스트 무관 (폰 외 노트북·MP3·TV·차량)</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">BT PAN 표준</span></td>
-              <td><span class="cell-no">✗</span><span class="cell-note">iPhone 종속</span></td>
-              <td><span class="cell-no">✗</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">BT PAN 표준</span></td>
               <td><span class="cell-no">✗</span><span class="cell-note">Galaxy 필수</span></td>
-              <td><span class="cell-no">✗</span><span class="cell-note">Android 필요</span></td>
+              <td><span class="cell-no">✗</span><span class="cell-note">iPhone 종속</span></td>
               <td><span class="cell-mid">◐</span><span class="cell-note">음악만</span></td>
-              <td><span class="cell-mid">◐</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-mid">◐</span></td>
               <td><span class="cell-no">✗</span></td>
             </tr>
             <tr>
               <td>앱 설치 불필요 (Zero-Install)</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">OS 빌트인 BT만</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">OS 빌트인 BT만</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
@@ -461,104 +399,69 @@
             </tr>
             <tr>
               <td>버즈 종단 E2E 암호화 (mTLS)</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">SE 보관 인증서</span></td>
-              <td><span class="cell-mid">◐</span><span class="cell-note">iCloud 키체인</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">SE 보관 인증서</span></td>
               <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-no">✗</span></td>
+              <td><span class="cell-mid">◐</span><span class="cell-note">iCloud 계정 sync</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span><span class="cell-note">앱 종단</span></td>
               <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
             </tr>
             <tr>
               <td>실시간 통역</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">8 의도 중 하나</span></td>
-              <td><span class="cell-mid">◐</span><span class="cell-note">Live Translation</span></td>
-              <td><span class="cell-mid">◐</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">8 의도 중 하나</span></td>
               <td><span class="cell-yes">●</span><span class="cell-note">Interpreter</span></td>
-              <td><span class="cell-yes">●</span><span class="cell-note">40+ 언어</span></td>
-              <td><span class="cell-no">✗</span></td>
+              <td><span class="cell-mid">◐</span><span class="cell-note">Live Translation</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-yes">●</span><span class="cell-note">특화 강점</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
               <td><span class="cell-yes">●</span></td>
             </tr>
             <tr>
               <td>음악 식별 (Shazam류)</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">8 의도 중 하나</span></td>
-              <td><span class="cell-mid">◐</span><span class="cell-note">Shazam 별도</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-mid">◐</span><span class="cell-note">Bixby 음악</span></td>
-              <td><span class="cell-yes">●</span><span class="cell-note">Now Playing</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">8 의도 중 하나</span></td>
+              <td><span class="cell-mid">◐</span><span class="cell-note">Bixby (폰 기능)</span></td>
+              <td><span class="cell-yes">●</span><span class="cell-note">Siri+Shazam</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-mid">◐</span></td>
+              <td><span class="cell-yes">●</span><span class="cell-note">Shazam v11</span></td>
             </tr>
             <tr>
               <td>액티브 노이즈 캔슬링 (ANC)</td>
-              <td><span class="cell-mid">◐</span><span class="cell-note">HW 사양 별도</span></td>
-              <td><span class="cell-yes">●</span></td>
-              <td><span class="cell-yes">●</span></td>
+              <td class="self"><span class="cell-mid">◐</span><span class="cell-note">HW 사양 별도</span></td>
               <td><span class="cell-yes">●</span></td>
               <td><span class="cell-yes">●</span></td>
               <td><span class="cell-yes">●</span><span class="cell-note">클래스 최고</span></td>
               <td><span class="cell-yes">●</span></td>
-              <td><span class="cell-yes">●</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-no">✗</span><span class="cell-note">오픈형</span></td>
+              <td><span class="cell-mid">◐</span><span class="cell-note">M3 30dB</span></td>
               <td><span class="cell-no">✗</span></td>
             </tr>
             <tr>
               <td>고음질 코덱 (LDAC/aptX Lossless/AAC)</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">독립 BT A2DP</span></td>
-              <td><span class="cell-yes">●</span><span class="cell-note">AAC</span></td>
-              <td><span class="cell-yes">●</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">독립 BT A2DP</span></td>
               <td><span class="cell-yes">●</span><span class="cell-note">SSC</span></td>
-              <td><span class="cell-yes">●</span></td>
+              <td><span class="cell-yes">●</span><span class="cell-note">AAC</span></td>
               <td><span class="cell-yes">●</span><span class="cell-note">LDAC</span></td>
-              <td><span class="cell-yes">●</span><span class="cell-note">aptX Lossless</span></td>
               <td><span class="cell-yes">●</span><span class="cell-note">LDAC</span></td>
               <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-yes">●</span></td>
               <td><span class="cell-mid">◐</span></td>
             </tr>
             <tr>
               <td>세션 컨텍스트 연속 대화</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">PrevSessionID 메타</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">PrevSessionID 메타</span></td>
+              <td><span class="cell-mid">◐</span></td>
               <td><span class="cell-mid">◐</span><span class="cell-note">Siri 후속</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-yes">●</span><span class="cell-note">Gemini Live</span></td>
-              <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-mid">◐</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-mid">◐</span></td>
             </tr>
             <tr>
               <td>호스트 페이로드 접근 차단 (Dumb Pipe)</td>
-              <td><span class="cell-yes">●</span><span class="cell-note">호스트 못 봄</span></td>
+              <td class="self"><span class="cell-yes">●</span><span class="cell-note">호스트 못 봄</span></td>
+              <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span><span class="cell-note">iPhone 처리</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
-              <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
               <td><span class="cell-no">✗</span></td>
@@ -566,17 +469,12 @@
             </tr>
             <tr>
               <td>종단간 응답 지연</td>
-              <td><span class="cell-yes">~3s</span></td>
+              <td class="self"><span class="cell-yes">~3s</span></td>
               <td><span class="cell-yes">~2-3s</span></td>
               <td><span class="cell-yes">~2-3s</span></td>
-              <td><span class="cell-yes">~2-3s</span></td>
-              <td><span class="cell-yes">~1-2s</span></td>
-              <td><span class="cell-mid">N/A</span></td>
               <td><span class="cell-mid">N/A</span></td>
               <td><span class="cell-mid">~3-5s</span></td>
               <td><span class="cell-mid">~2-4s</span></td>
-              <td><span class="cell-mid">N/A</span></td>
-              <td><span class="cell-mid">N/A</span></td>
               <td><span class="cell-yes">~2-3s</span></td>
             </tr>
           </tbody>
@@ -607,19 +505,19 @@
         </div>
         <div class="feature-card">
           <h3>③ 음성 비서 트리거</h3>
-          <p>제스처(롱프레스/Pinch) 기반 음성 호출 — AirPods·Buds·Pixel·Nothing이 공통으로 채택한 UX 컨벤션.</p>
+          <p>제스처(롱프레스/Pinch) 기반 음성 호출 — AirPods·Buds·Nothing이 공통으로 채택한 UX 컨벤션.</p>
         </div>
         <div class="feature-card">
           <h3>④ 클라우드 AI 백엔드</h3>
-          <p>대규모 모델은 모두 클라우드 처리. BudsAI도 STT/LLM/TTS를 서버에서 실행 (Galaxy AI / Gemini / Apple AI와 동일 구조).</p>
+          <p>대규모 모델은 모두 클라우드 처리. BudsAI도 STT/LLM/TTS를 서버에서 실행 (Galaxy AI / Apple AI / Meta AI와 동일 구조).</p>
         </div>
         <div class="feature-card">
           <h3>⑤ 실시간 통역</h3>
-          <p>Buds3 Pro / Pixel Buds Pro 2 / Timekettle이 강세인 영역. BudsAI도 동일 품질 제공 가능 (8 의도 중 하나).</p>
+          <p>Buds4 Pro / Timekettle / Ray-Ban Meta가 강세인 영역. BudsAI도 동일 품질 제공 가능 (8 의도 중 하나).</p>
         </div>
         <div class="feature-card">
           <h3>⑥ Galaxy 생태계 결합</h3>
-          <p>Buds3 Pro와 동일 수준의 Bixby·SmartThings·Wearable·One UI Auto 연동을 옵션 레이어로 제공.</p>
+          <p>Buds4 Pro와 동일 수준의 Bixby·SmartThings·Wearable·One UI Auto 연동을 옵션 레이어로 제공.</p>
         </div>
       </div>
 
@@ -635,47 +533,16 @@
     <section id="diff">
       <h2>4. 차이점 — 카테고리별 심층 비교</h2>
 
-      <h3>4.1 vs Apple AirPods Pro 2 / AirPods 4 (Apple Intelligence)</h3>
+      <h3>4.1 vs Samsung Galaxy Buds4 Pro (자사 후속)</h3>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th style="width:30%;">축</th><th>AirPods + Apple Intelligence</th><th>BudsAI</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>"이 노래 뭐야?" 시나리오</td>
-              <td>Siri → Shazam 별도 호출. <strong>듣던 트랙 자체는 모름</strong> — 폰 마이크로 다시 환경음 캡처</td>
-              <td>이미 보관된 직전 30초 출력 PCM이 컨텍스트. 식별 외에 <strong>요약·번역·검색도 같은 입력으로</strong></td>
-            </tr>
-            <tr>
-              <td>호스트 종속</td>
-              <td>iPhone 15 Pro+ 강제 (Apple Intelligence). Mac만으로도 풀 기능 불가</td>
-              <td>BT+인터넷 가능한 모든 호스트 (노트북·MP3·TV·차량·eSIM 동글) OK</td>
-            </tr>
-            <tr>
-              <td>앱 설치</td>
-              <td>iOS·Apple ID·iCloud 키체인 필수</td>
-              <td>OS 빌트인 BT PAN 토글 1회만. 앱 0</td>
-            </tr>
-            <tr>
-              <td>장점 (Apple이 강함)</td>
-              <td>Conversation Awareness, Hearing Aid 모드, H2 칩 ANC 품질, AirPods ↔ iPhone ↔ Mac 무중단 핸드오프</td>
-              <td>—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>4.2 vs Samsung Galaxy Buds3 Pro (Galaxy AI)</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th style="width:30%;">축</th><th>Buds3 Pro + Galaxy AI</th><th>BudsAI</th></tr>
+            <tr><th style="width:30%;">축</th><th>Buds4 Pro + Galaxy AI</th><th>BudsAI</th></tr>
           </thead>
           <tbody>
             <tr>
               <td>강점 영역</td>
-              <td>실시간 Interpreter(통역), Live Translation, ANC, Samsung Sound by AKG</td>
+              <td>실시간 Interpreter(통역), Live Translation, ANC, Samsung Sound by AKG 계승</td>
               <td>듣던 사운드 컨텍스트 결합, 8+ 의도 통합</td>
             </tr>
             <tr>
@@ -696,68 +563,41 @@
         </table>
       </div>
 
-      <h3>4.3 vs Google Pixel Buds Pro 2 (Gemini Live)</h3>
+      <h3>4.2 vs Apple AirPods Pro 2 (Apple Intelligence)</h3>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th style="width:30%;">축</th><th>Pixel Buds Pro 2 + Gemini</th><th>BudsAI</th></tr>
+            <tr><th style="width:30%;">축</th><th>AirPods Pro 2 + Apple Intelligence</th><th>BudsAI</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td>가장 가까운 경쟁자</td>
-              <td>Gemini Live의 인터럽티블 대화·40+ 언어 통역은 의도 자유도 면에서 최강</td>
-              <td>의도 자유도는 동등하지만, <strong>듣던 미디어 컨텍스트는 BudsAI만</strong></td>
+              <td>"이 노래 뭐야?" 시나리오</td>
+              <td>Siri에 Shazam 통합(iOS 14.2+) → "Hey Siri, 이 노래 뭐야?"는 됨. 단 <strong>듣던 트랙 자체는 컨텍스트가 아님</strong> — 폰 마이크로 환경음 다시 캡처해야 함</td>
+              <td>이미 보관된 직전 30초 출력 PCM이 컨텍스트. 식별 외에 <strong>요약·번역·검색도 같은 입력으로</strong></td>
             </tr>
             <tr>
-              <td>호스트</td>
-              <td>Pixel 폰 + 안드로이드 필수. iOS·노트북 풀 기능 불가</td>
-              <td>호스트 무관</td>
+              <td>호스트 종속</td>
+              <td>iPhone 15 Pro+ 강제 (Apple Intelligence). Mac만으로도 풀 기능 불가</td>
+              <td>BT+인터넷 가능한 모든 호스트 (노트북·MP3·TV·차량·eSIM 동글) OK</td>
             </tr>
             <tr>
-              <td>"방금 들은 영어 단어 뜻" 시나리오</td>
-              <td>다시 말로 옮겨 Gemini에 입력해야 함</td>
-              <td>직전 30초에 이미 포함 — "방금 그 단어"로 충분</td>
+              <td>앱 설치</td>
+              <td>iOS·Apple ID·iCloud 계정 sync 필수</td>
+              <td>OS 빌트인 BT PAN 토글 1회만. 앱 0</td>
             </tr>
             <tr>
-              <td>응답 지연</td>
-              <td>~1-2초 (스트리밍 LLM)</td>
-              <td>~3초 — 직전 사운드 동봉 비용. 다만 별도 캡처 단계 없음</td>
+              <td>장점 (Apple이 강함)</td>
+              <td colspan="2">Conversation Awareness, Hearing Aid 모드, H2 칩 ANC 품질, AirPods ↔ iPhone ↔ Mac 무중단 핸드오프 — BudsAI는 이 영역을 다투지 않음</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <h3>4.4 vs Timekettle WT2 Edge / M3 (통역 특화)</h3>
+      <h3>4.3 vs Sony WF-1000XM5 (음질·ANC 정통파)</h3>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th style="width:30%;">축</th><th>Timekettle</th><th>BudsAI</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>기능 폭</td>
-              <td>번역 1개에 깊이 집중. 화자 분리·카드 모드 등 통역 UX 최강</td>
-              <td>번역은 8 의도 중 하나. 통역 깊이는 동등 수준, 단 "번역에만 쓰는 기기"라는 한계는 없음</td>
-            </tr>
-            <tr>
-              <td>호스트</td>
-              <td>전용 앱 + 클라우드 STT/MT 필수</td>
-              <td>앱 0, 호스트 무관</td>
-            </tr>
-            <tr>
-              <td>구매 동기</td>
-              <td>"비즈니스 통역" 1회성 페르소나</td>
-              <td>매일 청취 흐름 어느 순간이든 묻기 — 일상 디바이스</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>4.5 vs Sony WF-1000XM5 / Bose QC Ultra (음질·ANC 정통파)</h3>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th style="width:30%;">축</th><th>Sony XM5 / Bose QC Ultra</th><th>BudsAI</th></tr>
+            <tr><th style="width:30%;">축</th><th>Sony XM5</th><th>BudsAI</th></tr>
           </thead>
           <tbody>
             <tr>
@@ -767,7 +607,7 @@
             </tr>
             <tr>
               <td>음질·ANC</td>
-              <td>업계 표준 — Sony는 LDAC + 클래스 최고 ANC, Bose는 Immersive Audio</td>
+              <td>업계 표준 — LDAC + 클래스 최고 ANC, 360 Reality Audio</td>
               <td>BudsAI 자체는 HW 무관 — Buds Pro 후속 HW 라인업이 동등 수준 제공</td>
             </tr>
             <tr>
@@ -779,7 +619,7 @@
         </table>
       </div>
 
-      <h3>4.6 vs Nothing Ear (ChatGPT)</h3>
+      <h3>4.4 vs Nothing Ear (ChatGPT)</h3>
       <div class="table-wrap">
         <table>
           <thead>
@@ -805,7 +645,33 @@
         </table>
       </div>
 
-      <h3>4.7 vs Meta Ray-Ban (스마트글래스 · 카테고리 비교)</h3>
+      <h3>4.5 vs Timekettle WT2 Edge / M3 (통역 특화)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th style="width:30%;">축</th><th>Timekettle</th><th>BudsAI</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>기능 폭</td>
+              <td>번역 1개에 깊이 집중. 화자 분리·카드 모드 등 통역 UX 최강</td>
+              <td>번역은 8 의도 중 하나. 통역 깊이는 동등 수준, 단 "번역에만 쓰는 기기"라는 한계는 없음</td>
+            </tr>
+            <tr>
+              <td>호스트</td>
+              <td>전용 앱 + 클라우드 STT/MT 필수</td>
+              <td>앱 0, 호스트 무관</td>
+            </tr>
+            <tr>
+              <td>구매 동기</td>
+              <td>"비즈니스 통역" 1회성 페르소나</td>
+              <td>매일 청취 흐름 어느 순간이든 묻기 — 일상 디바이스</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.6 vs Meta Ray-Ban (스마트글래스 · 카테고리 비교)</h3>
       <div class="table-wrap">
         <table>
           <thead>
@@ -836,20 +702,20 @@
     <!-- =================================================== -->
     <section id="unique">
       <h2>5. BudsAI만의 본질적 강점 5가지</h2>
-      <p>위 11종 모두를 통틀어 BudsAI만 단독으로 만족하는 항목을 5개로 압축했습니다.</p>
+      <p>위 6종 모두를 통틀어 BudsAI만 단독으로 만족하는 항목을 5개로 압축했습니다.</p>
 
       <ol class="steps">
         <li>
           <strong>①  "이미 들은 사운드"가 컨텍스트</strong><br/>
-          <span class="dim">11종 중 BudsAI 하나만 출력 사운드 링버퍼를 유지함. AirPods/Buds/Pixel/Nothing 모두 사용자가 질문하는 시점부터의 마이크 입력만 사용 → "방금 그 노래"를 묻기 위해 다시 마이크에 들이대거나 별도 앱(Shazam)을 열어야 함. BudsAI는 그 단계가 사라짐.</span>
+          <span class="dim">6종 중 BudsAI 하나만 출력 사운드 링버퍼를 유지함. Buds4 Pro/AirPods/Sony/Nothing 모두 사용자가 질문하는 시점부터의 마이크 입력만 사용 → "방금 그 노래"를 묻기 위해 다시 마이크에 들이대거나 별도 앱(Shazam)을 열어야 함. BudsAI는 그 단계가 사라짐.</span>
         </li>
         <li>
           <strong>② 8+ 의도를 같은 인터랙션으로</strong><br/>
-          <span class="dim">Timekettle은 번역만, Shazam은 식별만, Buds3 Pro는 통역 메뉴 분리. BudsAI는 자연어 한 마디로 식별·전사·요약·사전·번역·분류·검색·추천을 의도 분류기가 자동 라우팅 → 사용자가 "어느 기능을 켜야 하지" 고민 없음.</span>
+          <span class="dim">Timekettle은 번역만, Shazam은 식별만, Buds4 Pro는 통역 메뉴 분리. BudsAI는 자연어 한 마디로 식별·전사·요약·사전·번역·분류·검색·추천을 의도 분류기가 자동 라우팅 → 사용자가 "어느 기능을 켜야 하지" 고민 없음.</span>
         </li>
         <li>
           <strong>③ 호스트 무관 · 앱 설치 0</strong><br/>
-          <span class="dim">AirPods는 iPhone, Buds3는 Galaxy, Pixel Buds는 Pixel, Nothing은 Nothing Phone에 종속. BudsAI는 OS 빌트인 BT PAN 토글 한 번이면 노트북·MP3·TV·차량·eSIM 동글에서도 동일하게 동작 → 진입 마찰 0.</span>
+          <span class="dim">AirPods는 iPhone, Buds4 Pro는 Galaxy, Nothing은 Nothing Phone, Timekettle은 전용 앱, Ray-Ban Meta는 Meta AI 앱에 종속. BudsAI는 OS 빌트인 BT PAN 토글 한 번이면 노트북·MP3·TV·차량·eSIM 동글에서도 동일하게 동작 → 진입 마찰 0.</span>
         </li>
         <li>
           <strong>④ 버즈 종단 mTLS — 호스트는 페이로드 못 봄</strong><br/>
@@ -857,7 +723,7 @@
         </li>
         <li>
           <strong>⑤ 세션 컨텍스트 자연 연속 대화</strong><br/>
-          <span class="dim">"이 노래 누구야?" → "근데 가사도" → "그럼 비슷한 곡 추천해줘"가 PrevSessionID 메타로 한 흐름에 묶임. Gemini Live가 유사하지만 듣던 사운드 트랙은 없음. BudsAI는 직전 오디오 + 누적 의도 두 축이 동시에 살아 있음.</span>
+          <span class="dim">"이 노래 누구야?" → "근데 가사도" → "그럼 비슷한 곡 추천해줘"가 PrevSessionID 메타로 한 흐름에 묶임. BudsAI는 직전 오디오 + 누적 의도 두 축이 동시에 살아 있음.</span>
         </li>
       </ol>
 
@@ -877,9 +743,8 @@
 
         <div class="radar-item">
           <h4>축 1 · 듣던 사운드 컨텍스트</h4>
+          <div class="score-row">Buds4 Pro <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">AirPods Pro 2 <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
-          <div class="score-row">Buds3 Pro <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
-          <div class="score-row">Pixel Buds Pro 2 <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">Sony XM5 <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">Nothing Ear <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">Timekettle <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
@@ -889,9 +754,8 @@
 
         <div class="radar-item">
           <h4>축 2 · 음성 의도 자유도</h4>
+          <div class="score-row">Buds4 Pro <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
           <div class="score-row">AirPods Pro 2 <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
-          <div class="score-row">Buds3 Pro <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
-          <div class="score-row">Pixel Buds Pro 2 <span><strong>5</strong><span class="bar dim"><span style="width:100%"></span></span></span></div>
           <div class="score-row">Sony XM5 <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
           <div class="score-row">Nothing Ear <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
           <div class="score-row">Timekettle <span><strong>1</strong><span class="bar dim"><span style="width:20%"></span></span></span></div>
@@ -901,9 +765,8 @@
 
         <div class="radar-item">
           <h4>축 3 · 호스트 호환성</h4>
+          <div class="score-row">Buds4 Pro <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
           <div class="score-row">AirPods Pro 2 <span><strong>1</strong><span class="bar dim"><span style="width:20%"></span></span></span></div>
-          <div class="score-row">Buds3 Pro <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
-          <div class="score-row">Pixel Buds Pro 2 <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
           <div class="score-row">Sony XM5 <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
           <div class="score-row">Nothing Ear <span><strong>1</strong><span class="bar dim"><span style="width:20%"></span></span></span></div>
           <div class="score-row">Timekettle <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
@@ -913,9 +776,8 @@
 
         <div class="radar-item">
           <h4>축 4 · 앱 비종속 (Zero-Install)</h4>
+          <div class="score-row">Buds4 Pro <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">AirPods Pro 2 <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
-          <div class="score-row">Buds3 Pro <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
-          <div class="score-row">Pixel Buds Pro 2 <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">Sony XM5 <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">Nothing Ear <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
           <div class="score-row">Timekettle <span><strong>0</strong><span class="bar dim"><span style="width:0%"></span></span></span></div>
@@ -925,9 +787,8 @@
 
         <div class="radar-item">
           <h4>축 5 · 보안 (E2E mTLS / Dumb Pipe)</h4>
+          <div class="score-row">Buds4 Pro <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
           <div class="score-row">AirPods Pro 2 <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
-          <div class="score-row">Buds3 Pro <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
-          <div class="score-row">Pixel Buds Pro 2 <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
           <div class="score-row">Sony XM5 <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
           <div class="score-row">Nothing Ear <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
           <div class="score-row">Timekettle <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
@@ -937,12 +798,11 @@
 
         <div class="radar-item">
           <h4>축 6 · 음질 / ANC (HW 의존)</h4>
+          <div class="score-row">Buds4 Pro <span><strong>4</strong><span class="bar dim"><span style="width:80%"></span></span></span></div>
           <div class="score-row">AirPods Pro 2 <span><strong>5</strong><span class="bar dim"><span style="width:100%"></span></span></span></div>
-          <div class="score-row">Buds3 Pro <span><strong>4</strong><span class="bar dim"><span style="width:80%"></span></span></span></div>
-          <div class="score-row">Pixel Buds Pro 2 <span><strong>4</strong><span class="bar dim"><span style="width:80%"></span></span></span></div>
           <div class="score-row">Sony XM5 <span><strong>5</strong><span class="bar dim"><span style="width:100%"></span></span></span></div>
-          <div class="score-row">Bose QC Ultra <span><strong>5</strong><span class="bar dim"><span style="width:100%"></span></span></span></div>
           <div class="score-row">Nothing Ear <span><strong>3</strong><span class="bar dim"><span style="width:60%"></span></span></span></div>
+          <div class="score-row">Timekettle <span><strong>1</strong><span class="bar dim"><span style="width:20%"></span></span></span></div>
           <div class="score-row">Ray-Ban Meta <span><strong>2</strong><span class="bar dim"><span style="width:40%"></span></span></span></div>
           <div class="score-row self">BudsAI <span><strong>4</strong><span class="bar"><span style="width:80%"></span></span></span></div>
         </div>
@@ -962,7 +822,7 @@
 
       <div class="callout">
         <strong>경쟁사 묘사 한 줄</strong><br/>
-        Apple은 <em>"iPhone에 강하게 묶인 AI 비서"</em>, Samsung은 <em>"Galaxy 종속 통역 머신"</em>, Google은 <em>"안드로이드 한정 Gemini 단말"</em>, Sony/Bose는 <em>"음질 정통파"</em>, Nothing은 <em>"폰 단축키"</em>, Timekettle은 <em>"통역 외길"</em>, Meta는 <em>"시각 컨텍스트 AI"</em>.
+        Samsung Buds4 Pro는 <em>"Galaxy 종속 통역 머신"</em>, Apple은 <em>"iPhone에 묶인 AI 비서"</em>, Sony는 <em>"AI 없는 음질 정통파"</em>, Nothing은 <em>"폰 단축키"</em>, Timekettle은 <em>"통역 외길"</em>, Meta는 <em>"시각 컨텍스트 AI"</em>.
       </div>
 
       <div class="callout" style="border-color:var(--accent); background:rgba(94, 234, 212, 0.1);">
@@ -972,6 +832,72 @@
 
       <h3>제안서로 돌아가기</h3>
       <p>이 비교는 제안서 5절 "차별화 포인트"의 확장판입니다. 본 비교의 모든 항목은 <a href="appendix.html">기술 부록</a>에서 구현 근거를 확인할 수 있습니다.</p>
+    </section>
+
+    <section id="refs">
+      <h2>8. 검증 출처 (Sources)</h2>
+      <p>각 제품 정보의 1차 출처(제조사 공식)와 2차 출처(독립 리뷰)를 분리해 정리했습니다. 2026-05-27 기준.</p>
+
+      <h3>Samsung Galaxy Buds3 Pro / Buds4 Pro</h3>
+      <ul>
+        <li><a href="https://www.samsung.com/us/mobile-audio/galaxy-buds3-pro/" target="_blank" rel="noopener">Samsung 공식 — Galaxy Buds3 Pro 스펙</a></li>
+        <li><a href="https://www.samsung.com/us/support/answer/ANS10003613/" target="_blank" rel="noopener">Samsung Support — Galaxy AI on Buds3 (Interpreter)</a></li>
+        <li><a href="https://www.engadget.com/samsung-galaxy-buds-3-and-galaxy-buds-3-pro-review-airpods-clones-that-actually-deliver-171024116.html" target="_blank" rel="noopener">Engadget — Buds3 Pro 리뷰 (ANC 평가 포함)</a></li>
+        <li><a href="https://www.soundguys.com/samsung-galaxy-buds3-pro-review-119540/" target="_blank" rel="noopener">SoundGuys — Buds3 Pro 측정 리뷰</a></li>
+        <li><a href="https://www.geeky-gadgets.com/samsung-galaxy-buds-4-pro-leaked/" target="_blank" rel="noopener">Geeky Gadgets — Buds4 Pro 출시 정보 (2026-03-11, ~$249)</a></li>
+      </ul>
+
+      <h3>Apple AirPods Pro 2 (USB-C, Apple Intelligence)</h3>
+      <ul>
+        <li><a href="https://support.apple.com/en-us/111834" target="_blank" rel="noopener">Apple 공식 — AirPods Pro 2 기술 사양</a></li>
+        <li><a href="https://support.apple.com/en-us/123185" target="_blank" rel="noopener">Apple — Live Translation with AirPods</a></li>
+        <li><a href="https://support.apple.com/en-us/121115" target="_blank" rel="noopener">Apple — Apple Intelligence 디바이스 요구사항 (iPhone 15 Pro+)</a></li>
+        <li><a href="https://9to5mac.com/2025/10/01/live-translation-airpods-compatibility/" target="_blank" rel="noopener">9to5Mac — Live Translation 호환성 분석</a></li>
+        <li><a href="https://www.notebookcheck.net/Apple-clarifies-lack-of-high-definition-Bluetooth-codec-support-for-AirPods-Max-and-AirPods-Pro-2.670484.0.html" target="_blank" rel="noopener">Notebookcheck — Apple의 AAC-only 정책 해명</a></li>
+        <li><a href="https://www.howtogeek.com/699639/how-to-identify-music-with-your-iphone-or-ipad/" target="_blank" rel="noopener">How-To Geek — Siri 내장 Shazam 기능 (iOS 14.2+)</a></li>
+      </ul>
+
+      <h3>Sony WF-1000XM5</h3>
+      <ul>
+        <li><a href="https://helpguide.sony.net/mdr/2963/v1/en/contents/TP1000781984.html" target="_blank" rel="noopener">Sony 공식 Help Guide — 지원 코덱 (LDAC/AAC/SBC)</a></li>
+        <li><a href="https://www.sony-asia.com/electronics/support/wireless-headphones-bluetooth-headphones/wf-1000xm5/specifications" target="_blank" rel="noopener">Sony Asia 공식 — WF-1000XM5 스펙</a></li>
+        <li><a href="https://www.rtings.com/headphones/reviews/sony/wf-1000xm5-truly-wireless" target="_blank" rel="noopener">RTINGS — WF-1000XM5 측정 리뷰</a></li>
+        <li><a href="https://www.soundguys.com/sony-wf-1000xm5-review-95465/" target="_blank" rel="noopener">SoundGuys — WF-1000XM5 측정 리뷰 (Speak-to-Chat 포함)</a></li>
+        <li><a href="https://www.stuff.tv/review/sony-wf-1000xm5-review/" target="_blank" rel="noopener">Stuff — WF-1000XM5 리뷰</a></li>
+      </ul>
+
+      <h3>Nothing Ear (2024) / Ear (a)</h3>
+      <ul>
+        <li><a href="https://www.androidpolice.com/nothing-earbuds-gain-chatgpt-integration-big-catch/" target="_blank" rel="noopener">Android Police — ChatGPT 통합과 Nothing Phone 한정 제약</a></li>
+        <li><a href="https://www.bgr.com/tech/nothing-ear-earbuds-let-you-speak-to-chatgpt-but-only-if-you-have-the-right-phone/" target="_blank" rel="noopener">BGR — "Nothing Phone 없으면 ChatGPT 사망"</a></li>
+        <li><a href="https://www.soundguys.com/nothing-ear-review-114404/" target="_blank" rel="noopener">SoundGuys — Nothing Ear 측정 리뷰 (LDAC, ANC 45dB)</a></li>
+        <li><a href="https://www.tomsguide.com/audio/earbuds/nothing-ear" target="_blank" rel="noopener">Tom's Guide — Nothing Ear 리뷰</a></li>
+        <li><a href="https://www.soundguys.com/chatgpt-nothing-ear-121136/" target="_blank" rel="noopener">SoundGuys — ChatGPT 통합 핸즈온</a></li>
+      </ul>
+
+      <h3>Timekettle WT2 Edge / M3</h3>
+      <ul>
+        <li><a href="https://www.timekettle.co/products/wt2-edge-online-voice-language-translator-earbuds" target="_blank" rel="noopener">Timekettle 공식 — WT2 Edge</a></li>
+        <li><a href="https://www.timekettle.co/products/m3-travel-translator-earbuds" target="_blank" rel="noopener">Timekettle 공식 — M3 (3-in-1: 번역+음악+통화)</a></li>
+        <li><a href="https://www.timekettle.co/pages/m3" target="_blank" rel="noopener">Timekettle M3 페이지 — 30dB ANC 사양</a></li>
+        <li><a href="https://www.techradar.com/reviews/timekettle-wt2-edge-ai-translator-earbuds" target="_blank" rel="noopener">TechRadar — WT2 Edge 리뷰</a></li>
+        <li><a href="https://www.stuff.tv/review/timekettle-m3-translator-earbuds-review/" target="_blank" rel="noopener">Stuff — M3 리뷰</a></li>
+        <li><a href="https://www.notebookcheck.net/The-Timekettle-WT2-Edge-real-time-translator-earbuds-actually-work-but-they-have-their-limitations.684445.0.html" target="_blank" rel="noopener">Notebookcheck — WT2 Edge 실사용 지연 측정</a></li>
+      </ul>
+
+      <h3>Ray-Ban Meta (Gen 2, Meta AI 앱)</h3>
+      <ul>
+        <li><a href="https://www.meta.com/blog/ray-ban-meta-ai-glasses-new-companion-app/" target="_blank" rel="noopener">Meta Blog — Meta View → Meta AI 앱 리브랜드 (2025-04-29)</a></li>
+        <li><a href="https://www.meta.com/blog/ray-ban-meta-v11-software-update-live-ai-translation-shazam/" target="_blank" rel="noopener">Meta Blog — v11 업데이트 (Live AI · Translation · Shazam 통합)</a></li>
+        <li><a href="https://www.ray-ban.com/usa/l/discover-ray-ban-meta-ai-glasses" target="_blank" rel="noopener">Ray-Ban 공식 — 스펙 (오픈 이어 · 12MP 카메라)</a></li>
+        <li><a href="https://www.tomsguide.com/computing/smart-glasses/ray-ban-meta-gen-2-review" target="_blank" rel="noopener">Tom's Guide — Ray-Ban Meta Gen 2 리뷰</a></li>
+        <li><a href="https://www.androidcentral.com/wearables/ray-ban-meta-gen-2-review" target="_blank" rel="noopener">Android Central — Gen 2 리뷰 (지연·인터럽션 평가)</a></li>
+      </ul>
+
+      <div class="callout warn" style="margin-top:24px;">
+        <strong>주의 — 출처가 약한 항목</strong><br/>
+        매트릭스의 <strong>"종단간 응답 지연"</strong> 행 수치(BudsAI ~3s 외 모두)는 권위 있는 측정 출처가 부재합니다. 마케팅 발표·핸즈온 인상 평·일반 LLM 응답 패턴을 종합한 추정이며 실제 측정값과 다를 수 있습니다.
+      </div>
     </section>
 
     <nav class="pager">

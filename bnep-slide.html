@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BT 테더링 & BNEP — 한 장 정리 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============ White deck override (compare-slides와 동일 톤) ============ */
+    body.is-deck-light {
+      background: #ffffff;
+      color: #111827;
+      font-family: var(--sans);
+    }
+    body.is-deck-light .site-header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    body.is-deck-light .nav a { color: #4b5563; }
+    body.is-deck-light .nav a:hover { background: #f3f4f6; color: #111827; }
+    body.is-deck-light .nav a.active {
+      background: #ccfbf1;
+      color: #0d9488;
+    }
+    body.is-deck-light .logo { color: #111827; }
+    body.is-deck-light .logo-mark {
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: white;
+    }
+    body.is-deck-light .site-footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+    body.is-deck-light .site-footer .page-mark { color: #0d9488; }
+    body.is-deck-light .pager { border-color: #e5e7eb; }
+    body.is-deck-light .pager a { color: #111827; }
+    body.is-deck-light .pager-label { color: #6b7280; }
+
+    .deck {
+      --c-bg: #ffffff;
+      --c-bg-soft: #f9fafb;
+      --c-bg-elev: #f3f4f6;
+      --c-border: #e5e7eb;
+      --c-border-strong: #d1d5db;
+      --c-text: #111827;
+      --c-text-dim: #4b5563;
+      --c-text-muted: #6b7280;
+      --c-accent: #0d9488;
+      --c-accent-dim: #14b8a6;
+      --c-accent-soft: #ccfbf1;
+      --c-accent-bg: #f0fdfa;
+      --c-warn: #b45309;
+      --c-warn-soft: #fef3c7;
+      --c-danger: #b91c1c;
+      --c-danger-soft: #fee2e2;
+      --c-blue: #1d4ed8;
+      --c-blue-soft: #dbeafe;
+      --c-blue-bg: #eff6ff;
+      --c-violet: #6d28d9;
+      --c-violet-soft: #ede9fe;
+    }
+
+    .deck-main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 28px 60px;
+      background: var(--c-bg);
+      color: var(--c-text);
+    }
+    .deck-intro {
+      padding: 8px 0 14px;
+      border-bottom: 1px solid var(--c-border);
+      margin-bottom: 16px;
+    }
+    .deck-intro h1 { font-size: 19px; margin-bottom: 4px; color: var(--c-text); font-weight: 700; }
+    .deck-intro p { color: var(--c-text-dim); font-size: 13px; margin: 0; }
+
+    /* ============ Slide ============ */
+    .slide {
+      min-height: 92vh;
+      padding: 28px 32px 24px;
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      background: var(--c-bg);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      margin-bottom: 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .slide-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .slide-num {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--c-text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .slide-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--c-text);
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    .slide-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--c-accent);
+      background: var(--c-accent-soft);
+      padding: 4px 9px;
+      border-radius: 4px;
+    }
+    .slide-lead {
+      font-size: 13px;
+      color: var(--c-text-dim);
+      margin: 0 0 16px;
+      line-height: 1.55;
+    }
+
+    /* ============ Two-column grid ============ */
+    .bnep-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 18px;
+      flex: 1;
+    }
+    @media (max-width: 1024px) {
+      .bnep-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===== LEFT: definitions ===== */
+    .defs { display: flex; flex-direction: column; gap: 12px; }
+    .def-card {
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: var(--c-bg-soft);
+    }
+    .def-card.accent {
+      border-color: var(--c-accent-dim);
+      background: var(--c-accent-bg);
+    }
+    .def-card h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--c-text);
+      margin: 0 0 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .def-card.accent h3 { color: var(--c-accent); }
+    .def-card .key {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--c-text-muted);
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      letter-spacing: 0.04em;
+    }
+    .def-card p {
+      font-size: 12px;
+      color: var(--c-text-dim);
+      line-height: 1.55;
+      margin: 0 0 6px;
+    }
+    .def-card p:last-child { margin-bottom: 0; }
+    .def-card .facts {
+      list-style: none;
+      padding: 0;
+      margin: 6px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .def-card .facts li {
+      font-size: 11.5px;
+      color: var(--c-text);
+      padding-left: 12px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .def-card .facts li::before {
+      content: "·";
+      position: absolute;
+      left: 4px;
+      color: var(--c-accent);
+      font-weight: 900;
+    }
+    .def-card .facts code {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      background: white;
+      border: 1px solid var(--c-border);
+      border-radius: 3px;
+      padding: 0 4px;
+      color: var(--c-violet);
+    }
+
+    /* ===== RIGHT: packet flow ===== */
+    .flow { display: flex; flex-direction: column; gap: 14px; }
+
+    .flow-section {
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      background: white;
+      padding: 12px 14px;
+    }
+    .flow-section.out { border-left: 3px solid var(--c-accent); }
+    .flow-section.in  { border-left: 3px solid var(--c-blue); }
+    .flow-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--c-border);
+    }
+    .flow-head h3 {
+      font-size: 13.5px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--c-text);
+    }
+    .flow-section.out .flow-head h3 .arrow { color: var(--c-accent); }
+    .flow-section.in  .flow-head h3 .arrow { color: var(--c-blue); }
+    .flow-head .meta {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--c-text-muted);
+    }
+
+    /* Layered packet pipeline */
+    .pipe {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      align-items: stretch;
+    }
+    .pipe-step {
+      border: 1px solid var(--c-border);
+      border-radius: 6px;
+      padding: 8px 9px;
+      background: var(--c-bg-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      position: relative;
+    }
+    .pipe-step .who {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: 0.05em;
+      color: var(--c-text-muted);
+      text-transform: uppercase;
+    }
+    .pipe-step .verb {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--c-text);
+      line-height: 1.35;
+    }
+
+    /* The little packet stack inside each step */
+    .pkt {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      font-family: var(--mono);
+      font-size: 9px;
+      line-height: 1.2;
+    }
+    .pkt .lyr {
+      padding: 2px 4px;
+      border-radius: 2px;
+      border: 1px solid transparent;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+    .pkt .lyr.payload  { background: #fde68a; border-color: #f59e0b; color: #78350f; }
+    .pkt .lyr.tcp      { background: #fecaca; border-color: #ef4444; color: #7f1d1d; }
+    .pkt .lyr.ip       { background: #c7d2fe; border-color: #6366f1; color: #3730a3; }
+    .pkt .lyr.eth      { background: #bbf7d0; border-color: #22c55e; color: #14532d; }
+    .pkt .lyr.bnep     { background: #fbcfe8; border-color: #ec4899; color: #831843; }
+    .pkt .lyr.l2cap    { background: #ddd6fe; border-color: #8b5cf6; color: #4c1d95; }
+    .pkt .lyr.hci      { background: #e5e7eb; border-color: #9ca3af; color: #374151; }
+    .pkt .lyr.wifi     { background: #cffafe; border-color: #06b6d4; color: #155e75; }
+    .pkt .lyr.lte      { background: #fed7aa; border-color: #f97316; color: #7c2d12; }
+    .pkt .lyr.ghost    {
+      background: white;
+      border: 1px dashed var(--c-border);
+      color: var(--c-text-muted);
+      text-decoration: line-through;
+    }
+    .pkt .note {
+      font-family: var(--sans);
+      font-size: 10px;
+      color: var(--c-text-dim);
+      margin-top: 2px;
+      line-height: 1.35;
+    }
+
+    .pipe-step .arrow {
+      position: absolute;
+      right: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--c-accent);
+      font-size: 14px;
+      z-index: 2;
+      font-weight: 900;
+    }
+    .flow-section.in .pipe-step .arrow {
+      color: var(--c-blue);
+      right: auto;
+      left: -7px;
+      transform: translateY(-50%) rotate(180deg);
+    }
+    .pipe-step:last-child .arrow { display: none; }
+    .flow-section.in .pipe-step:first-child .arrow { display: none; }
+    .flow-section.in .pipe-step:last-child .arrow {
+      display: block;
+      right: auto;
+      left: -7px;
+    }
+
+    /* The BNEP "magic" step gets a highlight ring */
+    .pipe-step.bnep-zone {
+      background: #fff7ed;
+      border-color: #fb923c;
+      box-shadow: 0 0 0 2px rgba(251,146,60,0.15);
+    }
+    .pipe-step.bnep-zone .who { color: #c2410c; }
+
+    /* The kernel/NAT step */
+    .pipe-step.kernel-zone {
+      background: #f5f3ff;
+      border-color: #a78bfa;
+    }
+    .pipe-step.kernel-zone .who { color: var(--c-violet); }
+
+    /* ============ Bottom callout ============ */
+    .tldr {
+      margin-top: 14px;
+      background: var(--c-accent-bg);
+      border: 1px solid var(--c-accent-dim);
+      border-left: 3px solid var(--c-accent);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #064e3b;
+      line-height: 1.55;
+    }
+    .tldr strong { color: var(--c-accent); }
+    .tldr code {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: white;
+      border: 1px solid var(--c-accent-dim);
+      border-radius: 3px;
+      padding: 0 4px;
+      color: var(--c-accent);
+    }
+
+    /* Print */
+    @media print {
+      body.is-deck-light { background: white; }
+      .site-header, .site-footer, .pager, .deck-intro { display: none; }
+      .slide { border: none; box-shadow: none; page-break-after: avoid; margin: 0; min-height: auto; }
+      .deck-main { padding: 0 !important; max-width: none !important; }
+    }
+  </style>
+</head>
+<body class="is-deck-light">
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="compare.html">타사 비교</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="appendix.html" class="active">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="deck-main deck">
+
+    <div class="deck-intro">
+      <h1>BT 테더링 & BNEP — 한 장 정리</h1>
+      <p>BT 테더링이 뭔지, BNEP가 어디서 패킷을 까서 어디까지 다시 포장하는지, 양방향을 한 장에.</p>
+    </div>
+
+    <section class="slide">
+      <div class="slide-meta">
+        <span class="slide-num">01 / 01</span>
+        <h2 class="slide-title">버즈가 쏜 패킷이 인터넷에 닿기까지 — BNEP의 까기와 다시 싸기</h2>
+        <span class="slide-tag">BNEP · PAN</span>
+      </div>
+      <p class="slide-lead">
+        BNEP는 통역사가 아니라 <strong>택배 포장 전문가</strong>다. L3(IP) 위는 한 번도 안 보고, 이더넷 프레임만 골라 BT 위에 싣는다. 라우팅·NAT은 OS 커널이 한다.
+      </p>
+
+      <div class="bnep-grid">
+
+        <!-- ============= LEFT: definitions ============= -->
+        <div class="defs">
+
+          <div class="def-card">
+            <h3>BT 테더링이란? <span class="key">PAN profile</span></h3>
+            <p>
+              폰/PC가 자기가 가진 인터넷 회선(LTE·Wi-Fi·이더넷 등)을 <strong>BT 링크를 타고</strong> 옆 디바이스에 빌려주는 것.
+              표준 이름은 <strong>Bluetooth PAN</strong>이고, 빌려주는 쪽이 NAP, 빌려쓰는 쪽이 PANU.
+            </p>
+            <ul class="facts">
+              <li>버즈 = <code>PANU</code> (UUID <code>0x1115</code>)</li>
+              <li>호스트 = <code>NAP</code> (UUID <code>0x1116</code>)</li>
+              <li>2003년 BT 1.1부터 표준, OS 빌트인 — 앱 설치 0</li>
+            </ul>
+          </div>
+
+          <div class="def-card accent">
+            <h3>BNEP가 정확히 뭘 하나? <span class="key">L2CAP PSM 0x000F</span></h3>
+            <p>
+              <strong>이더넷 프레임을 BT L2CAP 채널에 캡슐화</strong>하는 한 줄짜리 프로토콜.
+              "OS의 가짜 NIC ↔ BT 라디오" 사이를 잇는 통역 어댑터다.
+            </p>
+            <ul class="facts">
+              <li>입력: <code>DST MAC · SRC MAC · EtherType · payload</code></li>
+              <li>출력: <code>BNEP type(1B) · EtherType(2B) · payload</code></li>
+              <li>두 피어만 있을 땐 MAC 12B 통째로 생략 → <strong>Type 0x02 압축</strong></li>
+              <li>옵션: <code>NetTypeFilter</code>(IPv4/ARP만 통과) — 펌웨어 RAM 절약</li>
+              <li>BNEP는 <strong>IP를 모른다</strong>. 이더넷 페이로드는 안 까봄.</li>
+            </ul>
+          </div>
+
+          <div class="def-card">
+            <h3>왜 이게 중요한가</h3>
+            <p>
+              OS 커널은 BNEP 위에 떠 있는 가짜 NIC(<code class="key" style="background:white">bnep0</code>)를 <strong>그냥 LAN 카드</strong>로 인식한다.
+              그 위에서 평소 쓰던 라우팅·NAT·iptables·TCP/IP가 그대로 돈다.
+              버즈가 보낸 mTLS 핸드셰이크가 손도 안 대고 인터넷으로 나가는 이유.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- ============= RIGHT: packet flow ============= -->
+        <div class="flow">
+
+          <!-- ===== OUTBOUND ===== -->
+          <div class="flow-section out">
+            <div class="flow-head">
+              <h3>OUTBOUND <span class="arrow">▶</span> 버즈 → 호스트 → 인터넷</h3>
+              <span class="meta">Buds emits Opus / mTLS / etc.</span>
+            </div>
+
+            <div class="pipe">
+
+              <!-- Step 1: Buds app -->
+              <div class="pipe-step">
+                <div class="who">① Buds App / lwIP</div>
+                <div class="verb">앱이 TCP write → lwIP가 L4·L3·L2까지 싼다</div>
+                <div class="pkt">
+                  <div class="lyr eth">Eth (dst=Host, src=Buds)</div>
+                  <div class="lyr ip">IP (src=192.168.44.2)</div>
+                  <div class="lyr tcp">TCP / TLS</div>
+                  <div class="lyr payload">Opus payload</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 2: Buds BNEP TX -->
+              <div class="pipe-step bnep-zone">
+                <div class="who">② Buds BNEP (TX)</div>
+                <div class="verb">MAC 12B를 떼고 Type 0x02로 압축, L2CAP에 실음</div>
+                <div class="pkt">
+                  <div class="lyr l2cap">L2CAP (PSM=0x000F)</div>
+                  <div class="lyr bnep">BNEP type=0x02</div>
+                  <div class="lyr ghost">— MAC 12B drop —</div>
+                  <div class="lyr ip">IP</div>
+                  <div class="lyr tcp">TCP / TLS</div>
+                  <div class="lyr payload">Opus</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 3: Host BNEP RX -->
+              <div class="pipe-step bnep-zone">
+                <div class="who">③ Host BNEP (RX)</div>
+                <div class="verb">BNEP 헤더 떼고 <strong>MAC 12B 복원</strong> → 완전한 이더넷 프레임</div>
+                <div class="pkt">
+                  <div class="lyr eth">Eth (복원됨)</div>
+                  <div class="lyr ip">IP src=192.168.44.2</div>
+                  <div class="lyr tcp">TCP / TLS</div>
+                  <div class="lyr payload">Opus</div>
+                  <div class="note">→ 가짜 NIC <code>bnep0</code>로 RX</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 4: Host kernel NAT -->
+              <div class="pipe-step kernel-zone">
+                <div class="who">④ Host Kernel · NAT</div>
+                <div class="verb">netfilter MASQUERADE — src IP/port를 호스트 WAN으로 재작성</div>
+                <div class="pkt">
+                  <div class="lyr eth">Eth (다음 hop MAC)</div>
+                  <div class="lyr ip">IP src=호스트 WAN</div>
+                  <div class="lyr tcp">TCP (port rewrite)</div>
+                  <div class="lyr payload">Opus</div>
+                  <div class="note">→ <code>wlan0</code> / <code>rmnet0</code>으로 routing</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 5: Out over WiFi/LTE -->
+              <div class="pipe-step">
+                <div class="who">⑤ WAN PHY</div>
+                <div class="verb">Wi-Fi(802.11) 또는 LTE(PDCP/RLC/MAC)로 송출</div>
+                <div class="pkt">
+                  <div class="lyr wifi">802.11 / </div>
+                  <div class="lyr lte">LTE PDCP·RLC·MAC</div>
+                  <div class="lyr ip">IP src=WAN</div>
+                  <div class="lyr tcp">TCP / TLS</div>
+                  <div class="lyr payload">Opus → 인터넷</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ===== INBOUND ===== -->
+          <div class="flow-section in">
+            <div class="flow-head">
+              <h3>INBOUND <span class="arrow">◀</span> 인터넷 → 호스트 → 버즈</h3>
+              <span class="meta">서버 응답 / 푸시 등</span>
+            </div>
+
+            <div class="pipe">
+
+              <!-- Step 1: WAN PHY -->
+              <div class="pipe-step">
+                <div class="who">① WAN PHY</div>
+                <div class="verb">호스트 WAN IP로 도착, 커널이 받음</div>
+                <div class="pkt">
+                  <div class="lyr wifi">802.11 / </div>
+                  <div class="lyr lte">LTE</div>
+                  <div class="lyr ip">IP dst=호스트 WAN</div>
+                  <div class="lyr tcp">TCP / TLS</div>
+                  <div class="lyr payload">server payload</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 2: Kernel reverse NAT -->
+              <div class="pipe-step kernel-zone">
+                <div class="who">② Host Kernel · 역 NAT</div>
+                <div class="verb">conntrack이 dst IP/port를 PANU(버즈)로 되돌림</div>
+                <div class="pkt">
+                  <div class="lyr ip">IP dst=192.168.44.2</div>
+                  <div class="lyr tcp">TCP (원래 port)</div>
+                  <div class="lyr payload">server payload</div>
+                  <div class="note">→ <code>bnep0</code>로 routing</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 3: Host BNEP TX -->
+              <div class="pipe-step bnep-zone">
+                <div class="who">③ Host BNEP (TX)</div>
+                <div class="verb">이더넷 프레임을 만들어(dst=Buds MAC) 압축 → BNEP·L2CAP에 싣음</div>
+                <div class="pkt">
+                  <div class="lyr l2cap">L2CAP (PSM=0x000F)</div>
+                  <div class="lyr bnep">BNEP type=0x02</div>
+                  <div class="lyr ghost">— MAC 12B drop —</div>
+                  <div class="lyr ip">IP dst=Buds</div>
+                  <div class="lyr tcp">TCP / TLS</div>
+                  <div class="lyr payload">server payload</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 4: Buds BNEP RX -->
+              <div class="pipe-step bnep-zone">
+                <div class="who">④ Buds BNEP (RX)</div>
+                <div class="verb">L2CAP·BNEP 헤더 제거, <strong>MAC 12B 복원</strong>, lwIP에 enqueue</div>
+                <div class="pkt">
+                  <div class="lyr eth">Eth (복원됨)</div>
+                  <div class="lyr ip">IP dst=Buds</div>
+                  <div class="lyr tcp">TCP / TLS</div>
+                  <div class="lyr payload">server payload</div>
+                </div>
+                <span class="arrow">▶</span>
+              </div>
+
+              <!-- Step 5: Buds app -->
+              <div class="pipe-step">
+                <div class="who">⑤ Buds App / lwIP</div>
+                <div class="verb">L3·L4 디캡 → 소켓 read로 앱에 도달</div>
+                <div class="pkt">
+                  <div class="lyr ghost">Eth</div>
+                  <div class="lyr ghost">IP</div>
+                  <div class="lyr ghost">TCP / TLS</div>
+                  <div class="lyr payload">server payload</div>
+                  <div class="note">앱은 BT 위에 있다는 사실을 모름</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="tldr">
+        <strong>TL;DR</strong> — BNEP는 <strong>L2(이더넷) 캡슐화만</strong> 한다. 헤더 떼고(<code>MAC 12B</code> drop) 다시 붙이는 게 전부.
+        라우팅·NAT·TCP는 호스트 OS 커널이 평소처럼 처리한다. 그래서 버즈 코드는 "어디로 가는지" 신경 안 써도 되고, 호스트는 BT인지 LAN인지 구분 없이 같은 iptables 룰을 쓴다.
+        이게 BudsAI가 <strong>앱 설치 0 · 호스트 무관 · 종단 mTLS</strong>를 동시에 가질 수 있는 이유다.
+      </div>
+    </section>
+
+    <nav class="pager">
+      <a href="appendix-network-pan.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">PAN 완전 정복 (긴 글)</span>
+      </a>
+      <a href="appendix.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">부록 인덱스</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">APPENDIX · BNEP ONE-PAGER</span>
+    <span class="doc-tag">BudsAI Design Doc · BT 테더링 한 장 정리</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

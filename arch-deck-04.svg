@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<foreignObject x="0" y="0" width="1920" height="1080">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<style><![CDATA[
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.min.css");
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --blue:#0074FF; --blue2:#0059c9; --ink:#16263F; --muted:#54647d;
+    --bg:#F6F9FE; --card:#ffffff; --bd:#E6ECF5; --soft:#EFF5FF; --soft2:#E3EEFF;
+    --slate:#49617D; --red:#E5484D; --green:#0f9d58; --amber:#d97706; --violet:#6d28d9;
+    --mono:'JetBrains Mono',monospace;
+    --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+  }
+  html,body{background:#cdd6e3;font-family:var(--sans);-webkit-font-smoothing:antialiased;color:var(--ink);}
+  .toolbar{position:fixed;top:0;left:0;right:0;height:44px;background:#16263F;color:#cdd6e3;
+    display:flex;align-items:center;gap:18px;padding:0 18px;z-index:99;font-size:13px;}
+  .toolbar a{color:#9ec1ff;text-decoration:none;font-weight:600;}
+  .toolbar a:hover{color:#fff;}
+  .toolbar .sp{flex:1;}
+  .toolbar .hint{font-family:var(--mono);color:#7d93b3;font-size:12px;}
+
+  #deck{width:1920px;transform-origin:top left;padding-top:60px;}
+  .slide{position:relative;width:1920px;height:1080px;background:var(--bg);overflow:hidden;
+    padding:58px 88px 60px;display:flex;flex-direction:column;margin:0 auto 40px;border-radius:2px;
+    box-shadow:0 10px 50px rgba(20,40,80,.18);}
+  .slide::before{content:"";position:absolute;top:-380px;left:50%;transform:translateX(-50%);
+    width:1500px;height:720px;background:radial-gradient(ellipse,rgba(0,116,255,.15),transparent 68%);pointer-events:none;}
+  .slide>*{position:relative;z-index:1;}
+
+  .eyebrow{font-size:20px;font-weight:600;color:#8aa0bf;}
+  .h{font-size:44px;font-weight:800;line-height:1.12;letter-spacing:-.022em;margin-top:3px;}
+  .sub{font-size:21px;color:var(--muted);margin-top:9px;line-height:1.45;font-weight:500;max-width:1600px;}
+  .body{flex:1;margin-top:14px;min-height:0;display:flex;flex-direction:column;gap:14px;}
+
+  .tag{position:absolute;top:56px;right:88px;font:700 18px var(--mono);color:var(--blue);
+    background:#E9F1FF;border-radius:999px;padding:7px 18px;letter-spacing:.04em;}
+
+  .card{background:var(--card);border:1px solid var(--bd);border-radius:20px;
+    box-shadow:0 6px 24px rgba(20,40,80,.05);padding:22px 26px;}
+  .card.soft{background:var(--soft);border-color:#dbe8ff;}
+  .card.blue{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
+  .card.blue *{color:#fff;}
+  .card h3{font-size:23px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .card p,.card li{font-size:20px;color:var(--muted);line-height:1.46;}
+  .num-badge{font:800 18px var(--mono);color:#fff;background:var(--blue);border-radius:8px;padding:2px 11px;}
+  .card.blue .num-badge{background:rgba(255,255,255,.25);}
+
+  ul.clean{list-style:none;display:flex;flex-direction:column;gap:7px;}
+  ul.clean li{padding-left:24px;position:relative;}
+  ul.clean li::before{content:"";position:absolute;left:5px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--blue);}
+  .card.blue ul.clean li::before{background:#fff;}
+  ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:7px;}
+  ol.steps li{counter-increment:s;padding-left:38px;position:relative;font-size:20px;color:var(--muted);line-height:1.45;}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:26px;height:26px;
+    background:#E9F1FF;color:var(--blue2);border-radius:8px;font:800 16px var(--mono);
+    display:flex;align-items:center;justify-content:center;}
+
+  b,strong{color:var(--ink);font-weight:700;}
+  .card.blue b,.card.blue strong{color:#fff;}
+  .k{font-family:var(--mono);background:#eef3fb;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;color:var(--blue2);font-size:.85em;}
+  .src{position:absolute;left:100px;bottom:36px;font-size:16px;color:#9aabc4;max-width:1500px;}
+  .pg{position:absolute;right:100px;bottom:34px;font:700 18px var(--mono);color:#9aabc4;}
+
+  .grid{display:grid;gap:20px;}
+  .muted{color:var(--muted);} .small{font-size:18px;}
+
+  .tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;
+    border:1px solid var(--bd);font-size:21px;}
+  .tbl th,.tbl td{padding:12px 18px;border-bottom:1px solid var(--bd);text-align:right;}
+  .tbl th:first-child,.tbl td:first-child{text-align:left;color:var(--muted);}
+  .tbl thead th{background:#f3f8ff;font-weight:800;color:var(--ink);}
+  .tbl tr:last-child td{border-bottom:none;font-weight:800;}
+  .tbl .raw{color:#94a8c4;} .tbl .lc3{color:var(--blue);}
+
+  /* flow steps */
+  .flow{display:flex;flex-direction:column;gap:0;}
+  .step{display:flex;align-items:flex-start;gap:16px;background:#fff;border:1px solid var(--bd);
+    border-radius:14px;padding:12px 20px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
+  .step .num{font:800 18px var(--mono);color:#fff;background:var(--blue);min-width:38px;height:38px;
+    border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px;}
+  .step .name{font-size:21px;font-weight:800;min-width:188px;flex:none;}
+  .step .desc{font-size:19px;color:var(--muted);line-height:1.4;}
+  .conn{width:3px;height:13px;background:#bcd3f5;margin-left:39px;}
+
+  .pipe{display:flex;align-items:stretch;gap:0;}
+  .node{flex:1;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:18px 20px;
+    box-shadow:0 5px 18px rgba(20,40,80,.05);display:flex;flex-direction:column;gap:6px;}
+  .node .who{font:700 16px var(--mono);color:#8aa0bf;letter-spacing:.03em;text-transform:uppercase;}
+  .node .t{font-size:22px;font-weight:800;}
+  .node p{font-size:18px;color:var(--muted);line-height:1.4;}
+  .arrowx{display:flex;align-items:center;justify-content:center;width:52px;color:var(--blue);font-size:36px;font-weight:800;}
+
+  .bar{height:48px;border-radius:11px;display:flex;align-items:center;padding:0 20px;color:#fff;font-size:23px;font-weight:800;}
+  .bar.raw{background:#94a8c4;width:100%;}
+  .bar.lc3{background:linear-gradient(90deg,#0a78ff,#0059c9);width:14%;min-width:150px;}
+
+  .wave{display:flex;align-items:center;gap:4px;height:52px;}
+  .wave i{width:6px;border-radius:3px;background:var(--blue);opacity:.85;}
+
+  .pkt{border:2px solid #cdddf5;border-radius:16px;overflow:hidden;background:#fff;}
+  .pkt .row{display:flex;align-items:stretch;border-top:1px solid #e7eefa;}
+  .pkt .row:first-child{border-top:none;}
+  .pkt .lab{width:130px;flex:none;background:#f3f8ff;font:800 20px var(--sans);color:var(--blue2);
+    padding:14px 14px;display:flex;align-items:center;justify-content:center;border-right:1px solid #e7eefa;}
+  .pkt .val{padding:13px 18px;font-size:20px;color:var(--ink);font-weight:600;display:flex;align-items:center;}
+  .pkt .three{display:flex;flex:1;}
+  .pkt .three .s{flex:1;padding:12px 10px;text-align:center;border-right:1px dashed #cdddf5;font-size:19px;font-weight:700;}
+  .pkt .three .s:last-child{border-right:none;}
+  .pkt .s.int{background:#eef6ff;color:#0059c9;} .pkt .s.ext{background:#eafff4;color:#0f9d58;} .pkt .s.b{background:#fff4ec;color:#c2410c;}
+
+  .ring .cells{display:flex;gap:4px;}
+  .ring .cells span{flex:1;height:42px;border-radius:6px;background:#e4edfb;border:1px solid #cfe0f7;}
+  .ring .cells span.new{background:var(--blue);border-color:var(--blue);}
+  .ring .cells span.old{background:#fde2e2;border-color:#f6b9b9;}
+
+  .pillrow{display:flex;gap:12px;flex-wrap:wrap;}
+  .mini{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
+  .mini .n{font:800 21px var(--sans);color:var(--blue);} .mini .d{font-size:17px;color:var(--muted);margin-top:1px;}
+
+  .note-strip{background:#E9F1FF;border:1px solid #cfe0f7;border-radius:13px;padding:14px 22px;font-size:21px;color:#0059c9;font-weight:600;line-height:1.45;}
+  .codeflow{background:#0f2036;color:#cfe3ff;border-radius:13px;padding:16px 20px;font-family:var(--mono);font-size:19px;line-height:1.75;}
+
+  /* branch (분기 구조도) */
+  .branch{margin-top:12px;}
+  .branch .bsrc{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--bd);
+    border-radius:11px;padding:8px 16px;font-weight:800;font-size:19px;box-shadow:0 3px 10px rgba(20,40,80,.05);}
+  .branch .brows{margin:8px 0 0 18px;padding-left:18px;border-left:2px dashed #bcd3f5;
+    display:flex;flex-direction:column;gap:9px;}
+  .brow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:18px;position:relative;}
+  .brow::before{content:"";position:absolute;left:-18px;top:50%;width:16px;height:2px;background:#bcd3f5;}
+  .brow .cond{background:#eef3fb;border:1px solid var(--bd);border-radius:8px;padding:5px 11px;font-weight:700;color:var(--ink);}
+  .brow .arr{color:var(--blue);font-weight:900;}
+  .brow .act{font-weight:700;color:var(--muted);}
+  .brow.ok .cond{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
+  .brow.ok .act{color:var(--green);}
+
+  /* capture flow (소리 → PCM) */
+  .caps{display:flex;flex-direction:column;gap:8px;}
+  .caprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:18px;}
+  .caprow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 12px;font-weight:700;color:var(--ink);}
+  .caprow .nd.op{background:#f3f8ff;color:var(--blue2);}
+  .caprow .nd.pcm{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);font-weight:800;}
+  .caprow .ar{color:var(--blue);font-weight:900;font-size:20px;}
+
+  /* S03 DMA two-lane structure */
+  .dma{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:8px;}
+  .dma .two{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
+  .dma .lane{display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .dma .nd2{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;font-weight:700;
+    font-size:18px;text-align:center;box-shadow:0 3px 12px rgba(20,40,80,.05);width:100%;}
+  .dma .nd2 .s{font-family:var(--mono);font-size:14px;color:#8aa0bf;margin-left:6px;}
+  .dma .nd2.anc{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
+  .dma .down{color:var(--blue);font-weight:800;font-size:15px;line-height:.9;}
+  .dma .merge{color:var(--blue);font-weight:800;font-size:17px;}
+  .dma .enc{background:#fff;border:2px solid var(--blue);border-radius:12px;padding:11px 22px;font-weight:800;font-size:20px;text-align:center;}
+  .dma .bufs{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
+  .dma .buf{background:var(--soft);border:1px solid #dbe8ff;border-radius:12px;padding:12px;text-align:center;font-weight:800;font-size:18px;}
+
+  /* S06 tethering structure (스케치 참고) */
+  .tflow{display:flex;align-items:stretch;gap:6px;}
+  .tstage{background:#fff;border:1px solid var(--bd);border-radius:15px;padding:14px 12px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:center;min-width:140px;box-shadow:0 5px 18px rgba(20,40,80,.05);}
+  .tstage .ic{font-size:30px;line-height:1;}
+  .tstage .t{font-weight:800;font-size:18px;}
+  .tstage .d{font-size:14px;color:var(--muted);line-height:1.3;}
+  .tstage .ip{font-family:var(--mono);font-size:14px;color:var(--blue2);background:#eef3fb;border-radius:6px;padding:1px 7px;}
+  .tstage.srv{background:linear-gradient(135deg,#0a78ff,#0059c9);border:none;} .tstage.srv .t,.tstage.srv .d{color:#fff;}
+  .tarr{display:flex;align-items:center;color:var(--blue);font-size:26px;font-weight:800;}
+  .btbox{background:#eef6ff;border:2px solid #9ec1ff;border-radius:16px;padding:11px;display:flex;flex-direction:column;gap:7px;min-width:236px;}
+  .btbox .bttitle{font-weight:800;font-size:17px;color:var(--blue2);}
+  .btbox .bnep{background:#fff;border:1.5px solid #cdddf5;border-radius:11px;padding:9px 10px;font-weight:800;font-size:15px;color:var(--ink);line-height:1.3;}
+  .btbox .bnep .enc{margin-top:7px;background:#16263F;color:#cfe3ff;border:none;border-radius:8px;padding:8px 9px;font-weight:700;font-size:14px;}
+  .natbox{background:#f7f5ff;border:2px solid #a78bfa;border-radius:15px;padding:12px 14px;min-width:230px;display:flex;flex-direction:column;gap:4px;justify-content:center;}
+  .natbox .t{font-weight:800;font-size:16px;color:#6d28d9;}
+  .natbox .map{font-family:var(--mono);font-size:14px;color:var(--ink);line-height:1.4;}
+  .natbox .map .tbl2{font-family:var(--sans);font-size:13px;color:#8a7bbf;margin-top:2px;}
+
+  /* S03 ring-buffer dials */
+  .rbwrap{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:10px;}
+  .rb{display:flex;align-items:center;gap:20px;}
+  .dialwrap{position:relative;width:156px;height:156px;flex:none;margin-top:6px;}
+  .dial{width:156px;height:156px;border-radius:50%;
+    background:conic-gradient(#0a78ff 0deg 344deg,#ff6b6b 344deg 357deg,#ffffff 357deg 360deg);
+    -webkit-mask:radial-gradient(circle, transparent 46px, #000 47px);
+            mask:radial-gradient(circle, transparent 46px, #000 47px);
+    box-shadow:0 4px 16px rgba(20,40,80,.10);}
+  .dialwrap .ptr{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:0;height:0;
+    border-left:10px solid transparent;border-right:10px solid transparent;border-top:15px solid #16263F;z-index:2;}
+  .dialwrap .ptr::after{content:"write";position:absolute;top:-30px;left:50%;transform:translateX(-50%);
+    font:800 12px var(--mono);color:#16263F;}
+  .dlabel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;
+    font-size:15px;color:var(--blue2);font-weight:700;line-height:1.15;}
+  .dlabel b{display:block;font-size:23px;color:var(--ink);}
+  .rblist{list-style:none;display:flex;flex-direction:column;gap:6px;}
+  .rblist li{font-size:16px;color:var(--muted);line-height:1.4;}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:5px;}
+  .dot.blue{background:#0a78ff;} .dot.red{background:#ff6b6b;}
+
+  /* S06 per-device action cards */
+  .actrow{display:flex;align-items:stretch;gap:7px;}
+  .act{flex:1;min-width:0;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:11px 13px;
+    display:flex;flex-direction:column;gap:3px;box-shadow:0 4px 14px rgba(20,40,80,.05);}
+  .act .dev{font:700 12px var(--mono);letter-spacing:.02em;display:flex;align-items:center;gap:4px;}
+  .act .at{font-size:17px;font-weight:800;line-height:1.2;}
+  .act .ad{font-size:13.5px;color:var(--muted);line-height:1.32;}
+  .act.buds{border-top:4px solid #0074FF;} .act.buds .dev{color:#0074FF;}
+  .act.host{border-top:4px solid #6d28d9;background:#faf9ff;} .act.host .dev{color:#6d28d9;}
+  .act.srv{border-top:4px solid #16263F;} .act.srv .dev{color:#16263F;}
+  .actrow .ar{display:flex;align-items:center;color:var(--blue);font-size:22px;font-weight:800;}
+
+  /* S07 digital signature flow */
+  .sig{display:flex;flex-direction:column;gap:10px;margin:4px 0 2px;}
+  .sigrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+  .sigrow .lbl{font:700 14px var(--sans);min-width:84px;color:var(--ink);line-height:1.2;}
+  .sigrow .lbl small{display:block;color:#8aa0bf;font-weight:600;font-size:12px;}
+  .sigrow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 10px;font-weight:700;font-size:15px;}
+  .sigrow .nd.key{background:#fff4ec;border-color:#f6c9a8;color:#c2410c;}
+  .sigrow .nd.pub{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
+  .sigrow .nd.fn{background:#16263F;color:#cfe3ff;border:none;}
+  .sigrow .nd.out{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);}
+  .sigrow .op{font-weight:900;color:#8aa0bf;font-size:16px;}
+  .sigrow .ar{color:var(--blue);font-weight:900;font-size:17px;}
+  .sigrow .ok{color:#0f7a43;font-weight:800;font-size:15px;}
+
+  @media print{ @page{size:1920px auto;margin:0;} html,body{background:#fff;} .toolbar{display:none;}
+    #deck{padding-top:0;transform:none!important;} .slide{margin:0;box-shadow:none;border-radius:0;page-break-after:always;} }
+
+html,body{background:transparent;margin:0;padding:0;}
+#deck{padding:0;}
+.slide{margin:0 !important;box-shadow:none !important;border-radius:0 !important;}
+
+]]></style>
+<section class="slide">
+    <span class="tag">CAPTURE HW</span>
+    <div class="eyebrow">S04 · 캡처 하드웨어</div>
+    <h1 class="h">소음 제거와 기억을 동시에? — ANC·DMA·링버퍼</h1>
+    <p class="sub">소음을 지우는 일과 기억하는 일은 보통 부딪힌다 — 소리를 메모리에 <b>한 번만 적고 둘이 같이 읽으면</b>(복사 0) 충돌 없이 동시에.</p>
+
+    <div class="body">
+      <div class="card">
+        <h3><span class="num-badge">1</span> DMA(Direct Memory Access, 직접 메모리 접근)가 소리를 적어두고, 둘이 읽는다 <span class="k">복사 0</span></h3>
+        <div class="dma">
+          <div class="two">
+            <div class="lane">
+              <div class="nd2">🔊 내부(이어폰 출력)<span class="s">I2S (Inter-IC Sound)</span></div>
+              <div class="down">▼</div>
+              <div class="nd2">DMA 자동기록 → PCM 버퍼(내부)</div>
+            </div>
+            <div class="lane">
+              <div class="nd2">🎙️ 외부(ANC 마이크)<span class="s">ADC</span></div>
+              <div class="down">▼</div>
+              <div class="nd2">DMA 자동기록 → PCM 버퍼(외부)</div>
+              <div class="nd2 anc">⚡ ANC 엔진 — 역위상 소음제거 (즉각 · 외부음 같이 읽음)</div>
+            </div>
+          </div>
+          <div class="merge">▼ &#160; 같은 주소 읽기 (복사 0) &#160; ▼</div>
+          <div class="enc">🗜️ LC3 인코더 — 자기 속도로 읽어 압축</div>
+          <div class="merge">▼ &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; ▼</div>
+          <div class="bufs">
+            <div class="buf">🔊 A-int 링버퍼 <span style="font-weight:600;color:var(--muted);font-size:16px;">내부 30초</span></div>
+            <div class="buf">🎙️ A-ext 링버퍼 <span style="font-weight:600;color:var(--muted);font-size:16px;">외부 30초</span></div>
+          </div>
+        </div>
+        <p style="margin-top:12px;font-size:19px;color:var(--muted);">→ 같은 데이터를 <b>다른 소비자</b>가 사용. DMA 덕에 <b>CPU는 복사 노동에서 해방</b> → ANC 필터 + LC3 인코딩에 집중.</p>
+      </div>
+
+      <div class="card soft">
+        <h3><span class="num-badge">2</span> 30초 순환(ring) 버퍼 — write가 돌며 가장 오래된 칸부터 덮어씀</h3>
+        <div class="rbwrap">
+          <div class="rb">
+            <div class="dialwrap"><div class="dial"></div><span class="ptr"></span><span class="dlabel">🔊 A-int<br/><b>30초</b></span></div>
+            <div class="rbtext">
+              <ul class="rblist">
+                <li><span class="dot blue"></span> 파란 호 = 보관 중인 <b>직전 30초</b></li>
+                <li><span class="dot red"></span> 빨간 칸 = <b>가장 오래된 프레임</b> → 다음에 덮임</li>
+                <li>▼ write가 <b>시계방향</b>으로 돌며 오래된 칸부터 갱신</li>
+                <li class="muted">한 칸 = LC3 프레임(10ms) · 30초 ≈ 3000칸</li>
+              </ul>
+            </div>
+          </div>
+          <div class="rb">
+            <div class="dialwrap"><div class="dial"></div><span class="ptr"></span><span class="dlabel">🎙️ A-ext<br/><b>30초</b></span></div>
+            <div class="rbtext">
+              <ul class="rblist">
+                <li>외부(주변음) 전용 — <b>A-int와 각자 독립</b>으로 돈다</li>
+                <li>같은 순환 방식: 꽉 차면 <b>끝과 처음이 이어져</b> 오래된 칸 덮음</li>
+                <li>늘 <b>최근 30초</b>만 유지 (오래된 소리는 사라짐)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="note-strip" style="margin-top:14px;">📸 트리거 → 두 버퍼의 <b>직전 30초를 함께</b> 스냅샷 (A-int + A-ext 동시 첨부)</div>
+      </div>
+
+      <div class="note-strip">🧑‍🏫 <b>칠판 비유</b>: 마이크 소리를 칠판 <b>한 곳에 한 번만 적고</b>, ANC 담당·압축 담당이 그 칠판을 <b>같이 본다</b> → 따로 두 번 안 적으니 동시에 일해도 안 부딪힘. 칠판은 30초짜리 <b>돌림판</b>이라 꽉 차면 가장 오래된 걸 지우고 새로 적는다.</div>
+    </div>
+    <div class="pg">04 / 10</div>
+  </section>
+</div>
+</foreignObject>
+</svg>
