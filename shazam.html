@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>음악 인식 데모 — BudsAI</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* page-local styles */
+    .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
+    @media (max-width: 768px) { .demo-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+    .panel h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+      margin: 0 0 16px;
+      border: none;
+      padding: 0;
+    }
+
+    /* recorder */
+    .rec-wrap { text-align: center; padding: 8px 0 4px; }
+    .rec-btn {
+      width: 104px; height: 104px; border-radius: 50%;
+      border: none; cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: #0f1115; font-weight: 800; font-size: 15px;
+      box-shadow: 0 8px 24px rgba(94, 234, 212, 0.35);
+      transition: transform 0.1s ease;
+      font-family: inherit;
+    }
+    .rec-btn:hover { transform: scale(1.04); }
+    .rec-btn:active { transform: scale(0.96); }
+    .rec-btn.recording {
+      background: linear-gradient(135deg, var(--danger), #ffb3a3);
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.5); }
+      50% { box-shadow: 0 0 0 16px rgba(248,113,113,0); }
+    }
+    .rec-meta { color: var(--text-dim); font-size: 13px; margin-top: 12px; min-height: 18px; }
+    .level {
+      margin: 14px auto 0; width: 70%; height: 6px; border-radius: 3px;
+      background: var(--bg-elev); overflow: hidden;
+    }
+    .level > i {
+      display: block; height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+      transition: width 0.08s linear;
+    }
+
+    /* uploader */
+    .drop {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .drop:hover, .drop.over {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .drop strong { color: var(--text); }
+    .drop input { display: none; }
+    .drop small { display: block; margin-top: 6px; font-size: 12px; }
+
+    .actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .btn {
+      padding: 10px 16px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-elev); color: var(--text); font-size: 14px;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn:hover:not(:disabled) { border-color: var(--accent); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn.primary {
+      background: var(--accent); color: #0f1115; border: none; font-weight: 700;
+    }
+    .btn.primary:hover:not(:disabled) { background: var(--accent-dim); }
+
+    audio { width: 100%; margin-top: 12px; }
+
+    /* result */
+    .result-card { margin-top: 24px; }
+    .status {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      color: var(--text-dim); font-size: 14px; margin-bottom: 14px;
+    }
+    .pill {
+      padding: 3px 10px; border-radius: 999px; font-size: 12px;
+      border: 1px solid var(--border); background: var(--bg-elev);
+    }
+    .pill.ok { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-soft); }
+    .pill.miss { color: var(--danger); border-color: rgba(248,113,113,0.4); }
+
+    .track {
+      display: flex; gap: 18px; align-items: center;
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+    }
+    .track img {
+      width: 96px; height: 96px; border-radius: var(--radius-sm); object-fit: cover;
+      background: var(--bg-card); flex-shrink: 0;
+    }
+    .track .meta { flex: 1; min-width: 0; }
+    .track .title { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    .track .artist { color: var(--text-dim); font-size: 14px; margin-bottom: 8px; }
+    .track .genre {
+      display: inline-block; font-size: 12px; padding: 2px 10px;
+      border: 1px solid var(--accent-dim); border-radius: 999px;
+      color: var(--accent); background: var(--accent-soft);
+    }
+    .track a {
+      color: var(--accent); text-decoration: none; font-size: 13px;
+      display: inline-block; margin-top: 8px;
+    }
+    .track a:hover { text-decoration: underline; }
+    .track .placeholder {
+      width: 96px; height: 96px; border-radius: var(--radius-sm);
+      background: var(--bg-card); display: flex; align-items: center;
+      justify-content: center; color: var(--text-muted); font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    details {
+      margin-top: 14px; background: var(--bg-elev);
+      border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px;
+    }
+    details summary {
+      cursor: pointer; color: var(--text-dim); font-size: 13px;
+      user-select: none;
+    }
+    pre {
+      margin: 10px 0 0; padding: 12px; background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: var(--radius-sm); font-size: 12px;
+      color: #c5cde0; overflow: auto; max-height: 320px;
+      font-family: var(--mono);
+    }
+    .err {
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.4);
+      color: #ffb3b3;
+      padding: 12px 14px; border-radius: var(--radius-sm); font-size: 14px;
+    }
+
+    .server-notice {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--warn);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-top: 20px;
+    }
+    .server-notice code {
+      background: var(--code-bg); padding: 2px 6px; border-radius: 4px;
+      font-family: var(--mono); font-size: 12px; color: var(--accent);
+    }
+
+    .backend-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; flex-wrap: wrap;
+      background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      margin-top: 16px; font-size: 13px;
+    }
+    .backend-info { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .backend-label { color: var(--text-dim); font-weight: 600; }
+    .backend-info code {
+      background: var(--code-bg); padding: 3px 8px; border-radius: 4px;
+      font-family: var(--mono); font-size: 12px; color: var(--accent);
+      max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .backend-actions { display: flex; gap: 8px; }
+    .backend-actions .btn { padding: 6px 12px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">B</span>
+        <span>BudsAI</span>
+      </a>
+      <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+      <nav class="nav">
+        <a href="index.html">개요</a>
+        <a href="story.html">스토리</a>
+        <a href="proposal.html">제안서</a>
+        <a href="compare.html">타사 비교</a>
+        <a href="simulation.html">시뮬레이션</a>
+        <a href="concept.html">컨셉</a>
+        <a href="scenarios.html">시나리오</a>
+        <a href="packet.html">패킷 포맷</a>
+        <a href="firmware.html">펌웨어</a>
+        <a href="host-bridge.html">호스트 브릿지</a>
+        <a href="server-api.html">서버 API</a>
+        <a href="galaxy-ux.html">Galaxy UX</a>
+        <a href="shazam.html" class="active">음악 인식</a>
+        <a href="appendix.html">부록</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-header">
+      <span class="eyebrow">DEMO · SONG ID</span>
+      <h1>음악 인식 라이브 데모</h1>
+      <p class="subtitle">
+        BudsAI의 <a href="scenarios.html#intents">song_id 인텐트</a>를 실제로 체험해보세요.
+        마이크로 녹음하거나 오디오 파일을 업로드하면 <code>shazamio</code>로 곡을 인식합니다.
+        5~10초 클립이 가장 잘 됩니다.
+      </p>
+    </section>
+
+    <!-- backend URL config -->
+    <div class="backend-bar" id="backendBar">
+      <div class="backend-info">
+        <span class="backend-label">백엔드:</span>
+        <code id="backendUrlText">설정 안 됨</code>
+        <span id="backendStatus" class="pill">확인 중…</span>
+      </div>
+      <div class="backend-actions">
+        <button id="backendSet" class="btn">URL 설정</button>
+        <button id="backendClear" class="btn" hidden>초기화</button>
+      </div>
+    </div>
+
+    <div class="demo-grid">
+      <section class="panel">
+        <h3>🎙️ 마이크 녹음</h3>
+        <div class="rec-wrap">
+          <button id="recBtn" class="rec-btn">REC</button>
+          <div class="rec-meta" id="recMeta">버튼을 눌러 시작</div>
+          <div class="level"><i id="level"></i></div>
+        </div>
+        <audio id="recPlayer" controls hidden></audio>
+        <div class="actions" style="justify-content:center; margin-top:16px;">
+          <button id="recAnalyze" class="btn primary" disabled>이 녹음 분석</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>📁 파일 업로드</h3>
+        <label class="drop" id="drop">
+          <div><strong>클릭</strong>하거나 파일을 드래그하세요</div>
+          <small>mp3 · wav · m4a · ogg · webm</small>
+          <input type="file" id="fileInput" accept="audio/*" />
+        </label>
+        <audio id="filePlayer" controls hidden></audio>
+        <div class="actions">
+          <button id="fileAnalyze" class="btn primary" disabled>이 파일 분석</button>
+          <button id="fileClear" class="btn" disabled>지우기</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel result-card" id="resultCard" hidden>
+      <div class="status" id="status"></div>
+      <div id="resultBody"></div>
+    </section>
+
+    <div class="server-notice" id="serverNotice" hidden>
+      ⚠️ 백엔드 서버에 연결할 수 없습니다. 위 <strong>URL 설정</strong> 버튼으로 Railway 백엔드 주소를
+      입력하거나, 로컬에서 <code>python shazam_server.py</code> 실행 후 새로고침하세요.
+    </div>
+
+    <section style="margin-top:48px;">
+      <h2>이 데모는 어떻게 동작하나요?</h2>
+      <p>
+        BudsAI 시나리오에서 "이 노래 뭐야?" 질문은 <strong>song_id 인텐트</strong>로 분류되고,
+        Track A(직전 사운드)를 음악 fingerprint 매칭 서비스로 보냅니다. 이 데모는 그 과정을 단순화해
+        브라우저 입력(녹음/파일)을 <code>shazamio</code> 라이브러리로 인식합니다.
+      </p>
+      <ul style="margin-left: 20px; color: var(--text-dim);">
+        <li><code>shazamio</code>는 Python에서 Shazam 인식 엔진을 호출하는 비공식 클라이언트</li>
+        <li>로컬에서 fingerprint 생성 → Shazam 서버에 매칭 요청 → 곡 메타데이터 수신</li>
+        <li>실제 BudsAI에서는 펌웨어가 Opus 인코딩한 직전 사운드를 서버 AI 파이프라인의 song_id 핸들러로 전달</li>
+      </ul>
+    </section>
+
+    <nav class="pager">
+      <a href="scenarios.html" class="pager-prev">
+        <span class="pager-label">← 이전</span>
+        <span class="pager-title">사용 시나리오</span>
+      </a>
+      <a href="server-api.html" class="pager-next">
+        <span class="pager-label">다음 →</span>
+        <span class="pager-title">서버 API</span>
+      </a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <span class="page-mark">DEMO · SONG ID</span>
+    <span class="doc-tag">BudsAI Design Doc · shazamio 라이브 데모</span>
+  </footer>
+
+  <a href="simulation.html" class="sim-fab">▶ 시뮬레이션</a>
+
+  <script src="script.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    // ---------- backend URL config ----------
+    // Priority: localStorage override → if on github.io, use DEFAULT_REMOTE → else same-origin ""
+    const STORAGE_KEY = "shazamBackendUrl";
+    const DEFAULT_REMOTE = ""; // set this to your Railway URL after deploy, e.g. "https://shazamio-demo.up.railway.app"
+
+    function getBackendBase() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored !== null) return stored.replace(/\/+$/, "");
+      const host = location.hostname;
+      const isLocal = host === "localhost" || host === "127.0.0.1" || host === "";
+      if (!isLocal && DEFAULT_REMOTE) return DEFAULT_REMOTE.replace(/\/+$/, "");
+      return "";
+    }
+    function getBackendApi(path) {
+      const base = getBackendBase();
+      return base ? base + path : path;
+    }
+
+    const backendUrlText = $("backendUrlText");
+    const backendStatus = $("backendStatus");
+    const backendSet = $("backendSet");
+    const backendClear = $("backendClear");
+
+    function refreshBackendUi() {
+      const base = getBackendBase();
+      const stored = localStorage.getItem(STORAGE_KEY);
+      backendUrlText.textContent = base || "same-origin (/)";
+      backendClear.hidden = stored === null;
+      pingBackend();
+    }
+
+    async function pingBackend() {
+      backendStatus.textContent = "확인 중…";
+      backendStatus.className = "pill";
+      try {
+        const res = await fetch(getBackendApi("/api/health"), { cache: "no-store" });
+        if (res.ok) {
+          backendStatus.textContent = "연결됨";
+          backendStatus.className = "pill ok";
+        } else {
+          backendStatus.textContent = `HTTP ${res.status}`;
+          backendStatus.className = "pill miss";
+        }
+      } catch (e) {
+        backendStatus.textContent = "연결 안 됨";
+        backendStatus.className = "pill miss";
+      }
+    }
+
+    backendSet.addEventListener("click", () => {
+      const cur = localStorage.getItem(STORAGE_KEY) || "";
+      const v = prompt(
+        "백엔드 URL을 입력하세요\n예) https://shazamio-demo.up.railway.app\n빈 값으로 두면 same-origin (/) 사용",
+        cur
+      );
+      if (v === null) return;
+      const trimmed = v.trim();
+      if (trimmed === "") {
+        localStorage.removeItem(STORAGE_KEY);
+      } else {
+        localStorage.setItem(STORAGE_KEY, trimmed);
+      }
+      refreshBackendUi();
+    });
+
+    backendClear.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      refreshBackendUi();
+    });
+
+    refreshBackendUi();
+
+    // ---------- recorder ----------
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordedBlob = null;
+    let audioCtx = null;
+    let analyser = null;
+    let levelRaf = null;
+    let recStart = 0;
+    let recTimer = null;
+
+    const recBtn = $("recBtn");
+    const recMeta = $("recMeta");
+    const recPlayer = $("recPlayer");
+    const recAnalyze = $("recAnalyze");
+    const levelEl = $("level");
+
+    recBtn.addEventListener("click", async () => {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        stopRecording();
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        startRecording(stream);
+      } catch (e) {
+        recMeta.textContent = "마이크 권한이 거부되었습니다";
+      }
+    });
+
+    function startRecording(stream) {
+      recordedChunks = [];
+      recordedBlob = null;
+      recPlayer.hidden = true;
+      recAnalyze.disabled = true;
+
+      const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : "audio/webm";
+      mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        recordedBlob = new Blob(recordedChunks, { type: mime });
+        const url = URL.createObjectURL(recordedBlob);
+        recPlayer.src = url;
+        recPlayer.hidden = false;
+        recAnalyze.disabled = false;
+        stream.getTracks().forEach((t) => t.stop());
+        stopMeter();
+      };
+      mediaRecorder.start();
+      recStart = performance.now();
+
+      recBtn.classList.add("recording");
+      recBtn.textContent = "STOP";
+      updateRecTimer();
+      recTimer = setInterval(updateRecTimer, 100);
+      startMeter(stream);
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+      recBtn.classList.remove("recording");
+      recBtn.textContent = "REC";
+      clearInterval(recTimer);
+    }
+
+    function updateRecTimer() {
+      const s = (performance.now() - recStart) / 1000;
+      recMeta.textContent = `녹음 중… ${s.toFixed(1)}s`;
+    }
+
+    function startMeter(stream) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaStreamSource(stream);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      src.connect(analyser);
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        analyser.getByteTimeDomainData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) {
+          const v = (data[i] - 128) / 128;
+          sum += v * v;
+        }
+        const rms = Math.sqrt(sum / data.length);
+        levelEl.style.width = Math.min(100, rms * 280) + "%";
+        levelRaf = requestAnimationFrame(tick);
+      };
+      tick();
+    }
+
+    function stopMeter() {
+      if (levelRaf) cancelAnimationFrame(levelRaf);
+      levelEl.style.width = "0%";
+      if (audioCtx) audioCtx.close().catch(() => {});
+      audioCtx = null;
+    }
+
+    recAnalyze.addEventListener("click", () => {
+      if (!recordedBlob) return;
+      const file = new File([recordedBlob], "recording.webm", { type: recordedBlob.type });
+      analyze(file);
+    });
+
+    // ---------- file upload ----------
+    const drop = $("drop");
+    const fileInput = $("fileInput");
+    const filePlayer = $("filePlayer");
+    const fileAnalyze = $("fileAnalyze");
+    const fileClear = $("fileClear");
+    let pickedFile = null;
+
+    ["dragenter", "dragover"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.add("over");
+      })
+    );
+    ["dragleave", "drop"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.remove("over");
+      })
+    );
+    drop.addEventListener("drop", (e) => {
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) setFile(f);
+    });
+    fileInput.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) setFile(f);
+    });
+
+    function setFile(f) {
+      pickedFile = f;
+      filePlayer.src = URL.createObjectURL(f);
+      filePlayer.hidden = false;
+      fileAnalyze.disabled = false;
+      fileClear.disabled = false;
+    }
+
+    fileClear.addEventListener("click", () => {
+      pickedFile = null;
+      fileInput.value = "";
+      filePlayer.hidden = true;
+      filePlayer.removeAttribute("src");
+      fileAnalyze.disabled = true;
+      fileClear.disabled = true;
+    });
+
+    fileAnalyze.addEventListener("click", () => {
+      if (pickedFile) analyze(pickedFile);
+    });
+
+    // ---------- analyze ----------
+    const resultCard = $("resultCard");
+    const statusEl = $("status");
+    const resultBody = $("resultBody");
+    const serverNotice = $("serverNotice");
+
+    async function analyze(file) {
+      resultCard.hidden = false;
+      serverNotice.hidden = true;
+      statusEl.innerHTML = `<span class="pill">분석 중…</span><span>${file.name} · ${(file.size / 1024).toFixed(0)} KB</span>`;
+      resultBody.innerHTML = "";
+      fileAnalyze.disabled = true;
+      recAnalyze.disabled = true;
+
+      const fd = new FormData();
+      fd.append("file", file);
+
+      let data;
+      try {
+        const res = await fetch(getBackendApi("/api/recognize"), { method: "POST", body: fd });
+        if (!res.ok) throw new Error(await res.text());
+        data = await res.json();
+      } catch (e) {
+        const msg = String(e);
+        const looksOffline = msg.includes("Failed to fetch") || msg.includes("NetworkError");
+        resultBody.innerHTML = `<div class="err">요청 실패: ${escapeHtml(msg)}</div>`;
+        statusEl.innerHTML = `<span class="pill miss">실패</span>`;
+        if (looksOffline) serverNotice.hidden = false;
+        fileAnalyze.disabled = !pickedFile;
+        recAnalyze.disabled = !recordedBlob;
+        return;
+      }
+
+      renderResult(data);
+      fileAnalyze.disabled = !pickedFile;
+      recAnalyze.disabled = !recordedBlob;
+    }
+
+    function renderResult(data) {
+      const tookPill = `<span class="pill">${data.elapsed_ms} ms</span>`;
+      if (!data.matched) {
+        statusEl.innerHTML = `<span class="pill miss">매칭 실패</span>${tookPill}`;
+        resultBody.innerHTML = `<div class="err">곡을 찾지 못했습니다. 클립 길이를 5초 이상으로, 음원이 분명히 들리도록 다시 시도해보세요.</div>${rawBlock(data.raw)}`;
+        return;
+      }
+      const s = data.summary || {};
+      statusEl.innerHTML = `<span class="pill ok">매칭 성공</span>${tookPill}`;
+      const cover = s.cover
+        ? `<img src="${escapeAttr(s.cover)}" alt="cover" />`
+        : `<div class="placeholder">♪</div>`;
+      resultBody.innerHTML = `
+        <div class="track">
+          ${cover}
+          <div class="meta">
+            <div class="title">${escapeHtml(s.title || "(제목 없음)")}</div>
+            <div class="artist">${escapeHtml(s.subtitle || "")}</div>
+            ${s.genre ? `<span class="genre">${escapeHtml(s.genre)}</span>` : ""}
+            ${s.shazam_url ? `<div><a href="${escapeAttr(s.shazam_url)}" target="_blank" rel="noopener">Shazam에서 보기 →</a></div>` : ""}
+          </div>
+        </div>
+        ${rawBlock(data.raw)}
+      `;
+    }
+
+    function rawBlock(raw) {
+      return `<details><summary>raw JSON</summary><pre>${escapeHtml(JSON.stringify(raw, null, 2))}</pre></details>`;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[c]));
+    }
+    function escapeAttr(s) { return escapeHtml(s); }
+  </script>
+</body>
+</html>
