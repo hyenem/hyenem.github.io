@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>BudsAI 차별점 — Figma Import Deck</title>
+<style>
+/*
+  BudsAI 차별점 데크 — html.to.design (HTML to Figma) 임포트 최적화
+  - 보드 8장, 각 1920x1080
+  - design3.svg 톤: 밝은 배경 + 파스텔 원형 아이콘 + 짧은 라벨 + 넘버링 + 넉넉한 여백
+  - flex/grid 사용(→ Figma Auto Layout으로 매핑), 시스템 폰트, 그림자/그라데이션 최소화
+  - 발표 멘트는 화면 밖(.note, 데이터로만 보관) — 임포트 시 작은 회색 텍스트
+*/
+:root{
+  --bg:#f7f9fc;
+  --ink:#1b2436;      /* 제목 */
+  --mut:#5b6b86;      /* 본문 */
+  --dim:#90a0b8;      /* 보조 */
+  --line:#e6ecf5;
+  --card:#ffffff;
+  --blue:#3b6fe0;     /* 강조/넘버 */
+  --blue-ink:#21336b;
+  --ok:#16a06a;
+  --no:#c0492f;
+  /* 파스텔 아이콘 배경 */
+  --lav:#e8e6fb;
+  --mint:#dbf3ec;
+  --peach:#fdeede;
+  --pink:#fbe2ea;
+  --sky:#e2ecff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#39415a}
+body{
+  padding:40px;display:flex;flex-direction:column;align-items:center;gap:40px;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color:var(--ink);
+}
+.board{
+  position:relative;width:1920px;height:1080px;background:var(--bg);
+  overflow:hidden;display:flex;flex-direction:column;padding:96px 120px 88px;
+}
+/* ---- head ---- */
+.kicker{font-size:24px;font-weight:700;color:var(--blue);letter-spacing:.5px;margin-bottom:18px}
+.title{font-size:84px;font-weight:800;letter-spacing:-2px;line-height:1.05}
+.sub{font-size:34px;font-weight:500;color:var(--mut);margin-top:22px;line-height:1.35}
+.rule{height:2px;background:var(--line);margin:42px 0 0}
+/* ---- body ---- */
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:40px}
+/* feature rows (아이콘 + 라벨) */
+.rows{display:flex;flex-direction:column;gap:34px}
+.row{display:flex;align-items:center;gap:36px}
+.ic{
+  width:118px;height:118px;border-radius:999px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:54px;
+}
+.rtext{display:flex;flex-direction:column;gap:8px}
+.rlead{font-size:42px;font-weight:800;color:var(--ink);letter-spacing:-.5px}
+.rdesc{font-size:32px;font-weight:500;color:var(--mut)}
+/* footer strips */
+.foot{display:flex;flex-direction:column;gap:16px;margin-top:8px}
+.vs{font-size:30px;font-weight:600;color:var(--mut)}
+.vs b{color:var(--no);font-weight:800}
+.win{color:var(--ok);font-weight:800}
+.note{font-size:22px;font-weight:400;color:var(--dim);line-height:1.5;margin-top:18px;font-style:italic}
+.pageno{position:absolute;right:120px;bottom:48px;font-size:22px;font-weight:700;color:var(--dim);letter-spacing:1px}
+.brand{position:absolute;left:120px;bottom:48px;font-size:22px;font-weight:800;color:var(--blue);letter-spacing:1px}
+
+/* ===== 경쟁지형(D1) 3열 카드 ===== */
+.cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:36px;margin-top:8px}
+.col{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:40px 36px;display:flex;flex-direction:column;gap:18px}
+.col h3{font-size:38px;font-weight:800;color:var(--blue-ink);display:flex;align-items:center;gap:14px}
+.col .meta{font-size:26px;font-weight:500;color:var(--mut);line-height:1.4}
+.col .lim{font-size:27px;font-weight:600;color:var(--ink);line-height:1.5}
+.col .lim .x{color:var(--no);font-weight:800}
+.kc{font-size:36px;font-weight:800;color:var(--ink);text-align:center;margin-top:36px}
+.kc .hl{color:var(--blue)}
+
+/* ===== 매트릭스(D7) ===== */
+table{width:100%;border-collapse:collapse;font-size:30px}
+th,td{border:1px solid var(--line);padding:20px 18px;text-align:center}
+th{background:#eef3fc;font-weight:800;color:var(--blue-ink);font-size:28px}
+td.cap{text-align:left;font-weight:700;color:var(--ink);font-size:27px}
+td.win{background:#eaf7f0;color:var(--ok);font-weight:800}
+.yes{color:var(--ok);font-weight:800}
+.tri{color:#c98a1e;font-weight:700}
+.x{color:var(--no);font-weight:800}
+
+/* ===== 마무리 배너(D1·D8) ===== */
+.banner{
+  margin-top:14px;background:#eef3fc;border:1px solid #d7e3fb;border-radius:22px;
+  padding:34px 40px;font-size:38px;font-weight:800;color:var(--blue-ink);line-height:1.4;
+}
+.banner .hl{color:var(--blue)}
+</style>
+</head>
+<body>
+
+<!-- ================= D1 · 경쟁 지형 (오프닝) ================= -->
+<div class="board">
+  <div class="kicker">COMPETITIVE LANDSCAPE</div>
+  <div class="title">경쟁은 셋. 빈칸은 하나.</div>
+  <div class="sub">다 합쳐도 “내가 들은 소리”는 아무도 못 만진다</div>
+  <div class="rule"></div>
+  <div class="body" style="justify-content:flex-start;gap:0">
+    <div class="cols">
+      <div class="col">
+        <h3>🅰 이어폰 + AI 비서</h3>
+        <div class="meta">AirPods Pro 3 · Galaxy Buds 4 Pro · Pixel Buds Pro 2</div>
+        <div class="lim"><span class="x">⛔</span> 지금만 안다 (지나간 소리 ✗)</div>
+        <div class="lim"><span class="x">⛔</span> 자사 폰 종속</div>
+      </div>
+      <div class="col">
+        <h3>🅱 기록 웨어러블</h3>
+        <div class="meta">Plaud · Limitless(→Meta) · Bee(→Amazon) · Viaim</div>
+        <div class="lim"><span class="x">⛔</span> 별도 기기 · 외부 발화만</div>
+        <div class="lim"><span class="x">⛔</span> 상시녹음 부담 · 빅테크 흡수</div>
+      </div>
+      <div class="col">
+        <h3>🅲 통화·노트 SW</h3>
+        <div class="meta">Call Notes · Magic Cue · Otter · 에이닷 · 클로바 · 다글로</div>
+        <div class="lim"><span class="x">⛔</span> 폰통화·앱데이터뿐 · 사후 요약</div>
+        <div class="lim"><span class="x">⛔</span> proactive마저 재료는 텍스트</div>
+      </div>
+    </div>
+    <div class="kc">🎯 셋 다 비운 한 칸 = <span class="hl">“내가 들은 소리를, 실시간으로 되감기”</span> → BudsAI</div>
+  </div>
+  <div class="note">발표 멘트: 경쟁 세 그룹은 각자 강하다. 하지만 다 합쳐도 ‘내가 귀로 들은 소리를 그 자리에서 되감는’ 칸은 빈다. 빅테크가 기록 스타트업을 사들이는 와중(Limitless→Meta, Bee→Amazon)에도 이 칸은 비어 있다. 지금부터 그 빈칸을 채우는 5가지를 보여주겠다.</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">01 / 08</div>
+</div>
+
+<!-- ================= D2 · 차별점 ① 내부소리+30초 ================= -->
+<div class="board">
+  <div class="kicker">차별점 ① · 분석 입력의 확장</div>
+  <div class="title">방금 그거, 뭐였지?</div>
+  <div class="sub">내가 <i>듣던</i> 소리까지 — 직전 30초를 쥐고 있다</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="ic" style="background:var(--sky)">🎧</div><div class="rtext"><div class="rlead">두 갈래 소리</div><div class="rdesc">내부음(듣던 콘텐츠) + 외부음(주변)</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--mint)">♻️</div><div class="rtext"><div class="rlead">새 부품 없이</div><div class="rdesc">ANC가 듣던 소리 재사용 (새 마이크 0)</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--peach)">⏱️</div><div class="rtext"><div class="rlead">최근 30초만</div><div class="rdesc">오래된 건 덮어씀 → 상시저장 아님</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--pink)">📦</div><div class="rtext"><div class="rlead">가볍게</div><div class="rdesc">6MB → 200KB, 전송 2초</div></div></div>
+    </div>
+    <div class="foot">
+      <div class="vs">🆚 A군 <b>지나간 소리 없음</b> · B군 <b>외부음만</b></div>
+      <div class="vs">📍 운전 중 그 노래 · 영상 속 그 문장 · 통화 속 그 숫자</div>
+    </div>
+  </div>
+  <div class="note">발표 멘트: 경쟁은 ‘내가 말한 것’·‘주변이 말한 것’만 안다. 우리는 ‘내가 들은 것’을 안다 — ANC가 어차피 듣던 소리를 빌려서. 링버퍼는 10ms×약 3000칸, 내부음은 이미 LC3라 재압축 0.</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">02 / 08</div>
+</div>
+
+<!-- ================= D3 · 차별점 ② 독립 단말 ================= -->
+<div class="board">
+  <div class="kicker">차별점 ② · 독립 AI 단말</div>
+  <div class="title">폰을 두고 와도 된다</div>
+  <div class="sub">갤럭시가 없어도, 갤럭시 AI</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="ic" style="background:var(--sky)">🎧</div><div class="rtext"><div class="rlead">버즈 = 독립 AI 입력 단말</div><div class="rdesc">폰의 액세서리가 아니다</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--mint)">🌐</div><div class="rtext"><div class="rlead">아무 인터넷 기기나 통로</div><div class="rdesc">앱 설치 0</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--lav)">🔒</div><div class="rtext"><div class="rlead">통로는 내용 못 봄</div><div class="rdesc">봉인된 채 지나감</div></div></div>
+    </div>
+    <div class="foot">
+      <div class="vs">🆚 경쟁 AI는 전부 <b>자사 폰 필수</b> (Galaxy Buds의 Gemini조차)</div>
+      <div class="vs">📍 회사 공용 노트북 · 폰→태블릿 자동 전환</div>
+    </div>
+  </div>
+  <div class="note">발표 멘트: 거쳐 가는 기기는 택배 중계소처럼 주소만 바꿀 뿐 안을 못 본다. 버즈만 귀에 있으면 AI가 돈다. (단, 비갤럭시 기기에선 앱 연동·브리핑은 빠지고 검색형 답변 위주.)</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">03 / 08</div>
+</div>
+
+<!-- ================= D4 · 차별점 ③ 파이프라인(서버) ================= -->
+<div class="board">
+  <div class="kicker">차별점 ③ · 음성 특화 파이프라인 (서버)</div>
+  <div class="title">받아쓰지 않는다. 알아듣는다.</div>
+  <div class="sub">한 버튼, 의도에 따라 다른 답</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="ic" style="background:var(--sky)">🔘</div><div class="rtext"><div class="rlead">한 번의 호출</div><div class="rdesc">롱프레스 → “띵” → 침묵 800ms 자동 종료(VAD)</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--lav)">🎛️</div><div class="rtext"><div class="rlead">서버 = AI 오케스트레이터</div><div class="rdesc">추론은 안 함 → 정렬·라우팅만</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--mint)">🧭</div><div class="rtext"><div class="rlead">3트랙 정렬 → Gemini → 분기 → TTS</div><div class="rdesc">🎵 곡 식별(Shazam) · 💬 요약(Gemini) · ⚡ 행동 제안</div></div></div>
+    </div>
+    <div class="foot">
+      <div class="vs">🆚 경쟁 = <b>받아쓰기(STT→요약) 한 갈래</b></div>
+      <div class="vs">⚡ 갤럭시 경로 p50 ~0.8s · Shazam ~200ms · TTS 첫음절 ~300ms</div>
+    </div>
+  </div>
+  <div class="note">발표 멘트: 핵심은 서버가 직접 분석하지 않는다는 점. 서버는 3트랙 오디오를 시간축에 정렬·라우팅만 하고 STT·의도 분석은 Gemini에 위임한다. ‘음악’ 판정 시 Shazam을 부르고 결과를 다시 Gemini가 받아 답을 만든다. 갤럭시 폰이면 합성도 폰에서(VITS) 직접.</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">04 / 08</div>
+</div>
+
+<!-- ================= D5 · 차별점 ④ 눈으로 보여준다 ================= -->
+<div class="board">
+  <div class="kicker">차별점 ④ · 보이는 기록 (과거)</div>
+  <div class="title">들은 것을, 눈으로 본다</div>
+  <div class="sub">흘러가 버리던 소리를 한눈에 보는 시각 자산으로</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="ic" style="background:var(--sky)">👁️</div><div class="rtext"><div class="rlead">핵심 = 시각화</div><div class="rdesc">들은 소리를 타임라인·카드·파형으로 보여줌</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--peach)">🧠</div><div class="rtext"><div class="rlead">왜 보여주나</div><div class="rdesc">소리는 휘발·비선형 → 말 대신 보여주면 한눈에</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--mint)">🔍</div><div class="rtext"><div class="rlead">덤</div><div class="rdesc">눈에 보이니 회상·검색도 자연히 따라옴</div></div></div>
+    </div>
+    <div class="foot">
+      <div class="vs">🆚 A군 <b>기록 없음</b> · B군 <b>텍스트 덤프(읽어야 보임)</b></div>
+      <div class="vs">🔒 차별점 ①과 모순 없음 — 남긴 것만 시각화</div>
+    </div>
+  </div>
+  <div class="note">발표 멘트: 핵심은 ‘검색’이 아니라 ‘눈으로 보여준다’. 슬로건도 “들리는 소리, 보이는 기록”. 경쟁은 잘해야 텍스트 전사를 쌓을 뿐 — 우리는 들은 것을 타임라인·파형으로 보게 한다.</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">05 / 08</div>
+</div>
+
+<!-- ================= D6 · 차별점 ⑤ 능동 브리핑 ================= -->
+<div class="board">
+  <div class="kicker">차별점 ⑤ · 능동 브리핑 (미래)</div>
+  <div class="title">묻기 전에, 먼저 꺼낸다</div>
+  <div class="sub">들은 것까지 아는 하루 브리핑</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="ic" style="background:var(--lav)">🔗</div><div class="rtext"><div class="rlead">융합</div><div class="rdesc">캘린더·메일·알림 + 청각 기록</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--mint)">⚡</div><div class="rtext"><div class="rlead">proactive</div><div class="rdesc">묻기 전에 먼저 제안</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--peach)">📍</div><div class="rtext"><div class="rlead">예시</div><div class="rdesc">“어제 통화서 약속한 회신, 오늘 마감” / “어제 들은 곡 추천”</div></div></div>
+    </div>
+    <div class="foot">
+      <div class="vs">🆚 Magic Cue·에이닷 = 재료가 <b>텍스트뿐</b> / BudsAI만 <span class="win">들은 소리</span>가 재료</div>
+      <div class="vs">↔️ ④ 과거를 <b style="color:var(--mut)">보여줌</b> · ⑤ 미래를 <b style="color:var(--mut)">제안</b></div>
+    </div>
+  </div>
+  <div class="note">발표 멘트: 경쟁이 못 가진 ‘들은 소리’라는 재료가 곧 해자다. 청각 맥락 위에서 도는 Magic Cue라고 보면 된다.</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">06 / 08</div>
+</div>
+
+<!-- ================= D7 · 요약 매트릭스 ================= -->
+<div class="board">
+  <div class="kicker">SUMMARY MATRIX</div>
+  <div class="title">한 장으로 끝낸다</div>
+  <div class="sub">마지막 열만 가득 찬다</div>
+  <div class="rule"></div>
+  <div class="body" style="justify-content:flex-start">
+    <table>
+      <tr><th style="text-align:left">능력 (차별점)</th><th>A 이어폰</th><th>B 기록기</th><th>C 통화SW</th><th>BudsAI</th></tr>
+      <tr><td class="cap">지나간 소리 실시간 회상 ①</td><td class="x">✗</td><td class="tri">△</td><td class="x">✗</td><td class="win">✓ 30초 롤링</td></tr>
+      <tr><td class="cap">내부음(듣던 콘텐츠) 캡처 ①</td><td class="x">✗</td><td class="x">✗</td><td class="x">✗</td><td class="win">✓ 유일</td></tr>
+      <tr><td class="cap">자사 폰 없이 사용 ②</td><td class="x">✗</td><td class="tri">△</td><td class="x">✗</td><td class="win">✓ 테더링</td></tr>
+      <tr><td class="cap">의도별 소리 식별 ③</td><td class="x">✗</td><td class="x">✗</td><td class="x">✗</td><td class="win">✓</td></tr>
+      <tr><td class="cap">들은 소리를 눈으로 보여줌 ④</td><td class="x">✗</td><td class="tri">△</td><td class="tri">△</td><td class="win">✓</td></tr>
+      <tr><td class="cap">들은 소리로 먼저 제안(브리핑) ⑤</td><td class="x">✗</td><td class="x">✗</td><td class="tri">△</td><td class="win">✓</td></tr>
+      <tr><td class="cap">별도 기기 불필요</td><td class="yes">✓</td><td class="x">✗</td><td class="yes">✓</td><td class="win">✓</td></tr>
+      <tr><td class="cap">상시녹음 부담 없음</td><td class="yes">✓</td><td class="x">✗</td><td class="yes">✓</td><td class="win">✓ 버퍼</td></tr>
+    </table>
+  </div>
+  <div class="note">발표 멘트: 한 칸이라도 비지 않은 열은 우리뿐. 이 표 자체가 ‘빈칸’의 증거다.</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">07 / 08</div>
+</div>
+
+<!-- ================= D8 · 왜 삼성인가 ================= -->
+<div class="board">
+  <div class="kicker">WHY SAMSUNG</div>
+  <div class="title">마지막 차별점은, 삼성이다</div>
+  <div class="sub">흘러간 소리를 붙잡아, 어디서든 알아듣고·보여주고·엮는다 — 그 경험을 완성하는 단 하나의 조건</div>
+  <div class="rule"></div>
+  <div class="body">
+    <div class="rows">
+      <div class="row"><div class="ic" style="background:var(--sky)">🌐</div><div class="rtext"><div class="rlead">끊김 없는 한 흐름</div><div class="rdesc">버즈로 듣고 → 폰·워치·TV로 보고 → 다시 버즈로</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--mint)">🧩</div><div class="rtext"><div class="rlead">내 일상과 엮인다</div><div class="rdesc">들은 소리 + 캘린더·메일·갤럭시 서비스가 한자리에</div></div></div>
+      <div class="row"><div class="ic" style="background:var(--peach)">✨</div><div class="rtext"><div class="rlead">최고의 버즈 위에서</div><div class="rdesc">Galaxy Buds 4 Pro 같은 프리미엄 하드웨어에 바로 얹힘</div></div></div>
+    </div>
+    <div class="banner">💡 듣고 · 보고 · 엮는 경험을 통째로 가진 곳은 <span class="hl">삼성뿐</span> — 기능 하나가 아니라 ‘판’을 가졌다.</div>
+  </div>
+  <div class="note">발표 멘트: 경쟁사는 버즈만·폰만·앱만 가졌다. 삼성은 귀의 버즈부터 결과를 보여줄 화면, 그 사이를 채울 일상 정보까지 한 손에 쥐었다. BudsAI는 기능 몇 개가 아니라 삼성만 가진 이 ‘판’ 위에서만 완성된다.</div>
+  <div class="brand">BudsAI</div>
+  <div class="pageno">08 / 08</div>
+</div>
+
+</body>
+</html>
