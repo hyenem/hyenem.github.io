@@ -1,290 +1,116 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
-<foreignObject x="0" y="0" width="1920" height="1080">
-<div xmlns="http://www.w3.org/1999/xhtml">
-<style><![CDATA[
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.min.css");
-
-  *{box-sizing:border-box;margin:0;padding:0;}
-  :root{
-    --blue:#0074FF; --blue2:#0059c9; --ink:#16263F; --muted:#54647d;
-    --bg:#F6F9FE; --card:#ffffff; --bd:#E6ECF5; --soft:#EFF5FF; --soft2:#E3EEFF;
-    --slate:#49617D; --red:#E5484D; --green:#0f9d58; --amber:#d97706; --violet:#6d28d9;
-    --mono:'JetBrains Mono',monospace;
-    --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
-  }
-  html,body{background:#cdd6e3;font-family:var(--sans);-webkit-font-smoothing:antialiased;color:var(--ink);}
-  .toolbar{position:fixed;top:0;left:0;right:0;height:44px;background:#16263F;color:#cdd6e3;
-    display:flex;align-items:center;gap:18px;padding:0 18px;z-index:99;font-size:13px;}
-  .toolbar a{color:#9ec1ff;text-decoration:none;font-weight:600;}
-  .toolbar a:hover{color:#fff;}
-  .toolbar .sp{flex:1;}
-  .toolbar .hint{font-family:var(--mono);color:#7d93b3;font-size:12px;}
-
-  #deck{width:1920px;transform-origin:top left;padding-top:60px;}
-  .slide{position:relative;width:1920px;height:1080px;background:var(--bg);overflow:hidden;
-    padding:58px 88px 60px;display:flex;flex-direction:column;margin:0 auto 40px;border-radius:2px;
-    box-shadow:0 10px 50px rgba(20,40,80,.18);}
-  .slide::before{content:"";position:absolute;top:-380px;left:50%;transform:translateX(-50%);
-    width:1500px;height:720px;background:radial-gradient(ellipse,rgba(0,116,255,.15),transparent 68%);pointer-events:none;}
-  .slide>*{position:relative;z-index:1;}
-
-  .eyebrow{font-size:20px;font-weight:600;color:#8aa0bf;}
-  .h{font-size:44px;font-weight:800;line-height:1.12;letter-spacing:-.022em;margin-top:3px;}
-  .sub{font-size:21px;color:var(--muted);margin-top:9px;line-height:1.45;font-weight:500;max-width:1600px;}
-  .body{flex:1;margin-top:14px;min-height:0;display:flex;flex-direction:column;gap:14px;}
-
-  .tag{position:absolute;top:56px;right:88px;font:700 18px var(--mono);color:var(--blue);
-    background:#E9F1FF;border-radius:999px;padding:7px 18px;letter-spacing:.04em;}
-
-  .card{background:var(--card);border:1px solid var(--bd);border-radius:20px;
-    box-shadow:0 6px 24px rgba(20,40,80,.05);padding:22px 26px;}
-  .card.soft{background:var(--soft);border-color:#dbe8ff;}
-  .card.blue{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
-  .card.blue *{color:#fff;}
-  .card h3{font-size:23px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
-  .card p,.card li{font-size:20px;color:var(--muted);line-height:1.46;}
-  .num-badge{font:800 18px var(--mono);color:#fff;background:var(--blue);border-radius:8px;padding:2px 11px;}
-  .card.blue .num-badge{background:rgba(255,255,255,.25);}
-
-  ul.clean{list-style:none;display:flex;flex-direction:column;gap:7px;}
-  ul.clean li{padding-left:24px;position:relative;}
-  ul.clean li::before{content:"";position:absolute;left:5px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--blue);}
-  .card.blue ul.clean li::before{background:#fff;}
-  ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:7px;}
-  ol.steps li{counter-increment:s;padding-left:38px;position:relative;font-size:20px;color:var(--muted);line-height:1.45;}
-  ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:26px;height:26px;
-    background:#E9F1FF;color:var(--blue2);border-radius:8px;font:800 16px var(--mono);
-    display:flex;align-items:center;justify-content:center;}
-
-  b,strong{color:var(--ink);font-weight:700;}
-  .card.blue b,.card.blue strong{color:#fff;}
-  .k{font-family:var(--mono);background:#eef3fb;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;color:var(--blue2);font-size:.85em;}
-  .src{position:absolute;left:100px;bottom:36px;font-size:16px;color:#9aabc4;max-width:1500px;}
-  .pg{position:absolute;right:100px;bottom:34px;font:700 18px var(--mono);color:#9aabc4;}
-
-  .grid{display:grid;gap:20px;}
-  .muted{color:var(--muted);} .small{font-size:18px;}
-
-  .tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;
-    border:1px solid var(--bd);font-size:21px;}
-  .tbl th,.tbl td{padding:12px 18px;border-bottom:1px solid var(--bd);text-align:right;}
-  .tbl th:first-child,.tbl td:first-child{text-align:left;color:var(--muted);}
-  .tbl thead th{background:#f3f8ff;font-weight:800;color:var(--ink);}
-  .tbl tr:last-child td{border-bottom:none;font-weight:800;}
-  .tbl .raw{color:#94a8c4;} .tbl .lc3{color:var(--blue);}
-
-  /* flow steps */
-  .flow{display:flex;flex-direction:column;gap:0;}
-  .step{display:flex;align-items:flex-start;gap:16px;background:#fff;border:1px solid var(--bd);
-    border-radius:14px;padding:12px 20px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
-  .step .num{font:800 18px var(--mono);color:#fff;background:var(--blue);min-width:38px;height:38px;
-    border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px;}
-  .step .name{font-size:21px;font-weight:800;min-width:188px;flex:none;}
-  .step .desc{font-size:19px;color:var(--muted);line-height:1.4;}
-  .conn{width:3px;height:13px;background:#bcd3f5;margin-left:39px;}
-
-  .pipe{display:flex;align-items:stretch;gap:0;}
-  .node{flex:1;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:18px 20px;
-    box-shadow:0 5px 18px rgba(20,40,80,.05);display:flex;flex-direction:column;gap:6px;}
-  .node .who{font:700 16px var(--mono);color:#8aa0bf;letter-spacing:.03em;text-transform:uppercase;}
-  .node .t{font-size:22px;font-weight:800;}
-  .node p{font-size:18px;color:var(--muted);line-height:1.4;}
-  .arrowx{display:flex;align-items:center;justify-content:center;width:52px;color:var(--blue);font-size:36px;font-weight:800;}
-
-  .bar{height:48px;border-radius:11px;display:flex;align-items:center;padding:0 20px;color:#fff;font-size:23px;font-weight:800;}
-  .bar.raw{background:#94a8c4;width:100%;}
-  .bar.lc3{background:linear-gradient(90deg,#0a78ff,#0059c9);width:14%;min-width:150px;}
-
-  .wave{display:flex;align-items:center;gap:4px;height:52px;}
-  .wave i{width:6px;border-radius:3px;background:var(--blue);opacity:.85;}
-
-  .pkt{border:2px solid #cdddf5;border-radius:16px;overflow:hidden;background:#fff;}
-  .pkt .row{display:flex;align-items:stretch;border-top:1px solid #e7eefa;}
-  .pkt .row:first-child{border-top:none;}
-  .pkt .lab{width:130px;flex:none;background:#f3f8ff;font:800 20px var(--sans);color:var(--blue2);
-    padding:14px 14px;display:flex;align-items:center;justify-content:center;border-right:1px solid #e7eefa;}
-  .pkt .val{padding:13px 18px;font-size:20px;color:var(--ink);font-weight:600;display:flex;align-items:center;}
-  .pkt .three{display:flex;flex:1;}
-  .pkt .three .s{flex:1;padding:12px 10px;text-align:center;border-right:1px dashed #cdddf5;font-size:19px;font-weight:700;}
-  .pkt .three .s:last-child{border-right:none;}
-  .pkt .s.int{background:#eef6ff;color:#0059c9;} .pkt .s.ext{background:#eafff4;color:#0f9d58;} .pkt .s.b{background:#fff4ec;color:#c2410c;}
-
-  .ring .cells{display:flex;gap:4px;}
-  .ring .cells span{flex:1;height:42px;border-radius:6px;background:#e4edfb;border:1px solid #cfe0f7;}
-  .ring .cells span.new{background:var(--blue);border-color:var(--blue);}
-  .ring .cells span.old{background:#fde2e2;border-color:#f6b9b9;}
-
-  .pillrow{display:flex;gap:12px;flex-wrap:wrap;}
-  .mini{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
-  .mini .n{font:800 21px var(--sans);color:var(--blue);} .mini .d{font-size:17px;color:var(--muted);margin-top:1px;}
-
-  .note-strip{background:#E9F1FF;border:1px solid #cfe0f7;border-radius:13px;padding:14px 22px;font-size:21px;color:#0059c9;font-weight:600;line-height:1.45;}
-  .codeflow{background:#0f2036;color:#cfe3ff;border-radius:13px;padding:16px 20px;font-family:var(--mono);font-size:19px;line-height:1.75;}
-
-  /* branch (분기 구조도) */
-  .branch{margin-top:12px;}
-  .branch .bsrc{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--bd);
-    border-radius:11px;padding:8px 16px;font-weight:800;font-size:19px;box-shadow:0 3px 10px rgba(20,40,80,.05);}
-  .branch .brows{margin:8px 0 0 18px;padding-left:18px;border-left:2px dashed #bcd3f5;
-    display:flex;flex-direction:column;gap:9px;}
-  .brow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:18px;position:relative;}
-  .brow::before{content:"";position:absolute;left:-18px;top:50%;width:16px;height:2px;background:#bcd3f5;}
-  .brow .cond{background:#eef3fb;border:1px solid var(--bd);border-radius:8px;padding:5px 11px;font-weight:700;color:var(--ink);}
-  .brow .arr{color:var(--blue);font-weight:900;}
-  .brow .act{font-weight:700;color:var(--muted);}
-  .brow.ok .cond{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
-  .brow.ok .act{color:var(--green);}
-
-  /* capture flow (소리 → PCM) */
-  .caps{display:flex;flex-direction:column;gap:8px;}
-  .caprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:18px;}
-  .caprow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 12px;font-weight:700;color:var(--ink);}
-  .caprow .nd.op{background:#f3f8ff;color:var(--blue2);}
-  .caprow .nd.pcm{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);font-weight:800;}
-  .caprow .ar{color:var(--blue);font-weight:900;font-size:20px;}
-
-  /* S03 DMA two-lane structure */
-  .dma{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:8px;}
-  .dma .two{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
-  .dma .lane{display:flex;flex-direction:column;align-items:center;gap:5px;}
-  .dma .nd2{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;font-weight:700;
-    font-size:18px;text-align:center;box-shadow:0 3px 12px rgba(20,40,80,.05);width:100%;}
-  .dma .nd2 .s{font-family:var(--mono);font-size:14px;color:#8aa0bf;margin-left:6px;}
-  .dma .nd2.anc{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
-  .dma .down{color:var(--blue);font-weight:800;font-size:15px;line-height:.9;}
-  .dma .merge{color:var(--blue);font-weight:800;font-size:17px;}
-  .dma .enc{background:#fff;border:2px solid var(--blue);border-radius:12px;padding:11px 22px;font-weight:800;font-size:20px;text-align:center;}
-  .dma .bufs{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
-  .dma .buf{background:var(--soft);border:1px solid #dbe8ff;border-radius:12px;padding:12px;text-align:center;font-weight:800;font-size:18px;}
-
-  /* S06 tethering structure (스케치 참고) */
-  .tflow{display:flex;align-items:stretch;gap:6px;}
-  .tstage{background:#fff;border:1px solid var(--bd);border-radius:15px;padding:14px 12px;text-align:center;
-    display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:center;min-width:140px;box-shadow:0 5px 18px rgba(20,40,80,.05);}
-  .tstage .ic{font-size:30px;line-height:1;}
-  .tstage .t{font-weight:800;font-size:18px;}
-  .tstage .d{font-size:14px;color:var(--muted);line-height:1.3;}
-  .tstage .ip{font-family:var(--mono);font-size:14px;color:var(--blue2);background:#eef3fb;border-radius:6px;padding:1px 7px;}
-  .tstage.srv{background:linear-gradient(135deg,#0a78ff,#0059c9);border:none;} .tstage.srv .t,.tstage.srv .d{color:#fff;}
-  .tarr{display:flex;align-items:center;color:var(--blue);font-size:26px;font-weight:800;}
-  .btbox{background:#eef6ff;border:2px solid #9ec1ff;border-radius:16px;padding:11px;display:flex;flex-direction:column;gap:7px;min-width:236px;}
-  .btbox .bttitle{font-weight:800;font-size:17px;color:var(--blue2);}
-  .btbox .bnep{background:#fff;border:1.5px solid #cdddf5;border-radius:11px;padding:9px 10px;font-weight:800;font-size:15px;color:var(--ink);line-height:1.3;}
-  .btbox .bnep .enc{margin-top:7px;background:#16263F;color:#cfe3ff;border:none;border-radius:8px;padding:8px 9px;font-weight:700;font-size:14px;}
-  .natbox{background:#f7f5ff;border:2px solid #a78bfa;border-radius:15px;padding:12px 14px;min-width:230px;display:flex;flex-direction:column;gap:4px;justify-content:center;}
-  .natbox .t{font-weight:800;font-size:16px;color:#6d28d9;}
-  .natbox .map{font-family:var(--mono);font-size:14px;color:var(--ink);line-height:1.4;}
-  .natbox .map .tbl2{font-family:var(--sans);font-size:13px;color:#8a7bbf;margin-top:2px;}
-
-  /* S03 ring-buffer dials */
-  .rbwrap{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:10px;}
-  .rb{display:flex;align-items:center;gap:20px;}
-  .dialwrap{position:relative;width:156px;height:156px;flex:none;margin-top:6px;}
-  .dial{width:156px;height:156px;border-radius:50%;
-    background:conic-gradient(#0a78ff 0deg 344deg,#ff6b6b 344deg 357deg,#ffffff 357deg 360deg);
-    -webkit-mask:radial-gradient(circle, transparent 46px, #000 47px);
-            mask:radial-gradient(circle, transparent 46px, #000 47px);
-    box-shadow:0 4px 16px rgba(20,40,80,.10);}
-  .dialwrap .ptr{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:0;height:0;
-    border-left:10px solid transparent;border-right:10px solid transparent;border-top:15px solid #16263F;z-index:2;}
-  .dialwrap .ptr::after{content:"write";position:absolute;top:-30px;left:50%;transform:translateX(-50%);
-    font:800 12px var(--mono);color:#16263F;}
-  .dlabel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;
-    font-size:15px;color:var(--blue2);font-weight:700;line-height:1.15;}
-  .dlabel b{display:block;font-size:23px;color:var(--ink);}
-  .rblist{list-style:none;display:flex;flex-direction:column;gap:6px;}
-  .rblist li{font-size:16px;color:var(--muted);line-height:1.4;}
-  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:5px;}
-  .dot.blue{background:#0a78ff;} .dot.red{background:#ff6b6b;}
-
-  /* S06 per-device action cards */
-  .actrow{display:flex;align-items:stretch;gap:7px;}
-  .act{flex:1;min-width:0;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:11px 13px;
-    display:flex;flex-direction:column;gap:3px;box-shadow:0 4px 14px rgba(20,40,80,.05);}
-  .act .dev{font:700 12px var(--mono);letter-spacing:.02em;display:flex;align-items:center;gap:4px;}
-  .act .at{font-size:17px;font-weight:800;line-height:1.2;}
-  .act .ad{font-size:13.5px;color:var(--muted);line-height:1.32;}
-  .act.buds{border-top:4px solid #0074FF;} .act.buds .dev{color:#0074FF;}
-  .act.host{border-top:4px solid #6d28d9;background:#faf9ff;} .act.host .dev{color:#6d28d9;}
-  .act.srv{border-top:4px solid #16263F;} .act.srv .dev{color:#16263F;}
-  .actrow .ar{display:flex;align-items:center;color:var(--blue);font-size:22px;font-weight:800;}
-
-  /* S07 digital signature flow */
-  .sig{display:flex;flex-direction:column;gap:10px;margin:4px 0 2px;}
-  .sigrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
-  .sigrow .lbl{font:700 14px var(--sans);min-width:84px;color:var(--ink);line-height:1.2;}
-  .sigrow .lbl small{display:block;color:#8aa0bf;font-weight:600;font-size:12px;}
-  .sigrow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 10px;font-weight:700;font-size:15px;}
-  .sigrow .nd.key{background:#fff4ec;border-color:#f6c9a8;color:#c2410c;}
-  .sigrow .nd.pub{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
-  .sigrow .nd.fn{background:#16263F;color:#cfe3ff;border:none;}
-  .sigrow .nd.out{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);}
-  .sigrow .op{font-weight:900;color:#8aa0bf;font-size:16px;}
-  .sigrow .ar{color:var(--blue);font-weight:900;font-size:17px;}
-  .sigrow .ok{color:#0f7a43;font-weight:800;font-size:15px;}
-
-  @media print{ @page{size:1920px auto;margin:0;} html,body{background:#fff;} .toolbar{display:none;}
-    #deck{padding-top:0;transform:none!important;} .slide{margin:0;box-shadow:none;border-radius:0;page-break-after:always;} }
-
-html,body{background:transparent;margin:0;padding:0;}
-#deck{padding:0;}
-.slide{margin:0 !important;box-shadow:none !important;border-radius:0 !important;}
-
-]]></style>
-<section class="slide">
-    <span class="tag">BUDS LOGIC</span>
-    <div class="eyebrow">S01 · 버즈 내부</div>
-    <h1 class="h">버즈 안에서는 무슨 일이 벌어질까?</h1>
-    <p class="sub">사용자는 아무것도 안 하지만 <b>버즈의 기억은 한순간도 안 멈춘다</b> — 늘 '최근 30초'를 쥐고, 물으면 녹음·포장·전송하고 답을 재생한다.</p>
-
-    <div class="body grid" style="grid-template-columns:600px 1fr;align-items:start;">
-      <div style="display:flex;flex-direction:column;gap:18px;">
-        <div class="card soft">
-          <h3>🔁 늘 기억하기 — 상시 버퍼링</h3>
-          <p>켜져 있는 동안 늘 귀를 열어둔다. 지금 들어오는 소리를 <b>항상 '최근 30초'만큼 기억</b> — 오래된 건 지우고 새 걸로 덮어쓰며 "방금 30초"를 손에 쥔다.</p>
-          <ul class="clean" style="margin-top:12px;">
-            <li>🔊 <b>내부</b>(이어폰 출력) → 링버퍼 <b>A-int</b></li>
-            <li>🎙️ <b>외부</b>(주변음, ANC〔Active Noise Cancellation, 능동 소음 제어〕 마이크) → 링버퍼 <b>A-ext</b></li>
-          </ul>
-          <div style="margin-top:16px;font-size:19px;font-weight:800;">헛일 안 하기 — 내부음 처리 분기 <span style="font-weight:400;font-size:14px;color:#8aa0bf;">(LC3 = Low Complexity Communication Codec)</span></div>
-          <div class="branch">
-            <div class="bsrc">🔊 내부 소리(이어폰 출력)</div>
-            <div class="brows">
-              <div class="brow ok"><span class="cond">이미 LC3 (= LE Audio〔Low Energy Audio〕)?</span><span class="arr">▶</span><span class="act">그대로 보관 · <b style="color:#0f7a43">재압축 0</b> ✅</span></div>
-              <div class="brow"><span class="cond">아니면 (A2DP·아날로그)</span><span class="arr">▶</span><span class="act">PCM → LC3 압축</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="card" style="padding:16px 22px;">
-          <h3 style="font-size:20px;margin-bottom:6px;">핵심 수치</h3>
-          <p style="font-size:19px;">링버퍼 <b>30초</b> · 발화 <b>500ms~8초</b> · 침묵 <b>800ms</b> 종료</p>
-        </div>
-      </div>
-
-      <div class="flow">
-        <div class="step"><span class="num">1</span><span class="name">IDLE 대기</span><span class="desc">겉으론 쉬는 듯하지만 '기억하기'는 계속 돌아간다.</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">2</span><span class="name">트리거</span><span class="desc">버튼을 <b>길게 누름</b>(롱프레스 2초) = "지금부터 들을게" 신호.</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">3</span><span class="name">ARMED 🔔</span><span class="desc">"<b>띵</b>"(150ms) 소리로 준비됐다고 알림. 이제 말하면 됨.</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">4</span><span class="name">RECORDING 🗣️</span><span class="desc">내가 질문을 말하기 시작하면 그 말(Track B)을 담기 시작.</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">5</span><span class="name">VAD 종료</span><span class="desc"><b>발화 끝(VAD, Voice Activity Detection)</b>을 잡아 자동 종료(침묵 800ms). 시끄러워도 정확.</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">6</span><span class="name">PACKAGING 📦</span><span class="desc">듣던 소리(내부)+주변(외부)+질문을 한 봉투에 + "<b>BudsAI한테 물어봐 줘</b>" 쪽지(SBAP, Samsung BudsAI Protocol).</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">7</span><span class="name">SEND 🔒</span><span class="desc">아무도 못 열게 <b>봉인(mTLS, 상호 인증 TLS)</b> → 폰·노트북 거쳐 서버로. 거쳐 가는 기기는 내용 못 봄.</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">8</span><span class="name">WAIT ⏳</span><span class="desc">서버가 처리하는 동안 응답을 기다림.</span></div>
-        <div class="conn"></div>
-        <div class="step"><span class="num">9</span><span class="name">PLAY 🔊 → IDLE</span><span class="desc">서버 답(TTS, Text-to-Speech 음성)을 받아 귀에 들려주고 → 다시 IDLE. ('기억하기'는 계속)</span></div>
-      </div>
-    </div>
-    <div class="pg">01 / 10</div>
-  </section>
-</div>
-</foreignObject>
+<rect x="0.0" y="0.0" width="1920.0" height="1080.0" rx="2.0" fill="rgb(246, 249, 254)"/>
+<rect x="1680.8" y="56.0" width="151.2" height="37.0" rx="999.0" fill="rgb(233, 241, 255)"/>
+<rect x="88.0" y="187.7" width="600.0" height="562.1" rx="20.0" fill="rgb(239, 245, 255)" stroke="rgb(219, 232, 255)" stroke-width="1.0"/>
+<rect x="115.0" y="496.8" width="232.0" height="47.0" rx="11.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="153.0" y="595.8" width="378.2" height="33.0" rx="8.0" fill="rgb(234, 255, 244)" stroke="rgb(189, 235, 210)" stroke-width="1.0"/>
+<rect x="566.3" y="551.8" width="94.7" height="121.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="153.0" y="687.8" width="203.6" height="33.0" rx="8.0" fill="rgb(238, 243, 251)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="391.7" y="681.8" width="269.3" height="45.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="88.0" y="767.8" width="600.0" height="91.7" rx="20.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="708.0" y="187.7" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="202.7" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="253.7" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="266.7" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="281.7" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="332.7" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="345.7" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="360.7" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="411.7" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="424.7" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="439.7" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="490.7" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="503.7" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="518.7" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="569.7" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="582.7" width="1124.0" height="79.2" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="597.7" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="661.9" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="674.9" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="689.9" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="740.9" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="753.9" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="768.9" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<rect x="747.0" y="819.9" width="3.0" height="13.0" fill="rgb(188, 211, 245)"/>
+<rect x="708.0" y="832.9" width="1124.0" height="66.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="729.0" y="847.9" width="38.0" height="38.0" rx="10.0" fill="rgb(0, 116, 255)"/>
+<text x="1698.8" y="79.7" font-size="18.0" font-weight="700" fill="rgb(0, 116, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.72" xml:space="preserve">BUDS LOGIC</text>
+<text x="88.0" y="75.8" font-size="20.0" font-weight="600" fill="rgb(138, 160, 191)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">S01 · 버즈 내부</text>
+<text x="88.0" y="122.3" font-size="44.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" letter-spacing="-0.97" xml:space="preserve">버즈 안에서는 무슨 일이 벌어질까?</text>
+<text x="88.0" y="163.9" font-size="21.0" font-weight="500" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">사용자는 아무것도 안 하지만</text>
+<text x="610.3" y="163.9" font-size="21.0" font-weight="500" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">— 늘 '최근 30초'를 쥐고, 물으면 녹음·포장·전송하고 답을 재생한다.</text>
+<text x="326.3" y="163.9" font-size="21.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">버즈의 기억은 한순간도 안 멈춘다</text>
+<text x="115.0" y="233.4" font-size="23.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">🔁 늘 기억하기 — 상시 버퍼링</text>
+<text x="115.0" y="271.5" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">켜져 있는 동안 늘 귀를 열어둔다. 지금 들어오는 소리를</text>
+<text x="220.0" y="300.7" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">— 오래된 건 지우고 새 걸로 덮어쓰며 &quot;방금 30초&quot;를 손</text>
+<text x="115.0" y="329.9" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">에 쥔다.</text>
+<text x="545.5" y="271.5" font-size="20.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">항상 '최근 30</text>
+<text x="115.0" y="300.7" font-size="20.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">초'만큼 기억</text>
+<text x="139.0" y="371.1" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">🔊</text>
+<text x="200.6" y="371.1" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">(이어폰 출력) → 링버퍼</text>
+<text x="166.0" y="371.1" font-size="20.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">내부</text>
+<text x="390.9" y="371.1" font-size="20.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">A-int</text>
+<text x="139.0" y="407.3" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">🎙️</text>
+<text x="200.6" y="407.3" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">(주변음, ANC〔Active Noise Cancellation, 능동 소음 제</text>
+<text x="139.0" y="436.4" font-size="20.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">어〕 마이크) → 링버퍼</text>
+<text x="166.0" y="407.3" font-size="20.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">외부</text>
+<text x="312.2" y="436.4" font-size="20.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">A-ext</text>
+<text x="115.0" y="478.8" font-size="19.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">헛일 안 하기 — 내부음 처리 분기</text>
+<text x="360.2" y="478.9" font-size="14.0" font-weight="400" fill="rgb(138, 160, 191)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">(LC3 = Low Complexity Communication Codec)</text>
+<text x="132.0" y="526.8" font-size="19.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">🔊 내부 소리(이어폰 출력)</text>
+<text x="165.0" y="617.5" font-size="18.0" font-weight="700" fill="rgb(15, 122, 67)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">이미 LC3 (= LE Audio〔Low Energy Audio〕)?</text>
+<text x="540.2" y="617.5" font-size="18.0" font-weight="900" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="580.3" y="579.5" font-size="18.0" font-weight="700" fill="rgb(15, 157, 88)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">그대로 보</text>
+<text x="580.3" y="600.5" font-size="18.0" font-weight="700" fill="rgb(15, 157, 88)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">관 ·</text>
+<text x="589.3" y="652.5" font-size="18.0" font-weight="700" fill="rgb(15, 157, 88)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">✅</text>
+<text x="580.3" y="624.5" font-size="18.0" font-weight="700" fill="rgb(15, 122, 67)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">재압축 0</text>
+<text x="165.0" y="709.5" font-size="18.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">아니면 (A2DP·아날로그)</text>
+<text x="365.6" y="709.5" font-size="18.0" font-weight="900" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="405.7" y="709.5" font-size="18.0" font-weight="700" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">PCM → LC3 압축</text>
+<text x="111.0" y="802.6" font-size="20.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">핵심 수치</text>
+<text x="111.0" y="833.8" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">링버퍼</text>
+<text x="215.6" y="833.8" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">· 발화</text>
+<text x="372.6" y="833.8" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">· 침묵</text>
+<text x="488.9" y="833.8" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">종료</text>
+<text x="165.0" y="833.8" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">30초</text>
+<text x="258.1" y="833.8" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">500ms~8초</text>
+<text x="415.1" y="833.8" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">800ms</text>
+<text x="742.6" y="226.9" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">1</text>
+<text x="783.0" y="219.3" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">IDLE 대기</text>
+<text x="987.0" y="218.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">겉으론 쉬는 듯하지만 '기억하기'는 계속 돌아간다.</text>
+<text x="742.6" y="305.9" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">2</text>
+<text x="783.0" y="298.3" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">트리거</text>
+<text x="987.0" y="297.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">버튼을</text>
+<text x="1111.1" y="297.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">(롱프레스 2초) = &quot;지금부터 들을게&quot; 신호.</text>
+<text x="1041.0" y="297.7" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">길게 누름</text>
+<text x="742.6" y="384.9" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">3</text>
+<text x="783.0" y="380.3" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">ARMED 🔔</text>
+<text x="987.0" y="376.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">&quot;</text>
+<text x="1010.6" y="376.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">&quot;(150ms) 소리로 준비됐다고 알림. 이제 말하면 됨.</text>
+<text x="994.2" y="376.7" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">띵</text>
+<text x="742.6" y="463.9" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">4</text>
+<text x="783.0" y="459.3" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">RECORDING 🗣️</text>
+<text x="987.0" y="455.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">내가 질문을 말하기 시작하면 그 말(Track B)을 담기 시작.</text>
+<text x="742.6" y="542.9" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">5</text>
+<text x="783.0" y="535.3" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">VAD 종료</text>
+<text x="1318.0" y="534.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">을 잡아 자동 종료(침묵 800ms). 시끄러워도 정확.</text>
+<text x="987.0" y="534.7" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">발화 끝(VAD, Voice Activity Detection)</text>
+<text x="742.6" y="621.9" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">6</text>
+<text x="783.0" y="617.3" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">PACKAGING 📦</text>
+<text x="987.0" y="613.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">듣던 소리(내부)+주변(외부)+질문을 한 봉투에 + &quot;</text>
+<text x="1530.1" y="613.7" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">&quot; 쪽지(SBAP, Samsung BudsAI</text>
+<text x="996.5" y="640.3" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">Protocol).</text>
+<text x="1358.8" y="613.7" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">BudsAI한테 물어봐 줘</text>
+<text x="742.6" y="714.1" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">7</text>
+<text x="783.0" y="709.5" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">SEND 🔒</text>
+<text x="987.0" y="705.9" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">아무도 못 열게</text>
+<text x="1325.6" y="705.9" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">→ 폰·노트북 거쳐 서버로. 거쳐 가는 기기는 내용 못 봄.</text>
+<text x="1099.8" y="705.9" font-size="19.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">봉인(mTLS, 상호 인증 TLS)</text>
+<text x="742.6" y="793.1" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">8</text>
+<text x="783.0" y="788.5" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">WAIT ⏳</text>
+<text x="987.0" y="784.9" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">서버가 처리하는 동안 응답을 기다림.</text>
+<text x="742.6" y="872.1" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">9</text>
+<text x="783.0" y="867.5" font-size="21.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">PLAY 🔊 → IDLE</text>
+<text x="987.0" y="863.9" font-size="19.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">서버 답(TTS, Text-to-Speech 음성)을 받아 귀에 들려주고 → 다시 IDLE. ('기억하기'는 계속)</text>
+<text x="1744.4" y="1039.7" font-size="18.0" font-weight="700" fill="rgb(154, 171, 196)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">01 / 10</text>
 </svg>

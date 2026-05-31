@@ -597,15 +597,14 @@
           </ul>
         </div>
         <div class="card">
-          <div style="font-size:21px;font-weight:800;margin-bottom:8px;"><span class="num-badge">4</span> 내부(사설) 프로토콜을 쓰면 좋은 점</div>
+          <div style="font-size:21px;font-weight:800;margin-bottom:8px;"><span class="num-badge">4</span> 왜 자체 포맷(SBAP)이 필요한가 <span class="muted" style="font-size:13.5px;font-weight:600;">— 사설이라 좋은 게 아니라, 표준에 그릇이 없어서</span></div>
           <ul class="clean" style="font-size:18px;">
-            <li><b>3트랙 + 명령 동시 운반</b> — 표준 오디오 프로파일(A2DP=재생 1스트림, HFP=통화)엔 "내부·외부·발화 + 호출 명령"을 한 번에 담는 그릇이 아예 없음. 제품의 본질이 프로토콜에 직접 박힘.</li>
-            <li><b>명령·내용물의 원자적 결합</b> — 한 메시지로 묶여 순서 꼬임·누락·레이스 없음.</li>
-            <li><b>삼성 전용 필드 자유 추가·빠른 진화</b> — 생태계 힌트·Knox 보안 필드 등을 자유롭게 추가. SIG 표준화 절차가 필요 없어 빠르게 개선.</li>
-            <li><b>효율</b> — 우리 용도에 맞춰 군더더기 없는 헤더, 내부음은 <b>재압축 0</b>으로 LC3 프레임 그대로 운반.</li>
-            <li><b>보안 1급 통합</b> — 종단 봉인(mTLS)·서명·무결성 태그를 규약에 내장.</li>
-            <li><b>복제 난이도 = 해자/IP</b> — 칩·서버·앱이 같은 사설 규약을 공유 → 경쟁사가 통합 경험을 못 베끼고, 특허·IP 자산이 됨.</li>
+            <li><b>멀티스트림+명령 컨테이너</b> <span style="color:var(--blue);font-weight:700;">(핵심)</span> — 표준 오디오 프로파일(A2DP=재생 1스트림·HFP=통화)엔 "내부·외부·발화 + 호출 명령"을 <b>한 번에 담을 그릇이 없음</b> → 자체 페이로드 포맷이 필수.</li>
+            <li><b>1st-party 스키마 자유 진화</b> — 버즈·폰·서버가 <b>전부 삼성</b>이라 필드를 자유롭게 정의·추가하고 빠르게 바꿈(SIG 표준화 불필요). <span class="muted">비밀이라서가 아니라 3자 모두 1st-party라서.</span></li>
+            <li><b>LC3 재압축 0</b> — 이미 LC3인 내부음은 디코드·재인코딩 없이 <b>프레임 그대로</b> 실어 운반.</li>
+            <li><b>표준 위에 얹는 보안</b> — 봉인은 <b>표준 mTLS</b>, 무결성은 서명/CRC가 담당. SBAP는 그걸 '실어 나르는 컨테이너'일 뿐(프로토콜이 비밀이라 안전한 게 아님).</li>
           </ul>
+          <p class="muted" style="margin-top:8px;font-size:14px;">※ 순서·무손실은 전송(mTLS/TCP)이, 보안은 표준 암호가 보장 — SBAP 고유 공이 아님. 경쟁 해자도 와이어 포맷 비밀이 아니라 HW·실리콘·모델·UX <b>통합</b>에서 나온다.</p>
         </div>
       </div>
     </div>
@@ -816,7 +815,7 @@
     <span class="tag">SECURITY · SoC</span>
     <div class="eyebrow">S10 · 보안 ③ 키 보관</div>
     <h1 class="h">그 비밀 키, 어디에 숨기지? — 보안 SoC</h1>
-    <p class="sub">가장 약한 곳은 <b>'보관'</b>이다 — 키를 코드에 두면 칩을 뜯겨 털린다. 그래서 칩 속 금고에 넣고 <b>'쓰기만, 꺼내기는 아예 없게'</b> 잠근다.</p>
+    <p class="sub">가장 약한 곳은 <b>'보관'</b>이다 — 키를 코드에 두면 칩을 뜯는 순간 통째로 털린다. 그래서 칩 속 금고에 넣고 <b>'쓰기만, 꺼내기는 아예 없게'</b> 잠근다.</p>
 
     <div class="body" style="gap:13px;">
       <div class="grid" style="grid-template-columns:0.8fr 1.2fr;gap:18px;align-items:stretch;">

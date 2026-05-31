@@ -25,6 +25,18 @@
   .toolbar .hint{font-family:var(--mono);color:#7d93b3;font-size:12px;}
 
   #deck{width:1920px;transform-origin:top left;padding-top:60px;}
+
+  /* ===== SVG/PDF 내보내기용 인쇄 스타일 (화면 표시엔 영향 없음) ===== */
+  @media print{
+    @page{ size:20in 11.25in; margin:0; }
+    html,body{background:#fff !important;}
+    .toolbar{display:none !important;}
+    #deck{transform:none !important;padding:0 !important;width:1920px !important;}
+    .slide{margin:0 !important;box-shadow:none !important;border-radius:0 !important;
+      break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .slide:last-child{page-break-after:auto;break-after:auto;}
+    .slide::before{display:none !important;} /* 상단 글로우 끔 — 깨끗한 벡터 추출 */
+  }
   .slide{position:relative;width:1920px;height:1080px;background:var(--bg);overflow:hidden;
     padding:58px 88px 60px;display:flex;flex-direction:column;margin:0 auto 40px;border-radius:2px;
     box-shadow:0 10px 50px rgba(20,40,80,.18);}
@@ -602,15 +614,14 @@
           </ul>
         </div>
         <div class="card">
-          <div style="font-size:21px;font-weight:800;margin-bottom:8px;"><span class="num-badge">4</span> 내부(사설) 프로토콜을 쓰면 좋은 점</div>
+          <div style="font-size:21px;font-weight:800;margin-bottom:8px;"><span class="num-badge">4</span> 왜 자체 포맷(SBAP)이 필요한가 <span class="muted" style="font-size:13.5px;font-weight:600;">— 사설이라 좋은 게 아니라, 표준에 그릇이 없어서</span></div>
           <ul class="clean" style="font-size:18px;">
-            <li><b>3트랙 + 명령 동시 운반</b> — 표준 오디오 프로파일(A2DP=재생 1스트림, HFP=통화)엔 "내부·외부·발화 + 호출 명령"을 한 번에 담는 그릇이 아예 없음. 제품의 본질이 프로토콜에 직접 박힘.</li>
-            <li><b>명령·내용물의 원자적 결합</b> — 한 메시지로 묶여 순서 꼬임·누락·레이스 없음.</li>
-            <li><b>삼성 전용 필드 자유 추가·빠른 진화</b> — 생태계 힌트·Knox 보안 필드 등을 자유롭게 추가. SIG 표준화 절차가 필요 없어 빠르게 개선.</li>
-            <li><b>효율</b> — 우리 용도에 맞춰 군더더기 없는 헤더, 내부음은 <b>재압축 0</b>으로 LC3 프레임 그대로 운반.</li>
-            <li><b>보안 1급 통합</b> — 종단 봉인(mTLS)·서명·무결성 태그를 규약에 내장.</li>
-            <li><b>복제 난이도 = 해자/IP</b> — 칩·서버·앱이 같은 사설 규약을 공유 → 경쟁사가 통합 경험을 못 베끼고, 특허·IP 자산이 됨.</li>
+            <li><b>멀티스트림+명령 컨테이너</b> <span style="color:var(--blue);font-weight:700;">(핵심)</span> — 표준 오디오 프로파일(A2DP=재생 1스트림·HFP=통화)엔 "내부·외부·발화 + 호출 명령"을 <b>한 번에 담을 그릇이 없음</b> → 자체 페이로드 포맷이 필수.</li>
+            <li><b>1st-party 스키마 자유 진화</b> — 버즈·폰·서버가 <b>전부 삼성</b>이라 필드를 자유롭게 정의·추가하고 빠르게 바꿈(SIG 표준화 불필요). <span class="muted">비밀이라서가 아니라 3자 모두 1st-party라서.</span></li>
+            <li><b>LC3 재압축 0</b> — 이미 LC3인 내부음은 디코드·재인코딩 없이 <b>프레임 그대로</b> 실어 운반.</li>
+            <li><b>표준 위에 얹는 보안</b> — 봉인은 <b>표준 mTLS</b>, 무결성은 서명/CRC가 담당. SBAP는 그걸 '실어 나르는 컨테이너'일 뿐(프로토콜이 비밀이라 안전한 게 아님).</li>
           </ul>
+          <p class="muted" style="margin-top:8px;font-size:14px;">※ 순서·무손실은 전송(mTLS/TCP)이, 보안은 표준 암호가 보장 — SBAP 고유 공이 아님. 경쟁 해자도 와이어 포맷 비밀이 아니라 HW·실리콘·모델·UX <b>통합</b>에서 나온다.</p>
         </div>
       </div>
     </div>
@@ -821,45 +832,71 @@
     <span class="tag">SECURITY · SoC</span>
     <div class="eyebrow">S10 · 보안 ③ 키 보관</div>
     <h1 class="h">그 비밀 키, 어디에 숨기지? — 보안 SoC</h1>
-    <p class="sub">가장 약한 곳은 <b>'보관'</b>이다 — 키를 코드에 두면 칩을 뜯겨 털린다. 그래서 칩 속 금고에 넣고 <b>'쓰기만, 꺼내기는 아예 없게'</b> 잠근다.</p>
+    <p class="sub">가장 약한 곳은 <b>'보관'</b>이다 — 키를 코드에 두면 칩을 뜯는 순간 통째로 털린다. 그래서 칩 속 금고에 넣고 <b>'쓰기만, 꺼내기는 아예 없게'</b> 잠근다.</p>
 
-    <div class="body grid" style="grid-template-columns:1fr 1.05fr;align-items:start;">
-      <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="body" style="gap:13px;">
+      <div class="grid" style="grid-template-columns:0.8fr 1.2fr;gap:18px;align-items:stretch;">
         <div class="card">
           <h3><span class="num-badge">1</span> 키를 어디에 두나</h3>
-          <p>키를 <b>펌웨어(코드)에 넣으면</b> 칩을 뜯어 코드를 덤프하는 순간 털린다. 그래서 <b>보안 SoC(System on a Chip)의 특수 금고</b>(키 저장소)에 넣는다.</p>
+          <p style="font-size:17px;">키를 <b>펌웨어(코드)에 넣으면</b> 칩을 뜯어 덤프하는 순간 털린다. 그래서 코드가 아니라 <b>보안 SoC(System on a Chip)의 하드웨어 금고</b>에 잠근다.</p>
+          <p style="font-size:16px;margin-top:10px;" class="muted">→ 그 금고의 <b style="color:var(--blue)">본체가 KMU</b>, 금고를 우회 못 하게 <b>나머지 3겹</b>이 감싼다.</p>
         </div>
-        <div class="card soft">
-          <h3><span class="num-badge">3</span> 보안 SoC 4블록 — 자세히</h3>
-          <ul class="clean" style="font-size:15.5px;">
-            <li><b>TrustZone (영역 분리)</b> — 칩을 '보안 세계 / 일반 세계'로 <b>CPU 하드웨어가 물리적으로 분리</b>. 키·암호 연산은 보안 세계에만, 일반 펌웨어는 거길 <b>절대 못 들여다봄</b>(경계를 HW가 강제).</li>
-            <li><b>키 관리 유닛(KMU)</b> — 키를 전용 슬롯에 저장하되 <b>'읽기(출력)' 경로가 아예 없는</b> 하드웨어. 펌웨어는 슬롯 <b>번호(핸들)만</b> 가리켜 "서명/암호화 해줘" → 결과만 받음. (②의 금고를 실제로 구현)</li>
-            <li><b>시큐어 부트</b> — 부팅 때 <b>ROM의 불변 루트키</b>로 펌웨어 서명 검증 → <b>정품 서명 펌웨어만 실행</b>. 변조·악성 펌웨어는 애초에 실행이 안 돼 "키 꺼내줘"를 못 함(신뢰 사슬의 뿌리).</li>
-            <li><b>온칩 생성 · 디버그 잠금</b> — 키쌍을 <b>칩 내부 난수발생기(TRNG)로 생성</b>(제조 중에도 칩 밖에 안 나옴) · 루트 비밀은 <b>OTP(일회성 퓨즈)</b>에 굽고 읽기잠금 · 양산품은 <b>JTAG/SWD 디버그 포트를 잠가</b> 메모리 덤프·프로빙 차단.</li>
-          </ul>
-          <p class="muted" style="margin-top:7px;font-size:15px;">→ 별도 보안칩 없이 <b>버즈 SoC의 이 기능을 켜면</b> 됨(추가 칩 0). 스마트링·이어버드 칩이 이미 이 부류.</p>
+        <div class="card blue">
+          <h3><span class="num-badge">2</span> 금고 본체 = KMU (Key Management Unit, 키 관리 유닛)</h3>
+          <p style="font-size:16.5px;margin-bottom:8px;">키로 <b>'서명·암호 연산'만 대신</b> 해주고, <b>키를 꺼내는 명령은 아예 없다</b>(읽기 경로 자체가 없는 HW). 펌웨어는 슬롯 <b>번호</b>로만 부탁 → 결과만 받음.</p>
+          <div class="codeflow">
+            펌웨어 ─"키 #3으로 이 값 서명해줘"─▶ [KMU 금고 🔐]<br>
+            펌웨어 ◀──────"서명 결과만"────── &nbsp;✅ 결과는 줌 &nbsp;/&nbsp; ❌ 키는 절대 안 줌
+          </div>
+          <p style="margin-top:10px;font-size:16px;">🥤 자판기처럼 — <b>음료(결과)</b>는 받아도 안의 <b>현금통(키)</b>은 못 꺼낸다.</p>
         </div>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        <div class="card blue">
-          <h3><span class="num-badge">2</span> 핵심 원리 — "쓸 수만 있고, 읽을 수는 없다"</h3>
-          <p style="font-size:17px;margin-bottom:10px;">금고는 <b>키로 '서명·암호 연산'만 대신 해주고</b>, <b>키 자체를 꺼내는 명령은 아예 없다.</b> 그래서 펌웨어가 털려도, 칩을 뜯어도 키 원본은 못 얻는다 — <b>연산만 빌릴 수 있을 뿐.</b></p>
-          <div class="codeflow" style="margin-top:4px;">
-            펌웨어 ─"키 #3으로 이 값 서명해줘"─▶ [보안 금고 🔐]<br>
-            펌웨어 ◀──────"서명 결과만"────── &nbsp;✅ 결과는 줌 &nbsp;/&nbsp; ❌ 키는 절대 안 줌
+      <div class="card soft" style="flex:1;">
+        <h3><span class="num-badge">3</span> KMU 혼자선 불완전 — 공격은 '정상 경로'로만 오지 않는다 → 나머지 3겹이 <b>우회로</b>를 막는다</h3>
+        <div class="grid" style="grid-template-columns:1.06fr 1fr 1fr;gap:14px;margin-top:9px;align-items:stretch;">
+          <div class="card" style="border-top:5px solid var(--red);padding:14px 18px;">
+            <div style="font-weight:800;font-size:18px;">🔐 시큐어 부트 <span style="color:var(--red);font-size:13.5px;font-weight:700;">★ KMU와 한 쌍</span></div>
+            <div class="muted" style="font-size:14px;margin:5px 0 6px;">막는 구멍 — 변조·악성 펌웨어가 실행되면</div>
+            <p style="font-size:15.5px;">그놈이 <b>합법적으로</b> "키 #3으로 서명해줘"를 시킬 수 있다 → ROM 루트키로 검증해 <b>정품 서명 펌웨어만 부팅</b>시켜 차단. <b style="color:var(--red)">이게 뚫리면 KMU의 '쓰기 허용'이 공격자에게 열린다.</b></p>
           </div>
-          <p style="margin-top:12px;">🥤 <b>자판기</b> 같다 — 버튼 눌러 <b>음료(=결과)</b>는 받아도 안의 <b>현금통(=키)</b>은 못 꺼낸다. &nbsp;📮 또는 <b>우체통</b> — 넣을 순 있어도 꺼낼 순 없는 <b>일방향</b>.</p>
+          <div class="card" style="padding:14px 18px;">
+            <div style="font-weight:800;font-size:18px;">🧱 TrustZone</div>
+            <div class="muted" style="font-size:14px;margin:5px 0 6px;">막는 구멍 — 일반 코드가 키 영역을 엿봄·건드림</div>
+            <p style="font-size:15.5px;">일반 세계 코드가 <b>KMU·키 연산 영역을 들여다보거나 건드리지 못하게</b>, CPU가 <b>보안/일반 세계를 물리적으로 분리</b>.</p>
+          </div>
+          <div class="card" style="padding:14px 18px;">
+            <div style="font-weight:800;font-size:18px;">🎲 온칩 생성 · 디버그 잠금</div>
+            <div class="muted" style="font-size:14px;margin:5px 0 6px;">막는 구멍 — 우회로로 키를 빼냄</div>
+            <p style="font-size:15.5px;">키를 <b>칩 내부 난수(TRNG)로 생성</b>(밖에 안 나옴)·루트비밀 <b>OTP</b>에 굽고, <b>JTAG/SWD 포트를 잠가</b> 메모리 덤프·프로빙 우회 추출을 차단.</p>
+          </div>
         </div>
-        <div class="card">
-          <h3><span class="num-badge">4</span> 그래서 얻는 것</h3>
-          <ul class="clean" style="font-size:16px;">
-            <li><b>봇·어뷰징·도용 차단</b> — <b>정품 버즈만</b> 접속 → 가짜 요청이 비싼 AI에 못 들어옴(비용 안정).</li>
-            <li><b>정확한 식별·과금</b> — 위조 불가 ID로 디바이스별 사용량·이상탐지.</li>
-            <li><b>유출 사고 최소화</b> — 현장에 비번·키 없음 → 중앙에 털릴 DB 자체가 없음.</li>
-            <li><b>분실해도 안심</b> — 그 기기 신분증 <b>하나만 폐기</b>, 나머진 무중단.</li>
-            <li><b>사용자 편의 · 규정</b> — 비번 0(zero-install)인데 은행급 인증 · 호스트에 평문이 안 남아 개인정보·GDPR 준수도 쉬움.</li>
-          </ul>
+      </div>
+
+      <div class="note-strip" style="background:#16263F;color:#cfe3ff;border:none;font-size:16.5px;">
+        🔑 <b style="color:#fff">KMU = 금고 본체</b>(키를 못 꺼내게) · <b style="color:#fff">나머지 셋 = 우회·무력화를 막는 자물쇠·벽·경비.</b> 특히 <b style="color:#ffd27a">시큐어 부트가 무너지면 KMU 보호가 통째로 의미를 잃어</b> → "핵심은 KMU"지만 실제 안전은 <b style="color:#fff">시큐어 부트 + KMU 한 쌍</b>이 받친다. <span style="color:#9fb6d6;font-size:14px;">별도 보안칩 없이 SoC 기능만 켜면 됨(추가 칩 0).</span>
+      </div>
+      <div style="font-size:17px;font-weight:800;margin-top:2px;"><span class="num-badge">4</span> 그래서 얻는 것 <span class="muted" style="font-size:13.5px;font-weight:600;">— '정품 버즈만 접속 + 현장에 키 평문 0'이 만드는 실제 효과</span></div>
+      <div class="grid" style="grid-template-columns:repeat(5,1fr);gap:10px;">
+        <div class="card" style="padding:11px 13px;">
+          <div style="font-weight:800;font-size:14px;color:#0074FF;">🤖 봇·어뷰징·도용 차단</div>
+          <div style="font-size:12.5px;margin-top:4px;line-height:1.4;" class="muted">인증서 없으면 <b>TLS 핸드셰이크 단계에서 거절</b> → 가짜 폰·복제 앱·짝퉁 버즈가 비싼 STT·LLM 추론을 <b>한 번도 못 돌림(GPU 비용 0)</b>.</div>
+        </div>
+        <div class="card" style="padding:11px 13px;">
+          <div style="font-weight:800;font-size:14px;color:#0074FF;">📊 기기별 식별·과금</div>
+          <div style="font-size:12.5px;margin-top:4px;line-height:1.4;" class="muted">인증서의 <b>위조 불가 고유 ID</b>로 기기별 사용량 집계·요금·<b>속도 제한</b>·이상탐지 → 폭주하는 한 대만 콕 집어 차단.</div>
+        </div>
+        <div class="card" style="padding:11px 13px;">
+          <div style="font-weight:800;font-size:14px;color:#0074FF;">🗄️ 털려도 안전한 서버</div>
+          <div style="font-size:12.5px;margin-top:4px;line-height:1.4;" class="muted">서버엔 비번·대칭키 DB가 없고 <b>공개키만 보관</b> → <b>DB가 통째로 유출돼도</b> 위조 접속 불가(훔칠 비밀이 없음).</div>
+        </div>
+        <div class="card" style="padding:11px 13px;">
+          <div style="font-weight:800;font-size:14px;color:#0074FF;">🔑 분실·도난 대응</div>
+          <div style="font-size:12.5px;margin-top:4px;line-height:1.4;" class="muted">그 기기 <b>인증서 1장만 폐기</b>(CRL/OCSP 해지목록) → 나머지 수백만 대는 <b>무중단</b>으로 그대로 동작.</div>
+        </div>
+        <div class="card" style="padding:11px 13px;">
+          <div style="font-weight:800;font-size:14px;color:#0074FF;">🙆 무비번 + 규정 준수</div>
+          <div style="font-size:12.5px;margin-top:4px;line-height:1.4;" class="muted">사용자는 <b>로그인·앱 설치 0</b>인데 은행급 상호 인증 · 호스트에 <b>평문이 안 남아</b> GDPR·개인정보 최소수집 충족.</div>
         </div>
       </div>
     </div>

@@ -170,3 +170,6 @@ venv/
 # Editor
 .vscode/
 .idea/
+
+# Node
+node_modules/

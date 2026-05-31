@@ -1,306 +1,115 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
-<foreignObject x="0" y="0" width="1920" height="1080">
-<div xmlns="http://www.w3.org/1999/xhtml">
-<style><![CDATA[
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.min.css");
-
-  *{box-sizing:border-box;margin:0;padding:0;}
-  :root{
-    --blue:#0074FF; --blue2:#0059c9; --ink:#16263F; --muted:#54647d;
-    --bg:#F6F9FE; --card:#ffffff; --bd:#E6ECF5; --soft:#EFF5FF; --soft2:#E3EEFF;
-    --slate:#49617D; --red:#E5484D; --green:#0f9d58; --amber:#d97706; --violet:#6d28d9;
-    --mono:'JetBrains Mono',monospace;
-    --sans:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
-  }
-  html,body{background:#cdd6e3;font-family:var(--sans);-webkit-font-smoothing:antialiased;color:var(--ink);}
-  .toolbar{position:fixed;top:0;left:0;right:0;height:44px;background:#16263F;color:#cdd6e3;
-    display:flex;align-items:center;gap:18px;padding:0 18px;z-index:99;font-size:13px;}
-  .toolbar a{color:#9ec1ff;text-decoration:none;font-weight:600;}
-  .toolbar a:hover{color:#fff;}
-  .toolbar .sp{flex:1;}
-  .toolbar .hint{font-family:var(--mono);color:#7d93b3;font-size:12px;}
-
-  #deck{width:1920px;transform-origin:top left;padding-top:60px;}
-  .slide{position:relative;width:1920px;height:1080px;background:var(--bg);overflow:hidden;
-    padding:58px 88px 60px;display:flex;flex-direction:column;margin:0 auto 40px;border-radius:2px;
-    box-shadow:0 10px 50px rgba(20,40,80,.18);}
-  .slide::before{content:"";position:absolute;top:-380px;left:50%;transform:translateX(-50%);
-    width:1500px;height:720px;background:radial-gradient(ellipse,rgba(0,116,255,.15),transparent 68%);pointer-events:none;}
-  .slide>*{position:relative;z-index:1;}
-
-  .eyebrow{font-size:20px;font-weight:600;color:#8aa0bf;}
-  .h{font-size:44px;font-weight:800;line-height:1.12;letter-spacing:-.022em;margin-top:3px;}
-  .sub{font-size:21px;color:var(--muted);margin-top:9px;line-height:1.45;font-weight:500;max-width:1600px;}
-  .body{flex:1;margin-top:14px;min-height:0;display:flex;flex-direction:column;gap:14px;}
-
-  .tag{position:absolute;top:56px;right:88px;font:700 18px var(--mono);color:var(--blue);
-    background:#E9F1FF;border-radius:999px;padding:7px 18px;letter-spacing:.04em;}
-
-  .card{background:var(--card);border:1px solid var(--bd);border-radius:20px;
-    box-shadow:0 6px 24px rgba(20,40,80,.05);padding:22px 26px;}
-  .card.soft{background:var(--soft);border-color:#dbe8ff;}
-  .card.blue{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
-  .card.blue *{color:#fff;}
-  .card h3{font-size:23px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
-  .card p,.card li{font-size:20px;color:var(--muted);line-height:1.46;}
-  .num-badge{font:800 18px var(--mono);color:#fff;background:var(--blue);border-radius:8px;padding:2px 11px;}
-  .card.blue .num-badge{background:rgba(255,255,255,.25);}
-
-  ul.clean{list-style:none;display:flex;flex-direction:column;gap:7px;}
-  ul.clean li{padding-left:24px;position:relative;}
-  ul.clean li::before{content:"";position:absolute;left:5px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--blue);}
-  .card.blue ul.clean li::before{background:#fff;}
-  ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:7px;}
-  ol.steps li{counter-increment:s;padding-left:38px;position:relative;font-size:20px;color:var(--muted);line-height:1.45;}
-  ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:26px;height:26px;
-    background:#E9F1FF;color:var(--blue2);border-radius:8px;font:800 16px var(--mono);
-    display:flex;align-items:center;justify-content:center;}
-
-  b,strong{color:var(--ink);font-weight:700;}
-  .card.blue b,.card.blue strong{color:#fff;}
-  .k{font-family:var(--mono);background:#eef3fb;border:1px solid var(--bd);border-radius:6px;padding:1px 7px;color:var(--blue2);font-size:.85em;}
-  .src{position:absolute;left:100px;bottom:36px;font-size:16px;color:#9aabc4;max-width:1500px;}
-  .pg{position:absolute;right:100px;bottom:34px;font:700 18px var(--mono);color:#9aabc4;}
-
-  .grid{display:grid;gap:20px;}
-  .muted{color:var(--muted);} .small{font-size:18px;}
-
-  .tbl{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;
-    border:1px solid var(--bd);font-size:21px;}
-  .tbl th,.tbl td{padding:12px 18px;border-bottom:1px solid var(--bd);text-align:right;}
-  .tbl th:first-child,.tbl td:first-child{text-align:left;color:var(--muted);}
-  .tbl thead th{background:#f3f8ff;font-weight:800;color:var(--ink);}
-  .tbl tr:last-child td{border-bottom:none;font-weight:800;}
-  .tbl .raw{color:#94a8c4;} .tbl .lc3{color:var(--blue);}
-
-  /* flow steps */
-  .flow{display:flex;flex-direction:column;gap:0;}
-  .step{display:flex;align-items:flex-start;gap:16px;background:#fff;border:1px solid var(--bd);
-    border-radius:14px;padding:12px 20px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
-  .step .num{font:800 18px var(--mono);color:#fff;background:var(--blue);min-width:38px;height:38px;
-    border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px;}
-  .step .name{font-size:21px;font-weight:800;min-width:188px;flex:none;}
-  .step .desc{font-size:19px;color:var(--muted);line-height:1.4;}
-  .conn{width:3px;height:13px;background:#bcd3f5;margin-left:39px;}
-
-  .pipe{display:flex;align-items:stretch;gap:0;}
-  .node{flex:1;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:18px 20px;
-    box-shadow:0 5px 18px rgba(20,40,80,.05);display:flex;flex-direction:column;gap:6px;}
-  .node .who{font:700 16px var(--mono);color:#8aa0bf;letter-spacing:.03em;text-transform:uppercase;}
-  .node .t{font-size:22px;font-weight:800;}
-  .node p{font-size:18px;color:var(--muted);line-height:1.4;}
-  .arrowx{display:flex;align-items:center;justify-content:center;width:52px;color:var(--blue);font-size:36px;font-weight:800;}
-
-  .bar{height:48px;border-radius:11px;display:flex;align-items:center;padding:0 20px;color:#fff;font-size:23px;font-weight:800;}
-  .bar.raw{background:#94a8c4;width:100%;}
-  .bar.lc3{background:linear-gradient(90deg,#0a78ff,#0059c9);width:14%;min-width:150px;}
-
-  .wave{display:flex;align-items:center;gap:4px;height:52px;}
-  .wave i{width:6px;border-radius:3px;background:var(--blue);opacity:.85;}
-
-  .pkt{border:2px solid #cdddf5;border-radius:16px;overflow:hidden;background:#fff;}
-  .pkt .row{display:flex;align-items:stretch;border-top:1px solid #e7eefa;}
-  .pkt .row:first-child{border-top:none;}
-  .pkt .lab{width:130px;flex:none;background:#f3f8ff;font:800 20px var(--sans);color:var(--blue2);
-    padding:14px 14px;display:flex;align-items:center;justify-content:center;border-right:1px solid #e7eefa;}
-  .pkt .val{padding:13px 18px;font-size:20px;color:var(--ink);font-weight:600;display:flex;align-items:center;}
-  .pkt .three{display:flex;flex:1;}
-  .pkt .three .s{flex:1;padding:12px 10px;text-align:center;border-right:1px dashed #cdddf5;font-size:19px;font-weight:700;}
-  .pkt .three .s:last-child{border-right:none;}
-  .pkt .s.int{background:#eef6ff;color:#0059c9;} .pkt .s.ext{background:#eafff4;color:#0f9d58;} .pkt .s.b{background:#fff4ec;color:#c2410c;}
-
-  .ring .cells{display:flex;gap:4px;}
-  .ring .cells span{flex:1;height:42px;border-radius:6px;background:#e4edfb;border:1px solid #cfe0f7;}
-  .ring .cells span.new{background:var(--blue);border-color:var(--blue);}
-  .ring .cells span.old{background:#fde2e2;border-color:#f6b9b9;}
-
-  .pillrow{display:flex;gap:12px;flex-wrap:wrap;}
-  .mini{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;box-shadow:0 3px 12px rgba(20,40,80,.04);}
-  .mini .n{font:800 21px var(--sans);color:var(--blue);} .mini .d{font-size:17px;color:var(--muted);margin-top:1px;}
-
-  .note-strip{background:#E9F1FF;border:1px solid #cfe0f7;border-radius:13px;padding:14px 22px;font-size:21px;color:#0059c9;font-weight:600;line-height:1.45;}
-  .codeflow{background:#0f2036;color:#cfe3ff;border-radius:13px;padding:16px 20px;font-family:var(--mono);font-size:19px;line-height:1.75;}
-
-  /* branch (분기 구조도) */
-  .branch{margin-top:12px;}
-  .branch .bsrc{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--bd);
-    border-radius:11px;padding:8px 16px;font-weight:800;font-size:19px;box-shadow:0 3px 10px rgba(20,40,80,.05);}
-  .branch .brows{margin:8px 0 0 18px;padding-left:18px;border-left:2px dashed #bcd3f5;
-    display:flex;flex-direction:column;gap:9px;}
-  .brow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:18px;position:relative;}
-  .brow::before{content:"";position:absolute;left:-18px;top:50%;width:16px;height:2px;background:#bcd3f5;}
-  .brow .cond{background:#eef3fb;border:1px solid var(--bd);border-radius:8px;padding:5px 11px;font-weight:700;color:var(--ink);}
-  .brow .arr{color:var(--blue);font-weight:900;}
-  .brow .act{font-weight:700;color:var(--muted);}
-  .brow.ok .cond{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
-  .brow.ok .act{color:var(--green);}
-
-  /* capture flow (소리 → PCM) */
-  .caps{display:flex;flex-direction:column;gap:8px;}
-  .caprow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:18px;}
-  .caprow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 12px;font-weight:700;color:var(--ink);}
-  .caprow .nd.op{background:#f3f8ff;color:var(--blue2);}
-  .caprow .nd.pcm{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);font-weight:800;}
-  .caprow .ar{color:var(--blue);font-weight:900;font-size:20px;}
-
-  /* S03 DMA two-lane structure */
-  .dma{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:8px;}
-  .dma .two{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
-  .dma .lane{display:flex;flex-direction:column;align-items:center;gap:5px;}
-  .dma .nd2{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:11px 16px;font-weight:700;
-    font-size:18px;text-align:center;box-shadow:0 3px 12px rgba(20,40,80,.05);width:100%;}
-  .dma .nd2 .s{font-family:var(--mono);font-size:14px;color:#8aa0bf;margin-left:6px;}
-  .dma .nd2.anc{background:linear-gradient(135deg,#0a78ff,#0059c9);color:#fff;border:none;}
-  .dma .down{color:var(--blue);font-weight:800;font-size:15px;line-height:.9;}
-  .dma .merge{color:var(--blue);font-weight:800;font-size:17px;}
-  .dma .enc{background:#fff;border:2px solid var(--blue);border-radius:12px;padding:11px 22px;font-weight:800;font-size:20px;text-align:center;}
-  .dma .bufs{display:grid;grid-template-columns:1fr 1fr;gap:60px;width:100%;}
-  .dma .buf{background:var(--soft);border:1px solid #dbe8ff;border-radius:12px;padding:12px;text-align:center;font-weight:800;font-size:18px;}
-
-  /* S06 tethering structure (스케치 참고) */
-  .tflow{display:flex;align-items:stretch;gap:6px;}
-  .tstage{background:#fff;border:1px solid var(--bd);border-radius:15px;padding:14px 12px;text-align:center;
-    display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:center;min-width:140px;box-shadow:0 5px 18px rgba(20,40,80,.05);}
-  .tstage .ic{font-size:30px;line-height:1;}
-  .tstage .t{font-weight:800;font-size:18px;}
-  .tstage .d{font-size:14px;color:var(--muted);line-height:1.3;}
-  .tstage .ip{font-family:var(--mono);font-size:14px;color:var(--blue2);background:#eef3fb;border-radius:6px;padding:1px 7px;}
-  .tstage.srv{background:linear-gradient(135deg,#0a78ff,#0059c9);border:none;} .tstage.srv .t,.tstage.srv .d{color:#fff;}
-  .tarr{display:flex;align-items:center;color:var(--blue);font-size:26px;font-weight:800;}
-  .btbox{background:#eef6ff;border:2px solid #9ec1ff;border-radius:16px;padding:11px;display:flex;flex-direction:column;gap:7px;min-width:236px;}
-  .btbox .bttitle{font-weight:800;font-size:17px;color:var(--blue2);}
-  .btbox .bnep{background:#fff;border:1.5px solid #cdddf5;border-radius:11px;padding:9px 10px;font-weight:800;font-size:15px;color:var(--ink);line-height:1.3;}
-  .btbox .bnep .enc{margin-top:7px;background:#16263F;color:#cfe3ff;border:none;border-radius:8px;padding:8px 9px;font-weight:700;font-size:14px;}
-  .natbox{background:#f7f5ff;border:2px solid #a78bfa;border-radius:15px;padding:12px 14px;min-width:230px;display:flex;flex-direction:column;gap:4px;justify-content:center;}
-  .natbox .t{font-weight:800;font-size:16px;color:#6d28d9;}
-  .natbox .map{font-family:var(--mono);font-size:14px;color:var(--ink);line-height:1.4;}
-  .natbox .map .tbl2{font-family:var(--sans);font-size:13px;color:#8a7bbf;margin-top:2px;}
-
-  /* S03 ring-buffer dials */
-  .rbwrap{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:10px;}
-  .rb{display:flex;align-items:center;gap:20px;}
-  .dialwrap{position:relative;width:156px;height:156px;flex:none;margin-top:6px;}
-  .dial{width:156px;height:156px;border-radius:50%;
-    background:conic-gradient(#0a78ff 0deg 344deg,#ff6b6b 344deg 357deg,#ffffff 357deg 360deg);
-    -webkit-mask:radial-gradient(circle, transparent 46px, #000 47px);
-            mask:radial-gradient(circle, transparent 46px, #000 47px);
-    box-shadow:0 4px 16px rgba(20,40,80,.10);}
-  .dialwrap .ptr{position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:0;height:0;
-    border-left:10px solid transparent;border-right:10px solid transparent;border-top:15px solid #16263F;z-index:2;}
-  .dialwrap .ptr::after{content:"write";position:absolute;top:-30px;left:50%;transform:translateX(-50%);
-    font:800 12px var(--mono);color:#16263F;}
-  .dlabel{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;
-    font-size:15px;color:var(--blue2);font-weight:700;line-height:1.15;}
-  .dlabel b{display:block;font-size:23px;color:var(--ink);}
-  .rblist{list-style:none;display:flex;flex-direction:column;gap:6px;}
-  .rblist li{font-size:16px;color:var(--muted);line-height:1.4;}
-  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:5px;}
-  .dot.blue{background:#0a78ff;} .dot.red{background:#ff6b6b;}
-
-  /* S06 per-device action cards */
-  .actrow{display:flex;align-items:stretch;gap:7px;}
-  .act{flex:1;min-width:0;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:11px 13px;
-    display:flex;flex-direction:column;gap:3px;box-shadow:0 4px 14px rgba(20,40,80,.05);}
-  .act .dev{font:700 12px var(--mono);letter-spacing:.02em;display:flex;align-items:center;gap:4px;}
-  .act .at{font-size:17px;font-weight:800;line-height:1.2;}
-  .act .ad{font-size:13.5px;color:var(--muted);line-height:1.32;}
-  .act.buds{border-top:4px solid #0074FF;} .act.buds .dev{color:#0074FF;}
-  .act.host{border-top:4px solid #6d28d9;background:#faf9ff;} .act.host .dev{color:#6d28d9;}
-  .act.srv{border-top:4px solid #16263F;} .act.srv .dev{color:#16263F;}
-  .actrow .ar{display:flex;align-items:center;color:var(--blue);font-size:22px;font-weight:800;}
-
-  /* S07 digital signature flow */
-  .sig{display:flex;flex-direction:column;gap:10px;margin:4px 0 2px;}
-  .sigrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
-  .sigrow .lbl{font:700 14px var(--sans);min-width:84px;color:var(--ink);line-height:1.2;}
-  .sigrow .lbl small{display:block;color:#8aa0bf;font-weight:600;font-size:12px;}
-  .sigrow .nd{background:#fff;border:1px solid var(--bd);border-radius:9px;padding:6px 10px;font-weight:700;font-size:15px;}
-  .sigrow .nd.key{background:#fff4ec;border-color:#f6c9a8;color:#c2410c;}
-  .sigrow .nd.pub{background:#eafff4;border-color:#bdebd2;color:#0f7a43;}
-  .sigrow .nd.fn{background:#16263F;color:#cfe3ff;border:none;}
-  .sigrow .nd.out{background:#E9F1FF;border-color:#cfe0f7;color:var(--blue2);}
-  .sigrow .op{font-weight:900;color:#8aa0bf;font-size:16px;}
-  .sigrow .ar{color:var(--blue);font-weight:900;font-size:17px;}
-  .sigrow .ok{color:#0f7a43;font-weight:800;font-size:15px;}
-
-  @media print{ @page{size:1920px auto;margin:0;} html,body{background:#fff;} .toolbar{display:none;}
-    #deck{padding-top:0;transform:none!important;} .slide{margin:0;box-shadow:none;border-radius:0;page-break-after:always;} }
-
-html,body{background:transparent;margin:0;padding:0;}
-#deck{padding:0;}
-.slide{margin:0 !important;box-shadow:none !important;border-radius:0 !important;}
-
-]]></style>
-<section class="slide">
-    <span class="tag">TETHERING · BNEP·NAT</span>
-    <div class="eyebrow">S07 · 갤럭시 폰이 아닐 때</div>
-    <h1 class="h">갤럭시 폰이 없어도 될까? — 블루투스 테더링</h1>
-    <p class="sub">노트북·차량·TV든 인터넷 되는 <b>아무 기기나 잠시 '통로'로</b> 빌릴 뿐 — 겉봉투 주소만 갈아 끼우고, <b>안의 내용물은 끝까지 못 본다.</b></p>
-
-    <div class="body">
-      <div class="tflow">
-        <div class="tstage"><div class="ic">🎧</div><div class="t">버즈</div><div class="ip">192.168.50.2</div></div>
-        <div class="tarr">▶</div>
-        <div class="btbox">
-          <div class="bttitle">📶 Bluetooth</div>
-          <div class="bnep">BNEP <span style="font-weight:600;font-size:13px;color:#8aa0bf;">(Bluetooth Network Encapsulation Protocol)</span>
-            <div class="enc">🔒 암호화된 &#160;internal · external · 발화</div>
-          </div>
-        </div>
-        <div class="tarr">▶</div>
-        <div class="tstage"><div class="ic">💻</div><div class="t">호스트</div><div class="d">노트북·차량<br/>BNEP 벗김 · DNS 조회 · 패킷 생성</div></div>
-        <div class="tarr">▶</div>
-        <div class="natbox">
-          <div class="t">NAT · 주소 변환</div>
-          <div class="map">출발지 192.168.50.2:51000<br/>→ 공인IP : 62000<div class="tbl2">↳ 매핑표에 기록</div></div>
-        </div>
-        <div class="tarr">▶</div>
-        <div class="tstage srv"><div class="ic">☁️</div><div class="t">서버</div><div class="d">봉투 열어 처리</div></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;justify-content:flex-end;font-size:18px;color:#6d28d9;font-weight:700;">
-        ◀ 복귀 &#160;서버 응답 → 호스트 <b style="color:#6d28d9;">NAT 역변환</b> <span class="k">62000 → 192.168.50.2:51000</span> → 버즈 재생 🔊 &#160;·&#160; 알맹이는 통과 내내 '안 까임'
-      </div>
-
-      <div class="note-strip" style="background:#fff;border-color:var(--bd);color:var(--ink);font-weight:600;font-size:18px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
-        <span><b style="color:#0074FF">🎧 버즈</b> = 포장 · 전송 · 재생</span>
-        <span><b style="color:#6d28d9">💻 호스트</b> = 봉투만 갈아끼움(BNEP·NAT) · <b>내용물 못 봄 = dumb pipe</b></span>
-        <span><b style="color:#16263F">☁️ 서버</b> = 내용 처리(STT·의도·응답)</span>
-        <span class="muted" style="margin-left:auto;font-size:15px;">전부 OS 기본 테더링 → 앱 설치 0</span>
-      </div>
-
-      <div style="font-size:15px;font-weight:800;color:#0074FF;margin:2px 0 -4px;">▶ 보낼 때</div>
-      <div class="actrow">
-        <div class="act buds"><div class="dev">🎧 버즈</div><div class="at">① 한 봉투로 포장</div><div class="ad">3스트림+명령을 SBAP로</div></div>
-        <div class="ar">▶</div>
-        <div class="act buds"><div class="dev">🎧 버즈</div><div class="at">② 블루투스로 송신</div><div class="ad">BNEP로 IP를 실음 · 192.168.50.2</div></div>
-        <div class="ar">▶</div>
-        <div class="act host"><div class="dev">💻 호스트</div><div class="at">③ BNEP 벗김</div><div class="ad">IP 패킷 복원</div></div>
-        <div class="ar">▶</div>
-        <div class="act host"><div class="dev">💻 호스트</div><div class="at">④ NAT에 기록</div><div class="ad">192.168.50.2:51000 → 공인IP:62000 (매핑표 저장)</div></div>
-        <div class="ar">▶</div>
-        <div class="act host"><div class="dev">💻 호스트</div><div class="at">⑤ 인터넷 전송</div><div class="ad">DNS 조회 대신 · 🔒알맹이 안 열어봄</div></div>
-        <div class="ar">▶</div>
-        <div class="act srv"><div class="dev">☁️ 서버</div><div class="at">⑥ 처리</div><div class="ad">STT·의도분류·응답 생성</div></div>
-      </div>
-
-      <div style="font-size:15px;font-weight:800;color:#6d28d9;margin:8px 0 -4px;">◀ 돌아올 때</div>
-      <div class="actrow">
-        <div class="act srv"><div class="dev">☁️ 서버</div><div class="at">⑦ 응답 송신</div><div class="ad">봉인된 답(TLS)</div></div>
-        <div class="ar">▶</div>
-        <div class="act host"><div class="dev">💻 호스트</div><div class="at">⑧ NAT 역변환</div><div class="ad">공인IP:62000 → 192.168.50.2:51000 (매핑표 조회)</div></div>
-        <div class="ar">▶</div>
-        <div class="act host"><div class="dev">💻 호스트</div><div class="at">⑨ BNEP 재포장</div><div class="ad">다시 블루투스로 버즈에</div></div>
-        <div class="ar">▶</div>
-        <div class="act buds"><div class="dev">🎧 버즈</div><div class="at">⑩ 재생 🔊</div><div class="ad">받아서 들려줌</div></div>
-      </div>
-
-      <div class="note-strip" style="font-size:18px;">📮 <b>택배 비유</b>: 버즈가 내용물+주소를 포장하면, 중간 기기는 <b>겉봉투 주소만 자기 걸로 바꿔</b>(NAT) 보내고 답장도 되돌려준다 — <b>내용물은 안 열어봄.</b></div>
-    </div>
-    <div class="src">참고 스케치: bluetoothtetheringstructure.jpeg</div>
-    <div class="pg">07 / 10</div>
-  </section>
-</div>
-</foreignObject>
+<rect x="0.0" y="0.0" width="1920.0" height="1080.0" rx="2.0" fill="rgb(246, 249, 254)"/>
+<rect x="1565.6" y="56.0" width="266.4" height="37.0" rx="999.0" fill="rgb(233, 241, 255)"/>
+<rect x="88.0" y="187.7" width="140.8" height="140.7" rx="15.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="101.0" y="276.5" width="114.8" height="20.0" rx="6.0" fill="rgb(238, 243, 251)"/>
+<rect x="265.1" y="187.7" width="354.0" height="140.7" rx="16.0" fill="rgb(238, 246, 255)" stroke="rgb(158, 193, 255)" stroke-width="2.0"/>
+<rect x="278.1" y="234.7" width="328.0" height="80.7" rx="11.0" fill="rgb(255, 255, 255)" stroke="rgb(205, 221, 245)" stroke-width="1.0"/>
+<rect x="289.1" y="271.2" width="306.0" height="34.2" rx="8.0" fill="rgb(22, 38, 63)"/>
+<rect x="655.5" y="187.7" width="217.8" height="140.7" rx="15.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="909.6" y="187.7" width="230.0" height="140.7" rx="15.0" fill="rgb(247, 245, 255)" stroke="rgb(167, 139, 250)" stroke-width="2.0"/>
+<rect x="1175.9" y="187.7" width="140.0" height="140.7" rx="15.0" fill="rgb(10, 120, 255)"/>
+<rect x="1238.5" y="347.9" width="254.7" height="25.0" rx="6.0" fill="rgb(238, 243, 251)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="88.0" y="388.4" width="1744.0" height="56.1" rx="13.0" fill="rgb(255, 255, 255)" stroke="rgb(230, 236, 245)" stroke-width="1.0"/>
+<rect x="88.0" y="488.5" width="261.8" height="109.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(0, 116, 255)" stroke-width="4.0"/>
+<rect x="384.4" y="488.5" width="261.8" height="109.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(0, 116, 255)" stroke-width="4.0"/>
+<rect x="680.9" y="488.5" width="261.8" height="109.0" rx="14.0" fill="rgb(250, 249, 255)" stroke="rgb(109, 40, 217)" stroke-width="4.0"/>
+<rect x="977.3" y="488.5" width="261.8" height="109.0" rx="14.0" fill="rgb(250, 249, 255)" stroke="rgb(109, 40, 217)" stroke-width="4.0"/>
+<rect x="1273.7" y="488.5" width="261.8" height="109.0" rx="14.0" fill="rgb(250, 249, 255)" stroke="rgb(109, 40, 217)" stroke-width="4.0"/>
+<rect x="1570.2" y="488.5" width="261.8" height="109.0" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(22, 38, 63)" stroke-width="4.0"/>
+<rect x="88.0" y="647.5" width="410.0" height="91.2" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(22, 38, 63)" stroke-width="4.0"/>
+<rect x="532.6" y="647.5" width="410.1" height="91.2" rx="14.0" fill="rgb(250, 249, 255)" stroke="rgb(109, 40, 217)" stroke-width="4.0"/>
+<rect x="977.3" y="647.5" width="410.0" height="91.2" rx="14.0" fill="rgb(250, 249, 255)" stroke="rgb(109, 40, 217)" stroke-width="4.0"/>
+<rect x="1421.9" y="647.5" width="410.1" height="91.2" rx="14.0" fill="rgb(255, 255, 255)" stroke="rgb(0, 116, 255)" stroke-width="4.0"/>
+<rect x="88.0" y="752.7" width="1744.0" height="56.1" rx="13.0" fill="rgb(233, 241, 255)" stroke="rgb(207, 224, 247)" stroke-width="1.0"/>
+<text x="1583.6" y="79.7" font-size="18.0" font-weight="700" fill="rgb(0, 116, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.72" xml:space="preserve">TETHERING · BNEP·NAT</text>
+<text x="88.0" y="75.8" font-size="20.0" font-weight="600" fill="rgb(138, 160, 191)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">S07 · 갤럭시 폰이 아닐 때</text>
+<text x="88.0" y="122.3" font-size="44.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" letter-spacing="-0.97" xml:space="preserve">갤럭시 폰이 없어도 될까? — 블루투스 테더링</text>
+<text x="88.0" y="163.9" font-size="21.0" font-weight="500" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">노트북·차량·TV든 인터넷 되는</text>
+<text x="554.4" y="163.9" font-size="21.0" font-weight="500" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">빌릴 뿐 — 겉봉투 주소만 갈아 끼우고,</text>
+<text x="339.6" y="163.9" font-size="21.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">아무 기기나 잠시 '통로'로</text>
+<text x="864.6" y="163.9" font-size="21.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">안의 내용물은 끝까지 못 본다.</text>
+<text x="143.4" y="243.2" font-size="30.0" font-weight="400" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">🎧</text>
+<text x="142.8" y="268.3" font-size="18.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">버즈</text>
+<text x="108.0" y="290.6" font-size="14.0" font-weight="400" fill="rgb(0, 89, 201)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">192.168.50.2</text>
+<text x="234.8" y="265.6" font-size="26.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="278.1" y="220.6" font-size="17.0" font-weight="800" fill="rgb(0, 89, 201)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">📶 Bluetooth</text>
+<text x="289.1" y="258.1" font-size="15.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">BNEP</text>
+<text x="331.1" y="258.0" font-size="13.0" font-weight="600" fill="rgb(138, 160, 191)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">(Bluetooth Network Encapsulation Protocol)</text>
+<text x="298.1" y="292.3" font-size="14.0" font-weight="700" fill="rgb(207, 227, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">🔒 암호화된  internal · external · 발화</text>
+<text x="625.1" y="265.6" font-size="26.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="749.3" y="235.1" font-size="30.0" font-weight="400" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">💻</text>
+<text x="741.0" y="260.1" font-size="18.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">호스트</text>
+<text x="732.3" y="281.4" font-size="14.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">노트북·차량</text>
+<text x="668.5" y="299.6" font-size="14.0" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">BNEP 벗김 · DNS 조회 · 패킷 생성</text>
+<text x="879.2" y="265.6" font-size="26.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="925.6" y="231.0" font-size="16.0" font-weight="800" fill="rgb(109, 40, 217)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">NAT · 주소 변환</text>
+<text x="925.6" y="252.9" font-size="14.0" font-weight="400" fill="rgb(22, 38, 63)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">출발지 192.168.50.2:51000</text>
+<text x="925.6" y="272.5" font-size="14.0" font-weight="400" fill="rgb(22, 38, 63)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">→ 공인IP : 62000</text>
+<text x="925.6" y="293.3" font-size="13.0" font-weight="400" fill="rgb(138, 123, 191)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">↳ 매핑표에 기록</text>
+<text x="1145.6" y="265.6" font-size="26.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="1230.9" y="244.2" font-size="30.0" font-weight="400" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">☁️</text>
+<text x="1230.3" y="269.2" font-size="18.0" font-weight="800" fill="rgb(255, 255, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">서버</text>
+<text x="1206.1" y="290.5" font-size="14.0" font-weight="400" fill="rgb(255, 255, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">봉투 열어 처리</text>
+<text x="1014.9" y="365.6" font-size="18.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">◀ 복귀  서버 응답 → 호스트</text>
+<text x="1512.2" y="366.1" font-size="18.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">→ 버즈 재생 🔊  ·  알맹이는 통과 내내 '안 까임'</text>
+<text x="1142.0" y="365.6" font-size="18.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">NAT 역변환</text>
+<text x="1246.5" y="364.8" font-size="15.3" font-weight="700" fill="rgb(0, 89, 201)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">62000 → 192.168.50.2:51000</text>
+<text x="176.3" y="421.1" font-size="18.0" font-weight="600" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">= 포장 · 전송 · 재생</text>
+<text x="111.0" y="421.1" font-size="18.0" font-weight="700" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">🎧 버즈</text>
+<text x="412.5" y="421.1" font-size="18.0" font-weight="600" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">= 봉투만 갈아끼움(BNEP·NAT) ·</text>
+<text x="331.7" y="421.1" font-size="18.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">💻 호스트</text>
+<text x="649.0" y="421.1" font-size="18.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">내용물 못 봄 = dumb pipe</text>
+<text x="934.0" y="421.1" font-size="18.0" font-weight="600" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">= 내용 처리(STT·의도·응답)</text>
+<text x="868.7" y="421.1" font-size="18.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">☁️ 서버</text>
+<text x="1610.6" y="419.9" font-size="15.0" font-weight="600" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">전부 OS 기본 테더링 → 앱 설치 0</text>
+<text x="88.0" y="473.8" font-size="15.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶ 보낼 때</text>
+<text x="102.0" y="518.0" font-size="12.0" font-weight="700" fill="rgb(0, 116, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">🎧 버즈</text>
+<text x="102.0" y="541.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">① 한 봉투로 포장</text>
+<text x="102.0" y="561.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">3스트림+명령을 SBAP로</text>
+<text x="356.8" y="549.4" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="398.4" y="518.0" font-size="12.0" font-weight="700" fill="rgb(0, 116, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">🎧 버즈</text>
+<text x="398.4" y="541.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">② 블루투스로 송신</text>
+<text x="398.4" y="561.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">BNEP로 IP를 실음 · 192.168.50.2</text>
+<text x="653.3" y="549.4" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="694.9" y="518.0" font-size="12.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">💻 호스트</text>
+<text x="694.9" y="541.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">③ BNEP 벗김</text>
+<text x="694.9" y="561.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">IP 패킷 복원</text>
+<text x="949.7" y="549.4" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="991.3" y="518.0" font-size="12.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">💻 호스트</text>
+<text x="991.3" y="541.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">④ NAT에 기록</text>
+<text x="991.3" y="561.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">192.168.50.2:51000 → 공인IP:62000</text>
+<text x="998.0" y="579.6" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">(매핑표 저장)</text>
+<text x="1246.1" y="549.4" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="1287.7" y="518.0" font-size="12.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">💻 호스트</text>
+<text x="1287.7" y="541.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">⑤ 인터넷 전송</text>
+<text x="1287.7" y="561.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">DNS 조회 대신 · 🔒알맹이 안 열어봄</text>
+<text x="1542.6" y="549.4" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="1584.2" y="518.0" font-size="12.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">☁️ 서버</text>
+<text x="1584.2" y="541.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">⑥ 처리</text>
+<text x="1584.2" y="561.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">STT·의도분류·응답 생성</text>
+<text x="88.0" y="632.9" font-size="15.0" font-weight="800" fill="rgb(109, 40, 217)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">◀ 돌아올 때</text>
+<text x="102.0" y="677.0" font-size="12.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">☁️ 서버</text>
+<text x="102.0" y="700.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">⑦ 응답 송신</text>
+<text x="102.0" y="720.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">봉인된 답(TLS)</text>
+<text x="505.0" y="699.5" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="546.6" y="677.0" font-size="12.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">💻 호스트</text>
+<text x="546.6" y="700.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">⑧ NAT 역변환</text>
+<text x="546.6" y="720.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">공인IP:62000 → 192.168.50.2:51000 (매핑표 조회)</text>
+<text x="949.7" y="699.5" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="991.3" y="677.0" font-size="12.0" font-weight="700" fill="rgb(109, 40, 217)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">💻 호스트</text>
+<text x="991.3" y="700.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">⑨ BNEP 재포장</text>
+<text x="991.3" y="720.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">다시 블루투스로 버즈에</text>
+<text x="1394.3" y="699.5" font-size="22.0" font-weight="800" fill="rgb(0, 116, 255)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">▶</text>
+<text x="1435.9" y="677.0" font-size="12.0" font-weight="700" fill="rgb(0, 116, 255)" font-family="'JetBrains Mono', ui-monospace, monospace" letter-spacing="0.24" xml:space="preserve">🎧 버즈</text>
+<text x="1435.9" y="700.4" font-size="17.0" font-weight="800" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">⑩ 재생 🔊</text>
+<text x="1435.9" y="720.8" font-size="13.5" font-weight="400" fill="rgb(84, 100, 125)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">받아서 들려줌</text>
+<text x="111.0" y="785.4" font-size="18.0" font-weight="600" fill="rgb(0, 89, 201)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">📮</text>
+<text x="202.7" y="785.4" font-size="18.0" font-weight="600" fill="rgb(0, 89, 201)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">: 버즈가 내용물+주소를 포장하면, 중간 기기는</text>
+<text x="732.7" y="785.4" font-size="18.0" font-weight="600" fill="rgb(0, 89, 201)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">(NAT) 보내고 답장도 되돌려준다 —</text>
+<text x="136.3" y="785.4" font-size="18.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">택배 비유</text>
+<text x="529.4" y="785.4" font-size="18.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">겉봉투 주소만 자기 걸로 바꿔</text>
+<text x="991.1" y="785.4" font-size="18.0" font-weight="700" fill="rgb(22, 38, 63)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">내용물은 안 열어봄.</text>
+<text x="100.0" y="1039.1" font-size="16.0" font-weight="400" fill="rgb(154, 171, 196)" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" xml:space="preserve">참고 스케치: bluetoothtetheringstructure.jpeg</text>
+<text x="1744.4" y="1039.7" font-size="18.0" font-weight="700" fill="rgb(154, 171, 196)" font-family="'JetBrains Mono', ui-monospace, monospace" xml:space="preserve">07 / 10</text>
 </svg>
