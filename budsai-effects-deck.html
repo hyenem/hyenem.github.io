@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudsAI — 기대 효과</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --bg1:#F6F9FE; --bg2:#FDF7FF;
+  --navy:#16263F;
+  --slate:#54647D;
+  --slate-2:#8AA0BF;
+  --blue:#375A92;
+  --line:rgba(83,108,158,.14);
+  --line-2:rgba(83,108,158,.20);
+  --pink:#FFCBE6; --lav:#D391FF; --lblue:#A8CBFF; --sky:#BFDCFF;
+  --card:rgba(255,255,255,.72);
+  --shadow:0 1.4cqw 3.4cqw rgba(40,62,118,.09);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Pretendard',-apple-system,sans-serif;
+  background:
+    radial-gradient(60% 50% at 85% 8%, rgba(255,203,230,.28), transparent 60%),
+    radial-gradient(55% 45% at 8% 92%, rgba(211,145,255,.20), transparent 60%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+  background-attachment:fixed;
+  color:var(--navy);
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;align-items:center;
+  gap:3.4vw;
+  padding:4.4vw 0 5vw;
+  min-height:100vh;
+}
+
+/* ---- 16:9 board, everything scales with cqw ---- */
+.board{
+  position:relative;
+  width:min(1480px,94vw);
+  aspect-ratio:16/9;
+  container-type:inline-size;
+  border-radius:.8cqw;
+  overflow:hidden;
+  background:linear-gradient(150deg,#F6F9FE 30%,#FDF7FF);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 1.6cqw 4cqw rgba(40,62,118,.12), 0 .2cqw .6cqw rgba(40,62,118,.05);
+  opacity:0;transform:translateY(2.4cqw);
+  transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);
+}
+.board.in{opacity:1;transform:none}
+
+/* decorative blurred blobs inside each board */
+.board::before,.board::after{content:"";position:absolute;border-radius:50%;filter:blur(7cqw);pointer-events:none;z-index:0}
+.board::before{width:34cqw;height:34cqw;right:-8cqw;top:-12cqw;background:radial-gradient(circle,rgba(255,203,230,.55),transparent 70%)}
+.board::after{width:30cqw;height:30cqw;left:-9cqw;bottom:-12cqw;background:radial-gradient(circle,rgba(168,203,255,.45),transparent 70%)}
+
+.pad{position:relative;z-index:2;width:100%;height:100%;padding:5cqw 5.6cqw 4cqw;display:flex;flex-direction:column}
+
+/* ---- header block ---- */
+.kicker{font-size:1.05cqw;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--slate-2);margin-bottom:1.4cqw;display:flex;align-items:center;gap:.8cqw}
+.kicker .pip{width:.7cqw;height:.7cqw;border-radius:50%;background:linear-gradient(135deg,var(--lav),var(--pink))}
+h1.title{font-size:3.3cqw;font-weight:800;line-height:1.12;letter-spacing:-.02em;color:var(--navy)}
+.title .hl{background:linear-gradient(120deg,#4F62C8,#A267D6 60%,#E07BB0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:1.5cqw;font-weight:400;line-height:1.55;color:var(--slate);margin-top:1.6cqw;max-width:78cqw}
+.lead b{color:var(--blue);font-weight:600}
+.lead .q{color:var(--navy);font-weight:600}
+
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:1cqw}
+
+/* glass card base */
+.glass{background:var(--card);border:1px solid var(--line);border-radius:1.4cqw;box-shadow:var(--shadow);backdrop-filter:blur(6px)}
+
+/* ====== BOARD 1 : duo + strategy ====== */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:1.6cqw}
+.duo .col{padding:2.4cqw 2.6cqw}
+.duo h3{font-size:1.5cqw;font-weight:700;margin-bottom:1.6cqw;display:flex;align-items:center;gap:.7cqw}
+.duo .gap h3{color:var(--slate)}
+.duo .lead-col h3{color:var(--blue)}
+.duo ul{list-style:none;display:flex;flex-direction:column;gap:1.05cqw}
+.duo li{font-size:1.32cqw;line-height:1.4;padding-left:1.9cqw;position:relative;color:var(--navy)}
+.duo .gap li{color:var(--slate)}
+.duo .gap li::before{content:"";position:absolute;left:0;top:.5cqw;width:.9cqw;height:.9cqw;border-radius:50%;border:.16cqw solid var(--slate-2)}
+.duo .lead-col li::before{content:"";position:absolute;left:0;top:.5cqw;width:.9cqw;height:.9cqw;border-radius:50%;background:linear-gradient(135deg,var(--lav),var(--pink))}
+.strap{margin-top:1.8cqw;display:flex;align-items:center;gap:1.6cqw;padding:1.8cqw 2.4cqw;border-radius:1.2cqw;
+  background:linear-gradient(120deg,rgba(79,98,200,.10),rgba(224,123,176,.10));border:1px solid var(--line-2)}
+.strap .tag{font-size:1cqw;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);white-space:nowrap}
+.strap p{font-size:1.5cqw;font-weight:600;line-height:1.4;color:var(--navy)}
+.strap p b{background:linear-gradient(120deg,#4F62C8,#A267D6);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ====== BOARD 2 : flows + ux + motto ====== */
+.flows{display:flex;flex-direction:column;gap:1cqw;margin-bottom:2cqw}
+.flow{display:flex;align-items:center;gap:1.1cqw;flex-wrap:wrap;padding:1.5cqw 2cqw;border-radius:1.2cqw}
+.flow.now{background:rgba(255,255,255,.5);border:1px solid var(--line)}
+.flow.buds{background:linear-gradient(120deg,rgba(168,203,255,.22),rgba(255,203,230,.16));border:1px solid var(--line-2)}
+.flow .fl-lbl{font-size:.95cqw;font-weight:700;letter-spacing:.1em;text-transform:uppercase;min-width:7cqw;color:var(--slate-2)}
+.flow.buds .fl-lbl{color:var(--blue)}
+.flow .stp{font-size:1.28cqw;font-weight:500;color:var(--navy)}
+.flow.now .stp{color:var(--slate);font-weight:400}
+.flow .ar{font-size:1cqw;color:var(--slate-2)}
+.flow.buds .ar{color:var(--lav)}
+.ux-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2cqw}
+.ux{padding:1.8cqw 1.6cqw;border-radius:1.2cqw}
+.ux .sym{font-size:2cqw;font-weight:800;background:linear-gradient(135deg,#5566CC,#C477C5);-webkit-background-clip:text;background-clip:text;color:transparent;display:block;margin-bottom:.9cqw}
+.ux h4{font-size:1.32cqw;font-weight:700;margin-bottom:.6cqw;color:var(--navy)}
+.ux p{font-size:1.08cqw;line-height:1.45;color:var(--slate)}
+.motto{margin-top:1.8cqw;display:flex;align-items:center;justify-content:space-between;gap:2cqw;flex-wrap:wrap}
+.motto .v{font-size:2.4cqw;font-weight:800;letter-spacing:-.01em;color:var(--navy)}
+.motto .v span{background:linear-gradient(135deg,#5566CC,#C477C5);-webkit-background-clip:text;background-clip:text;color:transparent}
+.motto .cap{font-size:1.2cqw;color:var(--slate);max-width:34cqw;line-height:1.5;text-align:right}
+.motto .cap b{color:var(--blue);font-weight:600}
+
+/* ====== BOARD 3 : effect rows ====== */
+.rows{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw 2cqw}
+.row{display:flex;align-items:center;gap:1.4cqw;padding:1.5cqw 1.8cqw;border-radius:1.2cqw;transition:.35s}
+.row:hover{transform:translateX(.5cqw)}
+.row .key{flex:none;width:3.2cqw;height:3.2cqw;border-radius:.9cqw;display:grid;place-items:center;
+  font-size:1.6cqw;font-weight:800;color:#fff;background:linear-gradient(140deg,#2A3E66,#16263F);box-shadow:0 .4cqw 1cqw rgba(22,38,63,.25)}
+.row:nth-child(2) .key{background:linear-gradient(140deg,#4F62C8,#6E55C0)}
+.row:nth-child(3) .key{background:linear-gradient(140deg,#6E55C0,#A267D6)}
+.row:nth-child(4) .key{background:linear-gradient(140deg,#A267D6,#C477C5)}
+.row:nth-child(5) .key{background:linear-gradient(140deg,#C477C5,#E07BB0)}
+.row:nth-child(6) .key{background:linear-gradient(140deg,#E07BB0,#F2A9C4)}
+.row .rb h4{font-size:1.42cqw;font-weight:700;color:var(--navy);margin-bottom:.3cqw}
+.row .rb p{font-size:1.1cqw;line-height:1.4;color:var(--slate)}
+.row .rb p b{color:var(--blue);font-weight:600}
+
+/* ====== BOARD 4 : revenue cards + principle ====== */
+.rev{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6cqw;margin-bottom:2cqw}
+.rcard{padding:2.4cqw 2.2cqw;border-radius:1.4cqw;position:relative;overflow:hidden;transition:.4s;min-height:0}
+.rcard:hover{transform:translateY(-.6cqw);box-shadow:0 2cqw 4cqw rgba(40,62,118,.16)}
+.rcard .ic{font-size:2.6cqw;display:block;margin-bottom:1.2cqw}
+.rcard h4{font-size:1.55cqw;font-weight:700;color:var(--navy);margin-bottom:.7cqw}
+.rcard p{font-size:1.18cqw;line-height:1.5;color:var(--slate)}
+.rcard .bar{position:absolute;left:0;top:0;width:100%;height:.5cqw}
+.rcard:nth-child(1) .bar{background:linear-gradient(90deg,#A8CBFF,#5566CC)}
+.rcard:nth-child(2) .bar{background:linear-gradient(90deg,#D391FF,#A267D6)}
+.rcard:nth-child(3) .bar{background:linear-gradient(90deg,#FFCBE6,#E07BB0)}
+.principle{display:flex;align-items:center;gap:2.2cqw;padding:2cqw 2.6cqw;border-radius:1.4cqw;
+  background:linear-gradient(120deg,rgba(79,98,200,.08),rgba(224,123,176,.08));border:1px solid var(--line-2)}
+.principle .t{font-size:1cqw;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);white-space:nowrap}
+.principle p{font-size:1.4cqw;font-weight:500;line-height:1.45;color:var(--navy);flex:1}
+.principle p b{color:var(--blue);font-weight:700}
+.principle .pill{font-size:1.5cqw;font-weight:800;white-space:nowrap;padding:.7cqw 1.6cqw;border-radius:5cqw;color:#fff;
+  background:linear-gradient(135deg,#5566CC,#C477C5);box-shadow:0 .5cqw 1.4cqw rgba(120,90,200,.3)}
+
+/* ---- footer strip in each board ---- */
+.foot{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;
+  font-size:.92cqw;color:var(--slate-2);letter-spacing:.04em;margin-top:1.4cqw}
+.foot .wm{font-weight:700;color:var(--blue)}
+.foot a{color:var(--slate-2);text-decoration:none}
+
+@media(max-width:680px){
+  .lead,.duo li{}
+  body{gap:5vw}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== BOARD 1 ===================== -->
+<section class="board">
+  <div class="pad">
+    <div class="kicker"><span class="pip"></span>Expected Effects ① · First-mover · Category Definition</div>
+    <h1 class="title">청각 맥락 기반 AI — 아직 없던 영역의 <span class="hl">선점</span></h1>
+    <p class="lead"><span class="q">"내가 말한 것"</span>만 인식하는 음성 비서를 넘어 <span class="q">"내가 듣고 있던 것"</span>까지 이해하는 AI. <b>선발주자 · 카테고리 정의</b></p>
+
+    <div class="body">
+      <div class="duo">
+        <div class="col glass gap">
+          <h3>🚫 기존 서비스 공백</h3>
+          <ul>
+            <li>발화 입력만 — 듣던 소리는 누락</li>
+            <li>음악 식별과 액션 분리</li>
+            <li>"그거"를 다시 설명해야 함</li>
+          </ul>
+        </div>
+        <div class="col glass lead-col">
+          <h3>🚀 BudsAI 리더십</h3>
+          <ul>
+            <li>청각 맥락 + 발화 최초 상용화</li>
+            <li>식별 · 질의 · 액션 통합</li>
+            <li>Wearable Audio AI 표준 개척</li>
+          </ul>
+        </div>
+      </div>
+      <div class="strap">
+        <span class="tag">전략적 의미</span>
+        <p>경쟁사보다 먼저 <b>'청각 맥락 AI'</b> 카테고리 선점 → 삼성이 표준을 세운다.</p>
+      </div>
+    </div>
+
+    <div class="foot"><span><span class="wm">BudsAI</span> · 기대 효과</span><span>01 / 04</span></div>
+  </div>
+</section>
+
+<!-- ===================== BOARD 2 ===================== -->
+<section class="board">
+  <div class="pad">
+    <div class="kicker"><span class="pip"></span>Expected Effects ② · Usability · Listen → Ask → Act</div>
+    <h1 class="title">사용성 개선 — 듣던 순간을 바로 묻고 <span class="hl">실행</span>으로</h1>
+
+    <div class="body">
+      <div class="flows">
+        <div class="flow now">
+          <span class="fl-lbl">기존 흐름</span>
+          <span class="stp">오디오 인지</span><span class="ar">→</span>
+          <span class="stp">앱 열기</span><span class="ar">→</span>
+          <span class="stp">검색어 추정</span><span class="ar">→</span>
+          <span class="stp">검색 / 전환</span><span class="ar">→</span>
+          <span class="stp">결과 확인</span>
+        </div>
+        <div class="flow buds">
+          <span class="fl-lbl">BudsAI 흐름</span>
+          <span class="stp">인터랙션</span><span class="ar">→</span>
+          <span class="stp">자연어 질문</span><span class="ar">→</span>
+          <span class="stp">직전 사운드 분석</span><span class="ar">→</span>
+          <span class="stp">답변 + 액션</span>
+        </div>
+      </div>
+
+      <div class="ux-grid">
+        <div class="ux glass"><span class="sym">◎</span><h4>놓친 정보 복구</h4><p>직전 버퍼로 안내방송·대화·음악 재확인</p></div>
+        <div class="ux glass"><span class="sym">↯</span><h4>맥락 질의</h4><p>"이 노래" 같은 표현을 사운드와 결합 해석</p></div>
+        <div class="ux glass"><span class="sym">↺</span><h4>조작 부담 감소</h4><p>이동·운동 중 화면 전환 없이 음성만으로</p></div>
+        <div class="ux glass"><span class="sym">✓</span><h4>답변 후 실행</h4><p>음악·일정·알림 후속 액션 연결</p></div>
+      </div>
+
+      <div class="motto">
+        <div class="v">Listen <span>→</span> Ask <span>→</span> Act</div>
+        <p class="cap">UX 핵심 가치 — 기억·검색·전환 비용을 줄여 <b>즉시 이해·저장·실행</b>하는 경험.</p>
+      </div>
+    </div>
+
+    <div class="foot"><span><span class="wm">BudsAI</span> · 기대 효과</span><span>02 / 04</span></div>
+  </div>
+</section>
+
+<!-- ===================== BOARD 3 ===================== -->
+<section class="board">
+  <div class="pad">
+    <div class="kicker"><span class="pip"></span>Expected Effects ③ · Ecosystem · Lineup Expansion</div>
+    <h1 class="title">당사 <span class="hl">제품군 확대</span> 적용 효과</h1>
+    <p class="lead">버즈 한 제품을 넘어 <b>Galaxy 생태계 전반</b>의 가치를 끌어올리고, 기존 자산을 재활용해 확장한다.</p>
+
+    <div class="body">
+      <div class="rows">
+        <div class="row glass"><div class="key">B</div><div class="rb"><h4>버즈 라인업 가치 격상</h4><p>후속 모델 핵심 차별점 = <b>"AI 청취 비서"</b></p></div></div>
+        <div class="row glass"><div class="key">G</div><div class="rb"><h4>Galaxy 생태계 락인</h4><p>폰·워치·TV·차량 확장 → <b>Galaxy 구매 동기</b></p></div></div>
+        <div class="row glass"><div class="key">S</div><div class="rb"><h4>Bixby · SmartThings 재활성화</h4><p>기존 자산 재사용 → <b>인프라 투자 최소화</b></p></div></div>
+        <div class="row glass"><div class="key">↔</div><div class="rb"><h4>비-Galaxy 호환 저변 확대</h4><p>비-Galaxy 기기도 동작 → <b>진입 마찰 0</b>, 후속 업셀</p></div></div>
+        <div class="row glass"><div class="key">+</div><div class="rb"><h4>신제품 즉시 적용</h4><p>표준 BT PAN → <b>추가 개발 없이 확장</b></p></div></div>
+        <div class="row glass"><div class="key">D</div><div class="rb"><h4>데이터 자산 수익화</h4><p>(동의 전제) <b>온디바이스 AI 학습 자원</b></p></div></div>
+      </div>
+    </div>
+
+    <div class="foot"><span><span class="wm">BudsAI</span> · 기대 효과</span><span>03 / 04</span></div>
+  </div>
+</section>
+
+<!-- ===================== BOARD 4 ===================== -->
+<section class="board">
+  <div class="pad">
+    <div class="kicker"><span class="pip"></span>Expected Effects ④ · Monetization · New Opportunities</div>
+    <h1 class="title">신규 <span class="hl">수익 · 서비스</span> 기회</h1>
+    <p class="lead">차별화된 경험이 자연스럽게 <b>새로운 수익 동선</b>으로 이어진다.</p>
+
+    <div class="body">
+      <div class="rev">
+        <div class="rcard glass"><span class="bar"></span><span class="ic">🔁</span><h4>파트너십 · 트래픽 전환</h4><p>곡 → 스트리밍 앱 연결, 제휴 수익</p></div>
+        <div class="rcard glass"><span class="bar"></span><span class="ic">⭐</span><h4>구독 · 프리미엄</h4><p>고급 기능 수익화, Galaxy AI 구독 번들</p></div>
+        <div class="rcard glass"><span class="bar"></span><span class="ic">🏢</span><h4>B2B 솔루션 제공</h4><p>차량·리테일 등 솔루션 제공, 청취 보조</p></div>
+      </div>
+
+      <div class="principle">
+        <span class="t">수익화 원칙</span>
+        <p>파트너십·데이터는 <b>동의·익명</b> 전제. 1차 수익은 기기 차별화·구독 등 <b>사용자 가치와 정렬</b>.</p>
+        <span class="pill">User-aligned</span>
+      </div>
+    </div>
+
+    <div class="foot"><span><span class="wm">BudsAI</span> · 기대 효과</span><span>04 / 04</span></div>
+  </div>
+</section>
+
+<script>
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:.14});
+document.querySelectorAll('.board').forEach(b=>io.observe(b));
+</script>
+</body>
+</html>

@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudsAI · 서버 AI 분석 파이프라인 (16:9)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css">
+<style>
+  :root{
+    --bg:#EEF2F8; --bg2:#FDFBFF; --panel:#FFFFFF; --panel2:#F4F7FC;
+    --line:#E5EAF2; --ink:#16263F; --mut:#54647D; --dim:#8AA0BF;
+    --cyan:#1283BD; --blue:#2563C9; --amber:#B7791F; --violet:#7C3FD0;
+    --pink:#C5327A; --green:#0E8A4D;
+    --cardsh:0 1px 2px rgba(22,38,63,.04),0 10px 28px rgba(22,38,63,.07);
+    --mono:'Space Mono',monospace; --disp:'Pretendard Variable','Pretendard',sans-serif; --kr:'Pretendard Variable','Pretendard',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#E3E8F1;font-family:var(--disp);-webkit-font-smoothing:antialiased}
+  .stage{width:100vw;min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:26px;padding:28px 0 60px}
+  .slide{
+    position:relative;width:1280px;height:720px;flex:0 0 auto;
+    border:1px solid #EAEEF6;border-radius:14px;overflow:hidden;
+    background:
+      radial-gradient(900px 460px at 92% -10%, rgba(37,99,201,.06), transparent 60%),
+      radial-gradient(760px 420px at -6% 112%, rgba(18,131,189,.05), transparent 60%),
+      linear-gradient(180deg,#FDFBFF,#F4F8FE);
+    color:var(--ink);box-shadow:0 24px 60px rgba(22,38,63,.16);
+  }
+  @media (max-width:1340px){.slide{transform:scale(var(--s,1));transform-origin:top center}}
+  .pad{position:absolute;inset:0;padding:42px 50px}
+  .slide::after{content:attr(data-no) " / 12";position:absolute;bottom:18px;right:24px;font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:.08em}
+  .brandmini{position:absolute;bottom:16px;left:50px;display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.14em}
+  .brandmini .dot{width:8px;height:8px;border-radius:3px;background:linear-gradient(135deg,var(--cyan),var(--blue))}
+
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--cyan);text-transform:uppercase;margin-bottom:9px;font-weight:700}
+  .stitle{font-size:30px;font-weight:800;letter-spacing:-.015em;line-height:1.12;color:var(--ink)}
+  .stitle .hl{color:var(--cyan)}
+  .ssub{color:var(--mut);font-family:var(--kr);font-size:14px;margin-top:9px;max-width:940px;line-height:1.6;font-weight:500}
+
+  /* ---- ORCHESTRATOR banner ---- */
+  .orch{
+    margin-top:14px;display:flex;align-items:stretch;gap:0;
+    border:1px solid rgba(18,131,189,.30);border-radius:13px;overflow:hidden;
+    background:linear-gradient(110deg,rgba(18,131,189,.08),rgba(37,99,201,.05));
+  }
+  .orch .left{flex:1;padding:12px 18px;display:flex;flex-direction:column;justify-content:center}
+  .orch .left .h{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:9px}
+  .orch .left .h .badge{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--blue));padding:3px 9px;border-radius:20px;font-weight:700}
+  .orch .left .p{font-family:var(--kr);font-size:12px;color:var(--mut);margin-top:5px;line-height:1.45}
+  .orch .left .p b{color:var(--ink)}
+  .orch .right{flex:0 0 360px;border-left:1px solid rgba(18,131,189,.22);padding:12px 18px;display:flex;flex-direction:column;justify-content:center;gap:8px;background:rgba(255,255,255,.55)}
+  .delegrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:10px;color:var(--mut)}
+  .delegrow .a{color:var(--cyan)} .delegrow .b{color:var(--blue)}
+  .delegrow .way{flex:1;text-align:center;color:var(--violet);letter-spacing:.04em}
+
+  /* ---- PIPELINE ---- */
+  .entry{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .entrybox{border:1px dashed rgba(14,138,77,.45);border-radius:11px;padding:8px 15px;background:rgba(14,138,77,.07);font-family:var(--kr);font-size:11.5px;color:var(--mut)}
+  .entrybox b{color:var(--green);font-family:var(--disp)}
+  .harrow{flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:17px;font-weight:700}
+  .varrow{display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:17px;padding:4px 0}
+
+  .pipe{margin-top:12px}
+  .prow{display:flex;align-items:stretch;gap:0}
+  .pnode{flex:1;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column;position:relative;box-shadow:var(--cardsh)}
+  .pnode.orchnode{border-color:rgba(18,131,189,.42)}
+  .pnode .top{padding:10px 13px 8px}
+  .pnode .st{font-family:var(--mono);font-size:9.5px;color:var(--cyan);letter-spacing:.08em}
+  .pnode .nm{font-size:13.5px;font-weight:700;margin-top:3px;color:var(--ink)}
+  .pnode .ds{font-family:var(--kr);font-size:10.5px;color:var(--mut);margin-top:4px;line-height:1.4;min-height:42px}
+  .pnode .ds b{color:var(--ink)}
+  .pnode .tech{margin-top:7px;display:flex;flex-wrap:wrap;gap:4px}
+  .chip{font-family:var(--mono);font-size:8.5px;letter-spacing:.02em;padding:2px 6px;border-radius:5px;background:rgba(18,131,189,.10);color:var(--cyan);border:1px solid rgba(18,131,189,.24)}
+  .chip.b{background:rgba(37,99,201,.10);color:var(--blue);border-color:rgba(37,99,201,.24)}
+  .chip.v{background:rgba(124,63,208,.10);color:var(--violet);border-color:rgba(124,63,208,.24)}
+  .chip.a{background:rgba(183,121,31,.12);color:var(--amber);border-color:rgba(183,121,31,.26)}
+  .io2{margin-top:auto;border-top:1px solid var(--line);background:var(--panel2);padding:7px 13px;font-family:var(--mono);font-size:8.5px;line-height:1.45}
+  .io2 .lab{color:var(--dim)} .io2 .inv{color:var(--mut)} .io2 .outv{color:var(--green)}
+  .delegtag{position:absolute;top:8px;right:10px;font-family:var(--mono);font-size:8px;letter-spacing:.04em;color:var(--violet);border:1px solid rgba(124,63,208,.4);border-radius:20px;padding:2px 7px;background:rgba(124,63,208,.08)}
+
+  .deleg-loop{display:flex;align-items:center;gap:7px;margin:6px 0 0;justify-content:center;font-family:var(--mono);font-size:9px;color:var(--violet)}
+  .deleg-loop .pillv{border:1px solid rgba(124,63,208,.4);border-radius:8px;padding:3px 9px;background:rgba(124,63,208,.08)}
+
+  /* branch */
+  .branchrow{display:flex;gap:12px;margin-top:0}
+  .bcol{flex:1;border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:var(--cardsh)}
+  .bcol .bh{padding:8px 13px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+  .bcol.gal .bh{background:linear-gradient(150deg,rgba(37,99,201,.12),transparent);color:var(--blue)}
+  .bcol.oth .bh{background:linear-gradient(150deg,rgba(124,63,208,.12),transparent);color:var(--violet)}
+  .bcol .bb{padding:10px 13px;font-family:var(--kr);font-size:11px;color:var(--mut);line-height:1.5}
+  .bcol .bb b{color:var(--ink)}
+  .bcol .bb .deleg{color:var(--violet);font-weight:700}
+  .bcol .bio{margin-top:auto;border-top:1px solid var(--line);background:var(--panel2);padding:7px 13px;font-family:var(--mono);font-size:8.5px;line-height:1.45}
+  .bcol .bio .lab{color:var(--dim)} .bcol .bio .outv{color:var(--green)}
+
+  .note{margin-top:12px;font-family:var(--kr);font-size:11.5px;color:var(--mut);border-left:3px solid var(--cyan);padding:9px 15px;background:rgba(18,131,189,.06);border-radius:0 10px 10px 0;line-height:1.6}
+  .note b{color:var(--ink)}
+
+  /* ---- TECH list ---- */
+  .techlist{margin-top:18px;display:flex;flex-direction:column;gap:0}
+  .titem{display:grid;grid-template-columns:230px 1fr;gap:22px;padding:14px 0;border-top:1px solid var(--line)}
+  .titem:first-child{border-top:none}
+  .titem .role .rname{font-size:16px;font-weight:700;display:flex;align-items:center;gap:9px;color:var(--ink)}
+  .titem .role .rname .ic{font-size:18px}
+  .titem .role .tech{font-family:var(--mono);font-size:9px;color:var(--dim);letter-spacing:.06em;margin-top:6px}
+  .titem .role .where{font-family:var(--mono);font-size:9px;color:var(--cyan);letter-spacing:.04em;margin-top:5px}
+  .titem .role .specs{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .spec{font-family:var(--mono);font-size:9px;padding:3px 7px;border-radius:6px;border:1px solid var(--line);color:var(--mut);background:#fff}
+  .spec b{color:var(--ink)}
+  .titem .desc{font-family:var(--kr);font-size:12.5px;color:var(--mut);line-height:1.6}
+  .titem .desc b{color:var(--ink)}
+  .titem .desc .how{display:block;margin-top:7px;font-size:11px;color:var(--dim);line-height:1.55}
+  .titem .desc .how b{color:var(--cyan);font-family:var(--mono);font-size:9px;letter-spacing:.05em}
+
+  @media print{
+    body{background:#fff}.stage{display:block;padding:0;gap:0}
+    .slide{transform:none!important;page-break-after:always;break-after:page;border-radius:0;box-shadow:none;margin:0;border:none}
+  }
+
+  /* ---- SEQUENCE diagram (4 col) ---- */
+  .seqwrap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:6px}
+  .seqcol{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:var(--cardsh)}
+  .seqcol .sh{padding:8px 11px;font-weight:700;font-size:11px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
+  .seqcol.a .sh{background:linear-gradient(150deg,rgba(18,131,189,.14),transparent);color:var(--cyan)}
+  .seqcol.b .sh{background:linear-gradient(150deg,rgba(183,121,31,.16),transparent);color:var(--amber)}
+  .seqcol.c .sh{background:linear-gradient(150deg,rgba(37,99,201,.14),transparent);color:var(--blue)}
+  .seqcol.d .sh{background:linear-gradient(150deg,rgba(14,138,77,.16),transparent);color:var(--green)}
+  .seqcol .sh .rt{font-family:var(--mono);font-size:8px;letter-spacing:.03em;color:var(--dim);font-weight:400}
+  .seqcol .sb{padding:9px 11px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .exlabel{font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--dim);padding:7px 11px 0;text-transform:uppercase}
+  .seqex{margin:8px 11px 2px;padding:6px 9px;border-radius:7px;background:var(--panel2);border:1px solid var(--line);font-family:var(--kr);font-size:9.5px;color:var(--ink);line-height:1.35;border-left:3px solid var(--cyan)}
+  .seqcol.a .seqex{border-left-color:var(--cyan)} .seqcol.b .seqex{border-left-color:var(--amber)} .seqcol.c .seqex{border-left-color:var(--blue)} .seqcol.d .seqex{border-left-color:var(--green)}
+  .seqex .q{color:var(--mut);font-style:italic}
+  .seqstep{display:flex;gap:6px;align-items:flex-start}
+  .seqstep .act{flex:0 0 50px;font-family:var(--mono);font-size:7px;letter-spacing:.02em;padding:3px 3px;border-radius:4px;text-align:center;line-height:1.25}
+  .seqstep .act.srv{background:rgba(183,121,31,.12);color:var(--amber);border:1px solid rgba(183,121,31,.28)}
+  .seqstep .act.gem{background:rgba(37,99,201,.12);color:var(--blue);border:1px solid rgba(37,99,201,.28)}
+  .seqstep .act.shz{background:rgba(197,50,122,.12);color:var(--pink);border:1px solid rgba(197,50,122,.28)}
+  .seqstep .act.dev{background:rgba(14,138,77,.12);color:var(--green);border:1px solid rgba(14,138,77,.28)}
+  .seqstep .act.self{background:rgba(84,100,125,.10);color:var(--mut);border:1px solid var(--line)}
+  .seqstep .txt{font-family:var(--kr);font-size:9.5px;color:var(--mut);line-height:1.5;flex:1}
+  .seqstep .txt b{color:var(--ink)}
+  .seqstep .txt .code{display:block;margin-top:3px;font-family:var(--mono);font-size:7.5px;color:var(--green);word-break:break-word;line-height:1.55;background:rgba(14,138,77,.07);border-radius:4px;padding:3px 5px}
+  .seqarrow{text-align:center;color:var(--dim);font-size:8.5px;margin:0 0 0 54px;line-height:1.2}
+  .seqcol .foot{margin-top:auto;border-top:1px solid var(--line);padding:6px 11px;font-family:var(--mono);font-size:8px;color:var(--dim);letter-spacing:.02em;line-height:1.4}
+  .seqcol .foot b{color:var(--cyan)}
+  .legend{display:flex;gap:14px;margin-top:11px;flex-wrap:wrap;font-family:var(--mono);font-size:9px;color:var(--mut)}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+
+  /* ---- field doc ---- */
+  .fieldbox{border:1px solid var(--line);border-radius:13px;overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:var(--cardsh)}
+  .fieldbox .fh{padding:8px 14px;font-weight:700;font-size:13px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px}
+  .fieldbox.req .fh{background:linear-gradient(150deg,rgba(18,131,189,.14),transparent);color:var(--cyan)}
+  .fieldbox.res .fh{background:linear-gradient(150deg,rgba(37,99,201,.14),transparent);color:var(--blue)}
+  .frow{display:grid;grid-template-columns:148px 1fr;gap:0;border-top:1px solid var(--line)}
+  .frow:first-of-type{border-top:none}
+  .frow .fk{padding:7px 12px;font-family:var(--mono);font-size:9.5px;color:var(--green);border-right:1px solid var(--line);line-height:1.45;word-break:break-all;display:flex;align-items:center}
+  .frow .fk.dim{color:var(--mut)}
+  .frow .fv{padding:7px 12px;font-family:var(--kr);font-size:10.5px;color:var(--mut);line-height:1.5}
+  .frow .fv b{color:var(--ink)}
+  .fieldbox .ff{margin-top:auto;padding:7px 14px;border-top:1px solid var(--line);font-family:var(--kr);font-size:10px;color:var(--dim);line-height:1.4}
+  .fieldbox .ff b{color:var(--ink)}
+
+  /* ---- post-processing ---- */
+  .ppwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .ppcol{border:1px solid var(--line);border-radius:13px;overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:var(--cardsh)}
+  .ppcol .ph{padding:10px 15px;font-weight:700;font-size:14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+  .ppcol.gal .ph{background:linear-gradient(150deg,rgba(37,99,201,.14),transparent);color:var(--blue)}
+  .ppcol.oth .ph{background:linear-gradient(150deg,rgba(124,63,208,.14),transparent);color:var(--violet)}
+  .ppcol .ph .rt{margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:400;color:var(--dim);letter-spacing:.04em}
+  .ppcol .recv{padding:8px 15px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:9.5px;color:var(--green);line-height:1.5;background:var(--panel2)}
+  .ppcol .recv .lab{color:var(--dim)}
+  .ppcol .pb{padding:11px 15px;display:flex;flex-direction:column;gap:9px}
+  .ppstep{display:flex;gap:10px;align-items:flex-start}
+  .ppstep .num{flex:0 0 22px;height:22px;border-radius:7px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:700}
+  .ppcol.gal .ppstep .num{background:rgba(37,99,201,.14);color:var(--blue);border:1px solid rgba(37,99,201,.32)}
+  .ppcol.oth .ppstep .num{background:rgba(124,63,208,.14);color:var(--violet);border:1px solid rgba(124,63,208,.32)}
+  .ppstep .pt{flex:1}
+  .ppstep .pt .h{font-size:12px;font-weight:700;color:var(--ink)}
+  .ppstep .pt .d{font-family:var(--kr);font-size:10.5px;color:var(--mut);line-height:1.55;margin-top:3px}
+  .ppstep .pt .d b{color:var(--ink)}
+  .ppstep .pt .tags{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
+  .ppcol .pf{margin-top:auto;border-top:1px solid var(--line);padding:8px 15px;font-family:var(--kr);font-size:10px;color:var(--dim);line-height:1.4}
+  .ppcol .pf b{color:var(--cyan)}
+
+  /* ---- benefit cards ---- */
+  .bgrid{display:grid;gap:12px;margin-top:16px}
+  .bgrid.two{grid-template-columns:1fr 1fr}
+  .bgrid.four{grid-template-columns:repeat(2,1fr)}
+  .bcard{border:1px solid var(--line);border-radius:13px;padding:15px 17px;background:#fff;position:relative;box-shadow:var(--cardsh)}
+  .bcard .bnum{position:absolute;top:13px;right:15px;font-family:var(--mono);font-size:10px;color:var(--dim)}
+  .bcard .bt{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:9px;line-height:1.25;color:var(--ink)}
+  .bcard .bt .ic{font-size:18px}
+  .bcard .bd{font-family:var(--kr);font-size:12px;color:var(--mut);line-height:1.65;margin-top:7px}
+  .bcard .bd b{color:var(--ink)}
+  .bcard ul.bl-list{list-style:none;margin:7px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+  .bcard ul.bl-list li{font-family:var(--kr);font-size:11.5px;color:var(--mut);line-height:1.5;padding-left:14px;position:relative}
+  .bcard ul.bl-list li::before{content:'';position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--cyan)}
+  .bcard.blue ul.bl-list li::before{background:var(--blue)}
+  .bcard ul.bl-list li b{color:var(--ink)}
+  .bcard.accent{border-color:rgba(18,131,189,.35);background:linear-gradient(165deg,rgba(18,131,189,.06),#fff)}
+  .bcard.blue{border-color:rgba(37,99,201,.30);background:linear-gradient(165deg,rgba(37,99,201,.05),#fff)}
+  .btag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:8.5px;letter-spacing:.04em;color:var(--cyan);border:1px solid rgba(18,131,189,.28);background:rgba(18,131,189,.08);border-radius:20px;padding:2px 9px}
+  .btag.b{color:var(--blue);border-color:rgba(37,99,201,.28);background:rgba(37,99,201,.08)}
+  .colhead{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;margin:2px 0 0}
+
+  /* ---- flow compare ---- */
+  .flowcmp{display:grid;grid-template-columns:1fr 30px 1fr;gap:0;align-items:center;margin-top:14px}
+  .flowbox{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;box-shadow:var(--cardsh)}
+  .flowbox.old{opacity:.72}
+  .flowbox.new{border-color:rgba(18,131,189,.4);background:linear-gradient(165deg,rgba(18,131,189,.07),#fff)}
+  .flowbox .fl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+  .flowbox.new .fl{color:var(--cyan)}
+  .flowchain{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .flowchain .fstep{font-family:var(--kr);font-size:11px;color:var(--mut);padding:5px 9px;border:1px solid var(--line);border-radius:7px;background:#fff}
+  .flowbox.new .fstep{color:var(--ink);border-color:rgba(18,131,189,.28)}
+  .flowchain .fsep{color:var(--dim);font-size:10px}
+  .flowmid{text-align:center;color:var(--cyan);font-size:18px;font-weight:700}
+
+  /* benefit small grid */
+  .bsgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-top:14px}
+  .bsgrid.three{grid-template-columns:repeat(3,1fr)}
+  .bscard{border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;position:relative;box-shadow:var(--cardsh)}
+  .bscard .bsi{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:14px;font-weight:700;background:rgba(18,131,189,.12);color:var(--cyan);border:1px solid rgba(18,131,189,.26);font-family:var(--mono)}
+  .bscard.blue .bsi{background:rgba(37,99,201,.12);color:var(--blue);border-color:rgba(37,99,201,.26)}
+  .bscard .bst{font-size:13px;font-weight:700;margin-top:9px;line-height:1.3;color:var(--ink)}
+  .bscard .bsd{font-family:var(--kr);font-size:12px;color:var(--mut);line-height:1.6;margin-top:7px}
+  .bscard .bsd b{color:var(--ink)}
+  .corebar{margin-top:14px;border:1px solid rgba(18,131,189,.30);border-radius:11px;padding:11px 16px;background:linear-gradient(110deg,rgba(18,131,189,.09),rgba(37,99,201,.05));display:flex;align-items:center;gap:14px}
+  .corebar .ct{font-family:var(--kr);font-size:12.5px;color:var(--ink);line-height:1.5;flex:1}
+  .corebar .ct b{color:var(--cyan)}
+  .corebar .ctag{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.06em;color:#fff;background:linear-gradient(135deg,var(--cyan),var(--blue));padding:7px 14px;border-radius:30px;white-space:nowrap}
+
+  /* ---- leadership / first-mover ---- */
+  .leadhero{margin-top:16px;border:1px solid rgba(18,131,189,.35);border-radius:16px;padding:22px 26px;background:linear-gradient(115deg,rgba(18,131,189,.10),rgba(37,99,201,.05));position:relative;overflow:hidden}
+  .leadhero .lhlabel{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--cyan);text-transform:uppercase}
+  .leadhero .lhtitle{font-size:24px;font-weight:800;line-height:1.3;margin-top:8px;letter-spacing:-.01em;color:var(--ink)}
+  .leadhero .lhtitle .g{background:linear-gradient(120deg,var(--cyan),var(--blue));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .leadhero .lhsub{font-family:var(--kr);font-size:13px;color:var(--mut);margin-top:10px;line-height:1.6;max-width:880px}
+  .leadhero .lhsub b{color:var(--ink)}
+  .voidrow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+  .voidcard{border:1px solid var(--line);border-radius:13px;padding:16px 18px;background:#fff;box-shadow:var(--cardsh)}
+  .voidcard .vh{font-size:14px;font-weight:700;display:flex;align-items:center;gap:9px}
+  .voidcard.gap .vh{color:var(--pink)} .voidcard.lead .vh{color:var(--cyan)}
+  .voidcard .vl{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .voidcard .vl li{font-family:var(--kr);font-size:11.5px;color:var(--mut);line-height:1.55;padding-left:16px;position:relative}
+  .voidcard.gap .vl li::before{content:'✕';position:absolute;left:0;top:0;color:var(--pink);font-size:9px}
+  .voidcard.lead .vl li::before{content:'✓';position:absolute;left:0;top:0;color:var(--cyan);font-size:10px}
+  .voidcard .vl li b{color:var(--ink)}
+
+  /* ---- module sequence (grid) ---- */
+  .seqdg{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:18px 20px 14px;background:#fff;box-shadow:var(--cardsh)}
+  .seqlanes{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-bottom:6px}
+  .seqlane{text-align:center}
+  .seqlane .ln{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:6px 12px;border-radius:9px;border:1px solid var(--line)}
+  .seqlane.buds .ln{background:rgba(14,138,77,.14);color:var(--green);border-color:rgba(14,138,77,.32)}
+  .seqlane.srv .ln{background:rgba(183,121,31,.14);color:var(--amber);border-color:rgba(183,121,31,.32)}
+  .seqlane.gem .ln{background:rgba(37,99,201,.14);color:var(--blue);border-color:rgba(37,99,201,.32)}
+  .seqlane.shz .ln{background:rgba(197,50,122,.14);color:var(--pink);border-color:rgba(197,50,122,.32)}
+  .seqlane.phn .ln{background:rgba(124,63,208,.14);color:var(--violet);border-color:rgba(124,63,208,.32)}
+  .seqlane .lr{font-family:var(--mono);font-size:8px;color:var(--dim);letter-spacing:.06em;margin-top:3px}
+  .seqmsg{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;min-height:30px;position:relative}
+  .seqmsg .mline{grid-column:var(--from)/var(--to);height:0;border-top:1.5px solid var(--mc,var(--mut));position:relative;margin:0 8px}
+  .seqmsg .mline.dash{border-top-style:dashed}
+  .seqmsg .mline .lbl{position:absolute;left:50%;transform:translateX(-50%);top:-15px;font-family:var(--kr);font-size:9.5px;color:var(--ink);white-space:nowrap;background:#fff;padding:0 6px}
+  .seqmsg .mline .lbl .c{font-family:var(--mono);font-size:8px;color:var(--green)}
+  .seqmsg .mline::after{content:'';position:absolute;width:7px;height:7px;border-top:1.5px solid var(--mc,var(--mut));border-right:1.5px solid var(--mc,var(--mut));top:-3.5px}
+  .seqmsg .mline.r::after{right:0;transform:rotate(45deg)}
+  .seqmsg .mline.l::after{left:0;transform:rotate(-135deg)}
+  .seqmsg .step{position:absolute;left:0;font-family:var(--mono);font-size:8.5px;color:var(--dim);top:50%;transform:translateY(-50%)}
+  .seqnote-r{margin-top:10px;font-family:var(--kr);font-size:11px;color:var(--mut);line-height:1.55}
+  .seqnote-r b{color:var(--ink)}
+
+  /* ---- friendly scenario ---- */
+  .scn-wrap{display:grid;grid-template-columns:300px 1fr;gap:22px;margin-top:16px;align-items:start}
+  .scn-phone{border:1px solid var(--line);border-radius:18px;padding:16px;background:linear-gradient(180deg,#F4F7FC,#FFFFFF);box-shadow:var(--cardsh)}
+  .scn-bubble{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-family:var(--kr);font-size:12px;line-height:1.7;color:#3a3f47}
+  .scn-bubble .hl-p{color:#6f46d8;font-weight:700}
+  .scn-bubble .hl-g{color:#118a52;font-weight:700}
+  .scn-cap{font-family:var(--mono);font-size:9px;letter-spacing:.06em;color:var(--dim);margin-top:10px;text-align:center}
+  .scn-cards{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .scn-cards .sct{font-family:var(--kr);font-size:11.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:7px;margin-bottom:2px}
+  .scn-card{background:linear-gradient(110deg,rgba(124,63,208,.12),rgba(37,99,201,.08));border:1px solid rgba(124,63,208,.28);border-radius:22px;padding:9px 14px;font-family:var(--kr);font-size:11.5px;color:var(--ink);display:flex;align-items:center;gap:9px}
+  .scn-card .ci{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:rgba(22,38,63,.07)}
+
+  .scn-steps{display:flex;flex-direction:column;gap:0;position:relative}
+  .scn-step{display:grid;grid-template-columns:38px 1fr;gap:14px;padding:0 0 16px;position:relative}
+  .scn-step:last-child{padding-bottom:0}
+  .scn-step::before{content:'';position:absolute;left:18px;top:34px;bottom:-2px;width:2px;background:linear-gradient(180deg,var(--cyan),rgba(18,131,189,.15))}
+  .scn-step:last-child::before{display:none}
+  .scn-step .sn{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;background:#fff;border:1px solid var(--line);z-index:1}
+  .scn-step.k1 .sn{border-color:rgba(183,121,31,.4);background:rgba(183,121,31,.10)}
+  .scn-step.k2 .sn{border-color:rgba(37,99,201,.4);background:rgba(37,99,201,.10)}
+  .scn-step.k3 .sn{border-color:rgba(124,63,208,.4);background:rgba(124,63,208,.10)}
+  .scn-step .sc .h{font-size:14px;font-weight:700;color:var(--ink)}
+  .scn-step .sc .h .who{font-family:var(--mono);font-size:8.5px;font-weight:400;letter-spacing:.04em;color:var(--dim);margin-left:8px;border:1px solid var(--line);border-radius:20px;padding:2px 8px}
+  .scn-step .sc .d{font-family:var(--kr);font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:4px}
+  .scn-step .sc .d b{color:var(--ink)}
+  .scn-keyrow{margin-top:14px;border:1px solid rgba(18,131,189,.30);border-radius:11px;padding:10px 16px;background:linear-gradient(110deg,rgba(18,131,189,.09),rgba(37,99,201,.05));font-family:var(--kr);font-size:11.5px;color:var(--mut);line-height:1.55}
+  .scn-keyrow b{color:var(--cyan)}
+
+  /* ---- action item matching ---- */
+  .am-wrap{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:16px;align-items:start}
+  .am-panel{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:#fff;box-shadow:var(--cardsh)}
+  .am-panel .amh{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--cyan);text-transform:uppercase;margin-bottom:10px}
+  .am-script{font-family:var(--kr);font-size:13px;line-height:2.1;color:var(--mut)}
+  .hl-span{border-radius:5px;padding:2px 6px;font-weight:700;position:relative}
+  .hl-span.p{background:rgba(124,63,208,.14);color:#6a2fb3;border:1px solid rgba(124,63,208,.4)}
+  .hl-span.g{background:rgba(14,138,77,.14);color:#0c7a45;border:1px solid rgba(14,138,77,.4)}
+  .hl-span.b{background:rgba(37,99,201,.14);color:#1f56b0;border:1px solid rgba(37,99,201,.4)}
+  .hl-span .sp{position:absolute;top:-9px;left:-7px;width:16px;height:16px;border-radius:50%;font-family:var(--mono);font-size:9px;font-weight:700;display:grid;place-items:center;color:#fff}
+  .hl-span.p .sp{background:var(--violet)} .hl-span.g .sp{background:var(--green)} .hl-span.b .sp{background:var(--blue)}
+  .am-cards{display:flex;flex-direction:column;gap:10px}
+  .am-card{border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:11px;border:1px solid var(--line);background:#fff}
+  .am-card.p{background:rgba(124,63,208,.08);border-color:rgba(124,63,208,.32)}
+  .am-card.g{background:rgba(14,138,77,.08);border-color:rgba(14,138,77,.32)}
+  .am-card.b{background:rgba(37,99,201,.08);border-color:rgba(37,99,201,.32)}
+  .am-card .amn{width:20px;height:20px;border-radius:50%;font-family:var(--mono);font-size:10px;font-weight:700;display:grid;place-items:center;color:#fff;flex:0 0 20px}
+  .am-card.p .amn{background:var(--violet)} .am-card.g .amn{background:var(--green)} .am-card.b .amn{background:var(--blue)}
+  .am-card .amt{flex:1}
+  .am-card .amt .t1{font-family:var(--kr);font-size:12.5px;font-weight:700;color:var(--ink)}
+  .am-card .amt .t2{font-family:var(--mono);font-size:8.5px;color:var(--dim);margin-top:2px}
+  .am-card .amapp{font-family:var(--mono);font-size:8.5px;color:var(--mut);border:1px solid var(--line);border-radius:20px;padding:3px 9px;white-space:nowrap}
+  .am-how{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .am-how .ams{border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:#fff;box-shadow:var(--cardsh)}
+  .am-how .ams .n{font-family:var(--mono);font-size:10px;color:var(--cyan)}
+  .am-how .ams .h{font-size:12.5px;font-weight:700;margin:5px 0 4px;color:var(--ink)}
+  .am-how .ams .d{font-family:var(--kr);font-size:10.5px;color:var(--mut);line-height:1.5}
+  .am-how .ams .d b{color:var(--ink)}
+
+  /* ---- module node-flow ---- */
+  .mflow{margin-top:18px;position:relative}
+  .mrow{display:grid;grid-template-columns:1fr 92px 1fr 92px 1fr 92px 1fr;align-items:center}
+  .mnode{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;display:flex;flex-direction:column;align-self:stretch;box-shadow:var(--cardsh)}
+  .mnode .mhd{padding:10px 14px;font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+  .mnode.buds .mhd{background:linear-gradient(150deg,rgba(14,138,77,.16),transparent);color:var(--green)}
+  .mnode.srv .mhd{background:linear-gradient(150deg,rgba(183,121,31,.16),transparent);color:var(--amber)}
+  .mnode.gem .mhd{background:linear-gradient(150deg,rgba(37,99,201,.16),transparent);color:var(--blue)}
+  .mnode.shz .mhd{background:linear-gradient(150deg,rgba(197,50,122,.16),transparent);color:var(--pink)}
+  .mnode.phn .mhd{background:linear-gradient(150deg,rgba(124,63,208,.16),transparent);color:var(--violet)}
+  .mnode .mhd .sub{margin-left:auto;font-family:var(--mono);font-size:7.5px;font-weight:400;color:var(--dim);letter-spacing:.03em}
+  .mnode .mbd{padding:11px 13px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .mstep{display:flex;gap:8px;align-items:flex-start}
+  .mstep .mn{flex:0 0 18px;width:18px;height:18px;border-radius:50%;font-family:var(--mono);font-size:9px;font-weight:700;display:grid;place-items:center;color:#fff}
+  .mstep.b .mn{background:var(--green)} .mstep.s .mn{background:var(--amber)} .mstep.g .mn{background:var(--blue)} .mstep.z .mn{background:var(--pink)} .mstep.p .mn{background:var(--violet)}
+  .mstep .mt{font-family:var(--kr);font-size:10.5px;color:var(--mut);line-height:1.5;flex:1}
+  .mstep .mt b{color:var(--ink)}
+  .mstep .mt i{color:var(--dim);font-style:normal;font-size:9.5px}
+  .mgap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}
+  .mchip{font-family:var(--kr);font-size:9.5px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 9px;display:flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 3px rgba(22,38,63,.06)}
+  .mchip .mnn{width:14px;height:14px;border-radius:50%;font-family:var(--mono);font-size:8px;font-weight:700;display:grid;place-items:center;color:#fff;flex:0 0 14px}
+  .mchip.fwd{border-color:rgba(183,121,31,.40)} .mchip.fwd .mnn{background:var(--amber)}
+  .mchip.bwd{border-color:rgba(37,99,201,.40)} .mchip.bwd .mnn{background:var(--blue)}
+  .mchip .ar{color:var(--dim);font-size:10px}
+  .mshz-wrap{display:flex;flex-direction:column;gap:9px}
+  .mbranch{display:flex;align-items:center;justify-content:center;gap:5px;font-family:var(--kr);font-size:9px;color:var(--pink)}
+  .mbranch .mnn{width:13px;height:13px;border-radius:50%;font-family:var(--mono);font-size:7.5px;font-weight:700;display:grid;place-items:center;color:#fff;background:var(--pink);flex:0 0 13px}
+
+  /* ---- branch within a post-step ---- */
+  .ppbranch{margin-top:6px;display:flex;flex-direction:column;gap:5px}
+  .ppbr{border:1px solid var(--line);border-radius:8px;padding:6px 9px;background:var(--panel2)}
+  .ppbr .bl{font-family:var(--mono);font-size:8.5px;letter-spacing:.03em;padding:1px 6px;border-radius:4px;display:inline-block;margin-bottom:3px}
+  .ppbr .bl.now{background:rgba(183,121,31,.14);color:var(--amber);border:1px solid rgba(183,121,31,.32)}
+  .ppbr .bl.wait{background:rgba(14,138,77,.14);color:var(--green);border:1px solid rgba(14,138,77,.32)}
+  .ppbr .bx{font-family:var(--kr);font-size:10px;color:var(--mut);line-height:1.5}
+  .ppbr .bx b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- 03 PIPELINE -->
+  <section class="slide" data-no="01">
+    <div class="pad">
+      <div class="kicker">Slide 1 · Server Pipeline</div>
+      <h2 class="stitle">BudsAI <span class="hl">서버</span>에서는 무슨 일이 일어날까?</h2>
+
+      <!-- orchestrator banner -->
+      <div class="orch">
+        <div class="left">
+          <div class="h"><span class="badge">ROLE</span>BudsAI 서버 = <span style="color:var(--cyan)">AI Orchestrator</span></div>
+          <div class="p">서버는 <b>어떤 AI 추론도 하지 않는다</b>(STT·분류 모델 없음). <b>수신·복호화·정렬·라우팅</b>만 담당하고, <b>오디오 분석·연관도·task 분류·Action 생성</b>은 <b style="color:var(--blue)">Gemini / Galaxy AI</b>에, <b>음악 식별</b>은 <b style="color:var(--amber)">Shazam API</b>에 위임한다.</div>
+        </div>
+        <div class="right">
+          <div class="delegrow"><span class="a">BudsAI</span><span class="way">── 원본 3트랙 오디오 ▶</span><span class="b">Gemini</span></div>
+          <div class="delegrow"><span class="a">BudsAI</span><span class="way">◀ 구조화 결과(JSON) ──</span><span class="b">Galaxy AI</span></div>
+          <div class="delegrow" style="color:var(--dim);font-size:9px;justify-content:center">↻ 분석 단계마다 다회 왕복 (multi-turn)</div>
+        </div>
+      </div>
+
+      <div class="entry">
+        <span class="entrybox">📦 <b>서버 수신</b> · LC3 멀티트랙 {internal, external, voice} + meta(session_id, host_type)</span>
+        <span class="harrow">▶</span>
+      </div>
+
+      <!-- linear 1 -> 2 -> decision -->
+      <div class="pipe">
+        <div class="prow">
+          <div class="pnode">
+            <div class="top">
+              <div class="st">STAGE 1</div>
+              <div class="nm">Decomp · 정렬</div>
+              <div class="ds">3트랙 디코딩 후 PTS 타임라인 정렬. 버즈가 붙인 트랙 라벨을 그대로 유지. <b>분석 없는 산술 처리(AI-free)</b>.</div>
+              <div class="tech"><span class="chip">PTS align</span><span class="chip">no-AI</span></div>
+            </div>
+            <div class="io2"><span class="lab">IN </span><span class="inv">LC3 3-track + meta</span><br><span class="lab">OUT </span><span class="outv">{int_pcm, ext_pcm, voice_pcm, timeline}</span></div>
+          </div>
+          <div class="harrow">→</div>
+          <div class="pnode orchnode">
+            <span class="delegtag">▶ 원본 오디오 위임</span>
+            <div class="top">
+              <div class="st">STAGE 2</div>
+              <div class="nm">위임: STT · 연관도 · task 분류</div>
+              <div class="ds">정렬된 <b>원본 3트랙을 그대로 Galaxy AI에 전송</b>. STT·연관도·task 분류는 전부 Gemini가 수행(서버는 미관여). 구조화된 결과만 회신받음.</div>
+              <div class="tech"><span class="chip b">Gemini multimodal</span></div>
+            </div>
+            <div class="io2"><span class="lab">▶ SEND </span><span class="inv">3트랙 오디오 + track label + lang hint</span><br><span class="lab">◀ RECV </span><span class="outv">{utterance_text, needs_audio_ref, action, target_track, needs_shazam, slots, fallback_answer}</span></div>
+          </div>
+          <div class="harrow">→</div>
+          <div class="pnode" style="border-color:rgba(63,224,197,.4)">
+            <div class="top">
+              <div class="st">DECISION</div>
+              <div class="nm">서버 라우팅 (판단X)</div>
+              <div class="ds">회신값의 enum만 보고 분기. <b>축1 needs_audio_ref</b> → 일반/BudsAI, <b>축2 action</b> → 핸들러 선택. host_type으로 Galaxy/Other 출력 분기.</div>
+              <div class="tech"><span class="chip">needs_audio_ref</span><span class="chip">action enum</span></div>
+            </div>
+            <div class="io2"><span class="lab">→ </span><span class="inv">action·host_type 조합으로 경로 결정</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="varrow">▼</div>
+
+      <!-- branch -->
+      <div class="branchrow">
+        <div class="bcol gal">
+          <div class="bh">📱 Galaxy Phone 경로 <span style="font-family:var(--mono);font-size:9px;color:var(--violet);font-weight:400;margin-left:auto">위임 多</span></div>
+          <div class="bb"><b>3단계</b> internal·external에서 곡/환경/intent 분석 → 음악 task면 <span class="deleg">Shazam API 호출(곡 메타)</span> → <span class="deleg">Gemini에 메타·컨텍스트 위임·왕복</span> → 답변·Action Item 종합 → <b>4단계</b> 폰서 매칭·Now brief·3rd party 위임·TTS 합성.</div>
+          <div class="bio"><span class="lab">OUT </span><span class="outv">{answer_text, action_items[], audio_transcript{int,ext,voice}}</span></div>
+        </div>
+        <div class="bcol oth">
+          <div class="bh">💻 Other hosts 경로 <span style="font-family:var(--mono);font-size:9px;color:var(--dim);font-weight:400;margin-left:auto">위임 不可</span></div>
+          <div class="bb"><b>3단계</b> Galaxy AI 사용 불가 → 음악 task면 <span class="deleg">Shazam API로 곡 식별</span>, 그 외엔 <span class="deleg">서버 내장 경량 LLM</span>으로 검색 수준 답변 생성 → <b>4단계</b> 서버가 직접 TTS 합성 → 호스트 passthrough로 버즈 직송.</div>
+          <div class="bio"><span class="lab">OUT </span><span class="outv">{answer_text} → TTS audio (Opus 24k)</span></div>
+        </div>
+      </div>
+
+      <div class="note"><b>핵심:</b> BudsAI는 진입점·라우터(orchestrator)일 뿐, 두뇌는 빌린다. 분석 단계마다 BudsAI ↔ Gemini/Galaxy AI 간 <b>다회 왕복(multi-turn)</b>이 발생한다. <b>Other hosts</b>(iOS·노트북·TV 등)는 Galaxy AI를 못 써 서버 내장 모델로 대체하며 TTS만 제공한다.</div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>SERVER PIPELINE</div>
+  </section>
+
+  <!-- 02 · STAGE 2 위임 계약 상세 -->
+  <section class="slide" data-no="02">
+    <div class="pad">
+      <div class="kicker">Slide 2 · Delegation Contract</div>
+      <h2 class="stitle">위임할 때 <span class="hl">주고받는 데이터</span>는 무엇일까?</h2>
+      <p class="ssub">서버엔 AI 로직이 없으므로 실질 개발 범위는 "요청/응답 스키마 정의 + 응답 기반 라우팅". 아래는 각 필드의 의미.</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+        <div class="fieldbox req">
+          <div class="fh">▶ REQUEST · BudsAI → Galaxy AI <span style="margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:400;color:var(--dim)">서버가 보내는 것</span></div>
+          <div class="frow"><div class="fk">audio[3]</div><div class="fv"><b>원본 오디오 3트랙</b> — internal(듣던 소리)·external(주변음)·voice(질문). 분석·요약 없는 날 것.</div></div>
+          <div class="frow"><div class="fk">track_labels</div><div class="fv">각 트랙이 무엇인지 표시. <b>버즈가 캡처 때 붙인 메타</b>라 서버가 판단한 게 아님.</div></div>
+          <div class="frow"><div class="fk">timeline</div><div class="fv">세 트랙의 시간 정렬 정보. "발화가 어느 시점 소리를 가리키나"의 근거.</div></div>
+          <div class="frow"><div class="fk dim">session_id</div><div class="fv">이 요청의 고유 ID. 나중에 응답을 맞춰 찾는 열쇠.</div></div>
+          <div class="frow"><div class="fk dim">host_type</div><div class="fv">갤럭시폰 / Other hosts 구분. 출력 형태를 가름.</div></div>
+          <div class="frow"><div class="fk dim">lang_hint</div><div class="fv">예상 언어 힌트(있으면). 전사·TTS 언어 결정에 참고.</div></div>
+          <div class="ff">분석 결과·요약 <b>없음</b>. 정렬만 끝낸 오디오 + 라벨만 보낸다.</div>
+        </div>
+
+        <div class="fieldbox res">
+          <div class="fh">◀ RESPONSE · Galaxy AI → BudsAI <span style="margin-left:auto;font-family:var(--mono);font-size:9px;font-weight:400;color:var(--dim)">서버가 받는 것</span></div>
+          <div class="frow"><div class="fk">utterance_text</div><div class="fv"><b>발화를 받아쓴 텍스트</b> (STT 결과). 예: "방금 이 노래 뭐야?"</div></div>
+          <div class="frow"><div class="fk">needs_audio_ref</div><div class="fv"><b>축1.</b> 답하려면 듣던 소리를 봐야 하나? <b>true</b>=BudsAI task / false=일반.</div></div>
+          <div class="frow"><div class="fk">action</div><div class="fv"><b>축2.</b> 무슨 동작인가(정해진 목록 중 하나). 예: music_identify, schedule_create.</div></div>
+          <div class="frow"><div class="fk">target_track</div><div class="fv">참조할 트랙. internal / external / none. 음악이 카페 BGM이면 external.</div></div>
+          <div class="frow"><div class="fk">needs_shazam</div><div class="fv">곡 식별이 필요한가? <b>true면 서버가 Shazam 호출</b>(Gemini엔 음악 DB 없음).</div></div>
+          <div class="frow"><div class="fk dim">slots</div><div class="fv">동작에 필요한 값들. 예: 알람이면 {시간, 종류}.</div></div>
+          <div class="frow"><div class="fk dim">confidence</div><div class="fv">분류 확신도. 낮으면 되묻기/fallback 트리거.</div></div>
+          <div class="frow"><div class="fk dim">fallback_answer</div><div class="fv">분류 애매·핸들러 없을 때 대신 읽어줄 답변.</div></div>
+          <div class="ff">서버는 이 값만 보고 행동: <b>needs_shazam→Shazam, action→핸들러</b> 매핑.</div>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:14px"><b>읽는 법:</b> 서버는 왼쪽(원본 오디오)을 보내고 오른쪽(구조화된 판단)을 돌려받는다. <b>needs_audio_ref</b>=오디오를 봐야 하나(축1), <b>action</b>=무엇을 할까(축2). action 목록: <span style="font-family:var(--mono);font-size:10px;color:var(--mut)">music_identify · schedule_create · sound_save · translate · summarize · call · smarthome · <b style="color:var(--ink)">simple_qa</b>(단순 질의응답·기본값)</span>. 미분류는 simple_qa + fallback_answer로 흡수한다.</div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>DELEGATION CONTRACT</div>
+  </section>
+
+  <!-- 03 · MODULE SEQUENCE DIAGRAM -->
+  <section class="slide" data-no="03">
+    <div class="pad">
+      <div class="kicker">Slide 3 · Module Sequence</div>
+      <h2 class="stitle">모듈 간 <span class="hl">시퀀스 다이어그램</span> — 분기 포함 전체</h2>
+
+      <svg viewBox="0 0 1180 600" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;margin-top:14px;font-family:var(--disp)">
+        <defs>
+          <marker id="ah" markerWidth="10" markerHeight="10" refX="7.5" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7" fill="none" stroke="context-stroke" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+        </defs>
+
+        <g text-anchor="middle">
+          <g><rect x="40" y="6" width="130" height="44" rx="12" fill="rgba(126,231,135,.12)" stroke="rgba(126,231,135,.45)" stroke-width="1.2"/>
+            <text x="105" y="27" font-size="13" font-weight="700" fill="#0E8A4D">🎧 Buds</text>
+            <text x="105" y="42" font-size="8.5" fill="#8AA0BF">포장·전송·재생</text></g>
+          <g><rect x="270" y="6" width="150" height="44" rx="12" fill="rgba(255,180,84,.12)" stroke="rgba(255,180,84,.45)" stroke-width="1.2"/>
+            <text x="345" y="27" font-size="13" font-weight="700" fill="#B7791F">☁ BudsAI 서버</text>
+            <text x="345" y="42" font-size="8.5" fill="#8AA0BF">오케스트레이터</text></g>
+          <g><rect x="510" y="6" width="180" height="44" rx="12" fill="rgba(91,157,255,.12)" stroke="rgba(91,157,255,.45)" stroke-width="1.2"/>
+            <text x="600" y="27" font-size="13" font-weight="700" fill="#2563C9">🤖 Gemini / Galaxy AI</text>
+            <text x="600" y="42" font-size="8.5" fill="#8AA0BF">분석·추론 위임처</text></g>
+          <g><rect x="765" y="6" width="140" height="44" rx="12" fill="rgba(255,126,182,.12)" stroke="rgba(255,126,182,.45)" stroke-width="1.2"/>
+            <text x="835" y="27" font-size="13" font-weight="700" fill="#C5327A">🎵 Shazam</text>
+            <text x="835" y="42" font-size="8.5" fill="#8AA0BF">음악 식별 API</text></g>
+          <g><rect x="1010" y="6" width="140" height="44" rx="12" fill="rgba(180,140,255,.12)" stroke="rgba(180,140,255,.45)" stroke-width="1.2"/>
+            <text x="1080" y="27" font-size="13" font-weight="700" fill="#7C3FD0">📱 Phone / Host</text>
+            <text x="1080" y="42" font-size="8.5" fill="#8AA0BF">후처리·재생</text></g>
+        </g>
+        <g stroke="#DCE3EE" stroke-width="1.3">
+          <line x1="105" y1="50" x2="105" y2="588"/>
+          <line x1="345" y1="50" x2="345" y2="588"/>
+          <line x1="600" y1="50" x2="600" y2="588"/>
+          <line x1="835" y1="50" x2="835" y2="588"/>
+          <line x1="1080" y1="50" x2="1080" y2="588"/>
+        </g>
+
+        <!-- COMMON 1-3 -->
+        <line x1="105" y1="86" x2="338" y2="86" stroke="#0E8A4D" stroke-width="2" marker-end="url(#ah)"/>
+        <g><circle cx="118" cy="86" r="9" fill="#0E8A4D"/><text x="118" y="89.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">1</text></g>
+        <text x="225" y="79" font-size="10.5" fill="#54647D" text-anchor="middle">LC3 3트랙 + 트리거</text>
+        <line x1="345" y1="118" x2="593" y2="118" stroke="#B7791F" stroke-width="2" marker-end="url(#ah)"/>
+        <g><circle cx="358" cy="118" r="9" fill="#B7791F"/><text x="358" y="121.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">2</text></g>
+        <text x="475" y="111" font-size="10.5" fill="#54647D" text-anchor="middle">원본 3트랙 위임</text>
+        <rect x="512" y="128" width="176" height="22" rx="7" fill="rgba(91,157,255,.14)" stroke="rgba(91,157,255,.35)"/>
+        <text x="600" y="143" font-size="9" fill="#2563C9" text-anchor="middle">STT · 연관도 · 분류 (1회 추론)</text>
+        <line x1="600" y1="172" x2="352" y2="172" stroke="#2563C9" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+        <g><circle cx="587" cy="172" r="9" fill="#2563C9"/><text x="587" y="175.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">3</text></g>
+        <text x="476" y="165" font-size="10.5" fill="#54647D" text-anchor="middle">분류 결과 {needs_audio_ref, action…}</text>
+
+        <!-- ALT FRAME (action) -->
+        <rect x="60" y="186" width="1080" height="276" rx="10" fill="rgba(63,224,197,.03)" stroke="rgba(63,224,197,.45)" stroke-width="1.2"/>
+        <path d="M60 186 h62 v16 l-8 8 h-54 z" fill="#1283BD"/>
+        <text x="78" y="199" font-size="10" font-weight="800" fill="#ffffff">ALT</text>
+        <text x="132" y="199" font-size="10" fill="#1283BD" font-weight="600">action 분류 결과에 따라 분기</text>
+
+        <rect x="74" y="210" width="148" height="20" rx="6" fill="rgba(255,126,182,.14)" stroke="rgba(255,126,182,.35)"/>
+        <text x="148" y="224" font-size="9.5" font-weight="700" fill="#C5327A" text-anchor="middle">음악 task · needs_shazam</text>
+        <line x1="345" y1="250" x2="828" y2="250" stroke="#B7791F" stroke-width="2" marker-end="url(#ah)"/>
+        <g><circle cx="358" cy="250" r="9" fill="#B7791F"/><text x="358" y="253.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">4</text></g>
+        <text x="590" y="243" font-size="10.5" fill="#54647D" text-anchor="middle">곡 조회 (target 트랙 오디오)</text>
+        <line x1="835" y1="280" x2="352" y2="280" stroke="#C5327A" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+        <g><circle cx="822" cy="280" r="9" fill="#C5327A"/><text x="822" y="283.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">5</text></g>
+        <text x="590" y="273" font-size="10.5" fill="#54647D" text-anchor="middle">곡 메타 {title, artist, album}</text>
+        <line x1="345" y1="310" x2="593" y2="310" stroke="#B7791F" stroke-width="2" marker-end="url(#ah)"/>
+        <g><circle cx="358" cy="310" r="9" fill="#B7791F"/><text x="358" y="313.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">6</text></g>
+        <text x="476" y="303" font-size="10.5" fill="#54647D" text-anchor="middle">곡 메타 재위임</text>
+        <rect x="512" y="320" width="176" height="20" rx="7" fill="rgba(91,157,255,.14)" stroke="rgba(91,157,255,.35)"/>
+        <text x="600" y="334" font-size="9" fill="#2563C9" text-anchor="middle">답변 + Action Item 종합</text>
+        <line x1="600" y1="362" x2="352" y2="362" stroke="#2563C9" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ah)"/>
+        <g><circle cx="587" cy="362" r="9" fill="#2563C9"/><text x="587" y="365.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">7</text></g>
+        <text x="476" y="355" font-size="10.5" fill="#54647D" text-anchor="middle">answer + action_items[]</text>
+
+        <line x1="66" y1="378" x2="1134" y2="378" stroke="#DCE3EE" stroke-width="1" stroke-dasharray="4 4"/>
+        <text x="78" y="372" font-size="9" fill="#8AA0BF">─ 또는 ─</text>
+        <rect x="74" y="388" width="196" height="20" rx="6" fill="rgba(91,157,255,.14)" stroke="rgba(91,157,255,.35)"/>
+        <text x="172" y="402" font-size="9.5" font-weight="700" fill="#2563C9" text-anchor="middle">앱연동 task · ③에서 slots 완비</text>
+        <text x="476" y="402" font-size="10" fill="#54647D" text-anchor="middle">Shazam·재위임 없음 → 곧장 ⑧ 수렴</text>
+
+        <line x1="66" y1="418" x2="1134" y2="418" stroke="#DCE3EE" stroke-width="1" stroke-dasharray="4 4"/>
+        <text x="78" y="412" font-size="9" fill="#8AA0BF">─ 또는 ─</text>
+        <rect x="74" y="430" width="168" height="20" rx="6" fill="rgba(126,231,135,.14)" stroke="rgba(126,231,135,.35)"/>
+        <text x="158" y="444" font-size="9.5" font-weight="700" fill="#0E8A4D" text-anchor="middle">단순 질의응답 · 기본값</text>
+        <text x="476" y="444" font-size="10" fill="#54647D" text-anchor="middle">③ 회신에 answer 포함 → 추가 호출 없음</text>
+
+        <!-- converge 8 -->
+        <line x1="345" y1="488" x2="1073" y2="488" stroke="#B7791F" stroke-width="2" marker-end="url(#ah)"/>
+        <g><circle cx="358" cy="488" r="9" fill="#B7791F"/><text x="358" y="491.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">8</text></g>
+        <text x="710" y="481" font-size="10.5" fill="#54647D" text-anchor="middle">응답 패킷 (session_id 매칭)</text>
+
+        <!-- ALT FRAME (host_type) -->
+        <rect x="60" y="500" width="1080" height="86" rx="10" fill="rgba(180,140,255,.03)" stroke="rgba(180,140,255,.45)" stroke-width="1.2"/>
+        <path d="M60 500 h62 v16 l-8 8 h-54 z" fill="#7C3FD0"/>
+        <text x="78" y="513" font-size="10" font-weight="800" fill="#ffffff">ALT</text>
+        <text x="132" y="513" font-size="10" fill="#7C3FD0" font-weight="600">host_type에 따라 분기</text>
+        <rect x="980" y="520" width="178" height="20" rx="7" fill="rgba(180,140,255,.14)" stroke="rgba(180,140,255,.35)"/>
+        <text x="1069" y="534" font-size="9" fill="#7C3FD0" text-anchor="middle">[Galaxy] Now brief·카드·폰 TTS</text>
+        <line x1="1080" y1="556" x2="113" y2="556" stroke="#7C3FD0" stroke-width="2" marker-end="url(#ah)"/>
+        <g><circle cx="1067" cy="556" r="9" fill="#7C3FD0"/><text x="1067" y="559.5" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">9</text></g>
+        <text x="590" y="549" font-size="10.5" fill="#54647D" text-anchor="middle">TTS 음성 + Action Item 카드 → 버즈</text>
+        <line x1="345" y1="578" x2="113" y2="578" stroke="#B7791F" stroke-width="2" marker-end="url(#ah)"/>
+        <g><circle cx="358" cy="578" r="9" fill="#B7791F"/><text x="358" y="581.5" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">9ʹ</text></g>
+        <text x="225" y="571" font-size="10" fill="#54647D" text-anchor="middle">서버 TTS</text>
+        <text x="760" y="571" font-size="9.5" fill="#8AA0BF" text-anchor="middle">[Other hosts] 호스트는 passthrough · 카드/앱연동 없음</text>
+      </svg>
+
+      <div class="seqnote-r"><b>읽는 법:</b> 실선=요청, 점선=회신. <b>①~③ 공통</b>(수신→위임→분류) 이후 첫 <b>ALT(action)</b>에서 음악(④~⑦ Shazam 왕복+재위임)·앱연동(바로 수렴)·단순질의(③에 answer 포함)로 갈리고, <b>⑧ 수렴</b> 뒤 두 번째 <b>ALT(host_type)</b>에서 Galaxy(⑨ 카드+폰 TTS)·Other hosts(⑨ʹ 서버 TTS·passthrough)로 다시 갈린다.</div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>MODULE SEQUENCE</div>
+  </section>
+
+  <!-- 04 · SEQUENCE (task types) -->
+  <section class="slide" data-no="04">
+    <div class="pad">
+      <div class="kicker">Slide 4 · Interaction Sequence</div>
+      <h2 class="stitle">task 종류에 따라 <span class="hl">처리 흐름</span>이 어떻게 달라질까?</h2>
+      <p class="ssub">서버는 판단하지 않으므로, 회신값(needs_audio_ref·needs_shazam·action)에 따라 처리 경로가 달라진다. Galaxy 경로 기준 4가지 갈래.</p>
+
+      <div class="exlabel" style="padding:14px 0 0;font-size:9px">▸ task 예시</div>
+      <div class="seqwrap">
+
+        <!-- A: music BudsAI task -->
+        <div class="seqcol a">
+          <div class="sh"><span>🎵 음악 BudsAI task</span><span class="rt">오디오 참조 + 식별</span></div>
+          <div class="seqex"><span class="q">"방금 이 노래 뭐야?"</span><br>(카페 BGM을 들으며)</div>
+          <div class="sb">
+            <div class="seqstep"><span class="act self">SERVER</span><span class="txt">1단계 정렬 <i>(AI 없음)</i></span></div>
+            <div class="seqarrow">▼ 원본 3트랙 ▶</div>
+            <div class="seqstep"><span class="act gem">GEMINI</span><span class="txt">분류<span class="code">needs_shazam:true<br>target:external</span></span></div>
+            <div class="seqarrow">◀ 1차 회신</div>
+            <div class="seqstep"><span class="act shz">SHAZAM</span><span class="txt">target 트랙 곡 조회<span class="code">{title, artist}</span></span></div>
+            <div class="seqarrow">▼ 곡 메타 ▶</div>
+            <div class="seqstep"><span class="act gem">GEMINI</span><span class="txt">메타 반영 <b>답변+Action Item</b> 종합</span></div>
+            <div class="seqarrow">◀ 2차 회신</div>
+            <div class="seqstep"><span class="act dev">PHONE</span><span class="txt">Now brief·카드·TTS</span></div>
+          </div>
+        </div>
+
+        <!-- B: app-linked BudsAI task -->
+        <div class="seqcol b">
+          <div class="sh"><span>🎧 앱연동 BudsAI task</span><span class="rt">오디오 참조 + 앱 연동</span></div>
+          <div class="seqex"><span class="q">"방금 말한 일정 등록해줘"</span><br>"방금 그 주소 메모해줘"</div>
+          <div class="sb">
+            <div class="seqstep"><span class="act self">SERVER</span><span class="txt">1단계 정렬 <i>(AI 없음)</i></span></div>
+            <div class="seqarrow">▼ 원본 3트랙 ▶</div>
+            <div class="seqstep"><span class="act gem">GEMINI</span><span class="txt">오디오 STT·이해 후 분류<span class="code">needs_audio_ref:true<br>action:schedule_create<br>target:internal, slots</span></span></div>
+            <div class="seqarrow">◀ 1차 회신 (slots 완비)</div>
+            <div class="seqstep"><span class="act self">SERVER</span><span class="txt">action enum → 핸들러 매핑</span></div>
+            <div class="seqarrow">▼ slots 전달</div>
+            <div class="seqstep"><span class="act dev">PHONE</span><span class="txt">Now brief·transcript 카드 + Calendar/메모 위임 + TTS</span></div>
+          </div>
+        </div>
+
+        <!-- C: app-linked general task -->
+        <div class="seqcol c">
+          <div class="sh"><span>🗓 앱연동 일반 task</span><span class="rt">오디오 참조 X</span></div>
+          <div class="seqex"><span class="q">"내일 3시 알람 맞춰줘"</span><br>"엄마한테 전화 걸어줘"</div>
+          <div class="sb">
+            <div class="seqstep"><span class="act self">SERVER</span><span class="txt">1단계 정렬 <i>(트랙 미사용)</i></span></div>
+            <div class="seqarrow">▼ 원본 3트랙 ▶</div>
+            <div class="seqstep"><span class="act gem">GEMINI</span><span class="txt">분류<span class="code">needs_audio_ref:false<br>target:none<br>action:schedule_create, slots</span></span></div>
+            <div class="seqarrow">◀ 1차 회신 (slots 완비)</div>
+            <div class="seqstep"><span class="act self">SERVER</span><span class="txt">action enum → 핸들러 매핑</span></div>
+            <div class="seqarrow">▼ slots 전달</div>
+            <div class="seqstep"><span class="act dev">PHONE</span><span class="txt">Calendar·전화·SmartThings 실행 + 확인 TTS</span></div>
+          </div>
+        </div>
+
+        <!-- D: simple_qa -->
+        <div class="seqcol d">
+          <div class="sh"><span>💬 단순 질의응답</span><span class="rt">단순질의 + 기본값(fallback)</span></div>
+          <div class="seqex"><span class="q">"오늘 날씨 어때?"</span><br>"에펠탑 높이가 얼마야?"</div>
+          <div class="sb">
+            <div class="seqstep"><span class="act self">SERVER</span><span class="txt">1단계 정렬</span></div>
+            <div class="seqarrow">▼ 원본 3트랙 ▶</div>
+            <div class="seqstep"><span class="act gem">GEMINI</span><span class="txt">분류 후 <b>answer 바로 포함</b><span class="code">action:simple_qa</span></span></div>
+            <div class="seqarrow">◀ 1차 회신 (answer)</div>
+            <div class="seqstep"><span class="act self">SERVER</span><span class="txt">핸들러 없음 → answer 추출</span></div>
+            <div class="seqarrow">▼ answer 전달</div>
+            <div class="seqstep"><span class="act dev">PHONE</span><span class="txt">TTS 합성 → 버즈 재생</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="legend">
+        <span><i style="background:rgba(94,111,138,.5)"></i>SERVER</span>
+        <span><i style="background:#2563C9"></i>Gemini/Galaxy AI</span>
+        <span><i style="background:#C5327A"></i>Shazam API</span>
+        <span><i style="background:#0E8A4D"></i>Phone/실행</span>
+      </div>
+
+      <div class="note"><b>2축 구분:</b> <b>needs_audio_ref</b>(오디오 참조 O=BudsAI / X=일반) × <b>action</b>(앱연동 / 단순답변). A·B는 오디오 참조→Now brief 카드 O, C·D는 참조 없음→카드 X. 음악(A)만 Shazam 식별이 더해지고, 나머지는 1차 회신으로 끝난다. <b>Other hosts</b>는 앱연동(B·C) 수행 불가 → 단순 질의응답(D)으로 다운그레이드.</div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>INTERACTION SEQUENCE</div>
+  </section>
+
+  <!-- 05 TECH ① align & route -->
+  <section class="slide" data-no="05">
+    <div class="pad">
+      <div class="kicker">Slide 5 · Tech per Process</div>
+      <h2 class="stitle">프로세스별 <span class="hl">기술</span> ① 정렬 · 위임 · 라우팅</h2>
+      <p class="ssub">"무엇을 듣고 있었나"와 "지금 묻는 게 그것과 관련 있나"를 푸는 단계. 각 기술이 맡는 역할을 먼저.</p>
+      <div class="techlist">
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🧩</span>세 트랙을 시간으로 맞춘다</div>
+            <div class="tech">PTS Multi-track Sync</div>
+            <div class="specs"><span class="spec"><b>기준</b> PTS</span><span class="spec"><b>대상</b> 3-track</span></div>
+            <div class="where">▸ STAGE 1</div>
+          </div>
+          <div class="desc">internal · external · user voice는 서로 다른 버퍼·시점에 캡처되므로 <b>공통 PTS 타임라인</b>에 재배열한다. 이로써 user voice가 internal/external audio의 <b>정확히 어느 구간</b>을 가리키는지 결정된다.
+            <span class="how"><b>HOW</b> 각 프레임 PTS를 기준점으로 정렬 → 발화 직전 N초를 "참조 구간"으로 추출 → 후속 분석은 이 구간만 본다("방금 그 노래"의 그 노래 특정).</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">📦</span>분석을 통째로 위임한다</div>
+            <div class="tech">Delegation Contract</div>
+            <div class="specs"><span class="spec"><b>SEND</b> 원본 3트랙</span><span class="spec"><b>RECV</b> JSON</span></div>
+            <div class="where">▸ STAGE 2</div>
+          </div>
+          <div class="desc">서버는 STT·연관도·분류 모델을 갖지 않는다. 정렬만 끝낸 <b>원본 3트랙 오디오 + 트랙 라벨</b>을 그대로 Galaxy AI에 보내고, 분석은 전부 위임한다. 트랙 라벨조차 버즈가 캡처 시 붙인 메타라 서버는 추론하지 않는다.
+            <span class="how"><b>SEND</b> {audio: [internal, external, voice], track_labels, session_id, lang_hint} &nbsp;<b>RECV</b> 아래 분류 스키마(JSON).</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🔗</span>발화가 어느 소리를 가리키는지 푼다</div>
+            <div class="tech">Reference Resolution (Gemini 내부)</div>
+            <div class="specs"><span class="spec"><b>주체</b> Gemini</span><span class="spec"><b>범위</b> 개발 밖</span></div>
+            <div class="where">▸ STAGE 2 · 위임</div>
+          </div>
+          <div class="desc">연관도는 별도 점수가 아니라 <b>지시 해소</b> 문제다. 발화의 지시어("이","방금","지금")가 어느 트랙을 가리키는지 attention으로 찾는다. "노래"가 음악 구간과 정렬되면 그 트랙이 참조 대상, 어떤 트랙과도 정렬 안 되면 오디오 참조 불필요(일반 task).
+            <span class="how"><b>HOW</b> 세 입력을 공통 잠재공간에 인코딩 → 발화 토큰↔오디오 구간 정렬 계산 → 연관도 판단과 task 분류가 한 추론에서 동시에 결정.</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🧭</span>2축으로 분류하고 라우팅한다</div>
+            <div class="tech">2-axis Classification + enum</div>
+            <div class="specs"><span class="spec"><b>축1</b> needs_audio_ref</span><span class="spec"><b>축2</b> action enum</span></div>
+            <div class="where">▸ STAGE 2 → 3</div>
+          </div>
+          <div class="desc">분류는 직교하는 두 축이다. <b>축1(라우팅)</b> needs_audio_ref → 오디오 참조 필요(BudsAI) / 불필요(일반). <b>축2(동작)</b> action → music_identify·schedule_create·sound_save·translate·summarize·call·simple_qa(단순 질의응답). 서버는 이 enum만 보고 핸들러로 보낸다(판단 없음).
+            <span class="how"><b>HOW</b> 고정 enum + escape hatch — 분류 애매하면 simple_qa + fallback_answer로 강등해 최소 TTS 답변 보장. Other hosts에선 앱 연동 action을 단순 질의응답으로 다운그레이드.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>TECH · DELEGATE &amp; ROUTE</div>
+  </section>
+
+  <!-- 06 TECH ② analyze & synth -->
+  <section class="slide" data-no="06">
+    <div class="pad">
+      <div class="kicker">Slide 6 · Tech per Process</div>
+      <h2 class="stitle">프로세스별 <span class="hl">기술</span> ② 분석 · 추론 · 합성</h2>
+      <p class="ssub">3트랙을 각각 분석해 의도를 종합하고, 경로에 맞는 응답을 만든다.</p>
+      <div class="techlist">
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🎵</span>듣던 음악을 식별한다</div>
+            <div class="tech">Shazam API · Audio Fingerprinting</div>
+            <div class="specs"><span class="spec"><b>대상</b> internal + external</span><span class="spec"><b>매치</b> ~200ms</span></div>
+            <div class="where">▸ STAGE 3 (음악 task)</div>
+          </div>
+          <div class="desc">음악은 <b>internal audio(재생 중인 곡)뿐 아니라 external audio(카페·매장 BGM 등)</b>에도 존재할 수 있다. <b>Gemini는 음악 DB가 없어</b> 곡 검색 정확도가 낮거나 불가하므로, task가 음악 관련이면 <b>Shazam API를 직접 호출</b>해 제목·아티스트·앨범 메타를 받아온 뒤, 그 결과를 Gemini에 위임해 Action Item을 만든다.
+            <span class="how"><b>HOW</b> 음악 task 판정 → 해당 트랙(internal/external) 구간을 Shazam API로 조회 → {title, artist, album…} 회신 → Gemini가 이 메타로 답변·actions 종합.</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🌐</span>주변 환경음을 읽는다</div>
+            <div class="tech">Acoustic Event Detection + STT</div>
+            <div class="specs"><span class="spec"><b>대상</b> external audio</span></div>
+            <div class="where">▸ STAGE 3</div>
+          </div>
+          <div class="desc"><b>external audio 전용.</b> 환경 성격(지하철·카페·거리)을 분류하고, 안내방송·대화 같은 음성이 있으면 STT로 텍스트화해 맥락에 더한다. <b>매장 BGM 등 음악이 섞여 있으면 Shazam API 식별 대상</b>으로 함께 넘긴다.
+            <span class="how"><b>HOW</b> AED가 비음성 사운드를 라벨링 → 음성 구간은 VAD로 분리 후 STT 적용 → 음악 감지 시 Shazam 호출 트리거 → 환경 라벨 + 전사 + 곡 메타를 함께 출력.</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🗣</span>사용자가 원하는 동작을 뽑는다</div>
+            <div class="tech">Intent Classification</div>
+            <div class="specs"><span class="spec"><b>대상</b> user voice</span><span class="spec"><b>출력</b> intent+params</span></div>
+            <div class="where">▸ STAGE 3</div>
+          </div>
+          <div class="desc"><b>user voice 전용.</b> 전사된 발화에서 intent와 파라미터(시간·대상·장르 등)를 추출해 후속 핸들러가 쓸 구조로 만든다.
+            <span class="how"><b>HOW</b> 의도 카탈로그(music·translate·summary·QA·schedule…)로 분류 → 슬롯 필링으로 params 추출 → Gemini 종합 입력으로 전달.</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🤖</span>맥락을 종합해 답과 액션을 만든다</div>
+            <div class="tech">Gemini / Galaxy AI <span style="color:var(--violet)">(위임)</span></div>
+            <div class="specs"><span class="spec"><b>경로</b> Galaxy</span><span class="spec"><b>p50</b> ~0.8s</span></div>
+            <div class="where">▸ STAGE 3</div>
+          </div>
+          <div class="desc"><b>Galaxy 경로.</b> 3트랙 산출물(환경/전사·intent)과 <b>음악 task일 때 Shazam이 반환한 곡 메타</b>를 <b>Gemini가 종합</b>해 자연어 답변과 우선순위 매긴 Action Item을 만든다. Gemini에는 음악 DB가 없으므로 곡 정보는 Shazam이 채워 주고 Gemini는 그 위에서 추론만 한다.
+            <span class="how"><b>HOW</b> 멀티소스 컨텍스트(+곡 메타)를 프롬프트로 구성 → Gemini가 answer + 구조화된 actions(JSON) 생성 → Galaxy 생태계 핸들러에 매핑.</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🧠</span>Galaxy 없이도 답한다</div>
+            <div class="tech">Server 경량 LLM (대체)</div>
+            <div class="specs"><span class="spec"><b>경로</b> Other hosts</span><span class="spec"><b>불가</b> 앱 연동</span></div>
+            <div class="where">▸ STAGE 3</div>
+          </div>
+          <div class="desc"><b>Other hosts 경로.</b> Galaxy AI를 못 써 서버 내장 경량 LLM + FP DB로 <b>검색 수준 질의응답만</b> 처리한다. 일정 등록·저장 등 앱 연동 task는 불가.
+            <span class="how"><b>HOW</b> FP 결과·STT 텍스트를 경량 LLM에 입력 → 간결한 답변 텍스트 생성(actions 미생성) → 4단계 TTS로 전달.</span>
+          </div>
+        </div>
+
+        <div class="titem">
+          <div class="role">
+            <div class="rname"><span class="ic">🔊</span>답을 목소리로 들려준다</div>
+            <div class="tech">Neural TTS · VITS</div>
+            <div class="specs"><span class="spec"><b>코덱</b> Opus 24k</span><span class="spec"><b>첫음절</b> ~300ms</span></div>
+            <div class="where">▸ STAGE 4</div>
+          </div>
+          <div class="desc">답변 텍스트를 자연스러운 음성으로 합성한다. <b>합성 위치가 경로별로 다른 게 핵심</b> — Galaxy는 폰에서, Other hosts는 서버에서 합성해 버즈로 보낸다.
+            <span class="how"><b>HOW</b> 텍스트→음향특징→파형을 end-to-end 생성(VITS) → 스트리밍으로 첫 음절을 빠르게 → Opus 24kbps 인코딩 후 송신.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>TECH · ANALYZE &amp; SYNTH</div>
+  </section>
+
+  <!-- 07 · DEVICE POST-PROCESSING -->
+  <section class="slide" data-no="07">
+    <div class="pad">
+      <div class="kicker">Slide 7 · Result Handling</div>
+      <h2 class="stitle">분석 이후 — 디바이스에서 <span class="hl">결과 처리</span></h2>
+      <p class="ssub">서버 분석이 끝난 뒤, Galaxy Phone은 능동적으로 후처리하고 Other hosts는 단순 통로(passthrough) 역할만 한다.</p>
+
+      <div class="ppwrap">
+
+        <div class="ppcol gal">
+          <div class="ph">📱 Galaxy Phone <span class="rt">능동 후처리</span></div>
+          <div class="recv"><span class="lab">RECV ← </span>{session_id, answer_text, action_items[], audio_transcript{int,ext,voice}}</div>
+          <div class="pb">
+            <div class="ppstep"><span class="num">1</span><div class="pt"><div class="h">session_id로 매칭·저장</div><div class="d">요청 때 만든 로컬 DB 레코드를 찾아 결과를 채운다. 비동기 응답을 맞추는 열쇠 + Now brief 재열람의 근거.</div></div></div>
+            <div class="ppstep"><span class="num">2</span><div class="pt"><div class="h">Now brief 화면 구성</div><div class="d"><b>transcript</b>(텍스트화 없으면 공란 + 플레이 버튼으로 원본 재생) · <b>answer_text</b> · <b>Action Item 카드</b>(우선순위 순).</div></div></div>
+            <div class="ppstep"><span class="num">3</span><div class="pt"><div class="h">TTS 합성 → 버즈 재생</div><div class="d">answer_text를 <b>폰에서 직접</b> VITS로 합성·Opus 인코딩 후 버즈로 전송. (서버 아님)</div></div></div>
+            <div class="ppstep"><span class="num">4</span><div class="pt"><div class="h">action 실행 — 두 갈래</div>
+              <div class="ppbranch">
+                <div class="ppbr"><span class="bl now">즉시 실행</span><div class="bx">명확한 명령(알람·전화·"방금 일정 등록")은 <b>바로 핸들러 앱 호출</b> → 실행 후 "등록했어요" 확인 TTS.</div></div>
+                <div class="ppbr"><span class="bl wait">카드 대기</span><div class="bx">음악 추천 등은 <b>Now brief 카드로 띄우고 대기</b> → 사용자가 탭하면 그때 handler로 딥링크(YouTube Music·Calendar 등).</div></div>
+              </div>
+            </div></div>
+          </div>
+          <div class="pf"><b>폰 = 사용자↔로컬 앱 라우터.</b> 판단 없이 action_item의 {intent, params, handler}대로 안드로이드 인텐트/딥링크로 앱에 넘긴다.</div>
+        </div>
+
+        <div class="ppcol oth">
+          <div class="ph">💻 Other hosts <span class="rt">단순 통로</span></div>
+          <div class="recv"><span class="lab">RECV ← </span>TTS audio (Opus 24k) &nbsp;<span class="lab">// 서버가 합성 완료</span></div>
+          <div class="pb">
+            <div class="ppstep"><span class="num">1</span><div class="pt"><div class="h">서버가 TTS까지 완성해 전송</div><div class="d">디바이스에 합성 능력(Galaxy AI)이 없으므로, <b>서버가 answer를 VITS 합성·Opus 인코딩</b>한 음성 패킷을 만든다.</div></div></div>
+            <div class="ppstep"><span class="num">2</span><div class="pt"><div class="h">호스트는 passthrough만</div><div class="d">받은 음성 패킷을 <b>해석 없이 그대로 버즈로</b> 흘려보낸다(BT PAN/BNEP 라우팅). E2E 암호화라 호스트는 내용도 못 봄.</div></div></div>
+            <div class="ppstep"><span class="num">3</span><div class="pt"><div class="h">버즈에서 재생</div><div class="d">음성을 듣는 것이 전부. <b>Now brief·카드·저장·앱 위임 모두 없음.</b></div></div></div>
+          </div>
+          <div class="pf"><b>호스트 = 단순 통로.</b> 앱 연동 task는 수행 불가 → "이 기능은 갤럭시 기기에서 가능합니다" 안내로 대체.</div>
+        </div>
+
+      </div>
+
+      <div class="note" style="margin-top:14px"><b>실행 분기:</b> 명확한 명령은 <b>즉시 실행</b>, 추천처럼 선택지가 있는 건 <b>카드로 띄워 사용자 선택을 대기</b>한다. <b>갈림의 뿌리 = Galaxy AI 생태계 접근 여부</b> — 같은 "방금 이 노래 뭐야?"라도 Galaxy는 <i>답변 + [같은 아티스트][플레이리스트][저장] 카드</i>를, Other hosts는 <i>음성만</i> 돌려준다.</div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>RESULT HANDLING</div>
+  </section>
+
+  <!-- 08 COMPARE -->
+  <section class="slide" data-no="08">
+    <div class="pad">
+      <div class="kicker">Slide 8 · Path Comparison</div>
+      <h2 class="stitle">Galaxy Phone에서 <span class="hl">더 풍부한 경험</span>이 열린다</h2>
+      <p class="ssub">같은 진입점이지만, Galaxy AI 생태계를 쓰는 Galaxy Phone은 Other hosts보다 훨씬 다양한 동작·저장·연동을 제공한다.</p>
+      <div class="techlist" style="margin-top:14px"></div>
+      <div style="margin-top:16px;border:1px solid var(--line);border-radius:13px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:1.1fr 1.5fr 1.5fr">
+          <div style="padding:9px 18px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;background:var(--panel);border-right:1px solid var(--line)">항목</div>
+          <div style="padding:9px 18px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;background:var(--panel);border-right:1px solid var(--line)">📱 Galaxy Phone</div>
+          <div style="padding:9px 18px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;background:var(--panel)">💻 Other hosts (iOS·노트북·TV 등)</div>
+        </div>
+        <div class="cmprows"></div>
+      </div>
+      <div class="note"><b>요약:</b> BudsAI 서버는 orchestrator로서 3트랙을 정렬·라우팅하고, Galaxy Phone에서는 <b>Gemini에 위임</b>해 Action Item을, Other hosts에서는 <b>대체 모델로 TTS만</b> 만든다. 진입점은 BudsAI지만, 두뇌는 상황에 따라 빌린다.</div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>PATH COMPARISON</div>
+  </section>
+
+  <!-- 09 · EXPECTED EFFECTS ① market leadership -->
+  <section class="slide" data-no="09">
+    <div class="pad">
+      <div class="kicker">Slide 9 · Expected Effects ①</div>
+      <h2 class="stitle">청각 맥락 기반 AI — <span class="hl">아직 없던 영역</span>의 선점</h2>
+
+      <div class="leadhero" style="margin-top:18px">
+        <div class="lhlabel">First-mover · Category Definition</div>
+        <div class="lhtitle">"내가 말한 것"만 듣는 비서를 넘어<br><span class="g">"내가 듣고 있던 것"까지 이해하는 AI</span></div>
+      </div>
+
+      <div class="voidrow">
+        <div class="voidcard gap">
+          <div class="vh">🚫 기존 서비스의 공백</div>
+          <ul class="vl">
+            <li><b>발화만</b> 입력 — 듣던 소리는 빠짐</li>
+            <li>음악 식별과 <b>행동이 분리</b></li>
+            <li>"방금 그거"를 <b>다시 설명</b> 필요</li>
+          </ul>
+        </div>
+        <div class="voidcard lead">
+          <div class="vh">🚀 BudsAI 리더십</div>
+          <ul class="vl">
+            <li>청각 맥락 + 발화 <b>최초 상용화</b></li>
+            <li>식별·질의·행동 <b>하나로 통합</b></li>
+            <li>웨어러블 Audio AI <b>표준 선점</b></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="corebar">
+        <div class="ct"><b>전략적 의미</b> — 경쟁사보다 먼저 "청각 맥락 AI" 카테고리 선점 → 삼성이 기준을 만든다</div>
+        <div class="ctag">Category Leader</div>
+      </div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>EXPECTED EFFECTS ①</div>
+  </section>
+
+  <!-- 10 · EXPECTED EFFECTS ② usability -->
+  <section class="slide" data-no="10">
+    <div class="pad">
+      <div class="kicker">Slide 10 · Expected Effects ②</div>
+      <h2 class="stitle">사용성 개선 — 듣던 순간을 <span class="hl">바로 묻고 실행</span>으로</h2>
+
+      <div class="flowcmp" style="margin-top:18px">
+        <div class="flowbox old">
+          <div class="fl">기존 사용 흐름</div>
+          <div class="flowchain">
+            <span class="fstep">소리 인지</span><span class="fsep">→</span>
+            <span class="fstep">앱 열기</span><span class="fsep">→</span>
+            <span class="fstep">검색어 추정</span><span class="fsep">→</span>
+            <span class="fstep">검색·전환</span><span class="fsep">→</span>
+            <span class="fstep">결과 확인</span>
+          </div>
+        </div>
+        <div class="flowmid">➔</div>
+        <div class="flowbox new">
+          <div class="fl">BudsAI 사용 흐름</div>
+          <div class="flowchain">
+            <span class="fstep">인터랙션</span><span class="fsep">→</span>
+            <span class="fstep">자연어 질문</span><span class="fsep">→</span>
+            <span class="fstep">직전 사운드 분석</span><span class="fsep">→</span>
+            <span class="fstep">답변 + Action</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bsgrid">
+        <div class="bscard">
+          <div class="bsi">◎</div>
+          <div class="bst">놓친 정보 회복</div>
+          <div class="bsd">안내방송·대화·음악을 <b>직전 버퍼로 다시 확인</b></div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">↯</div>
+          <div class="bst">맥락형 질의</div>
+          <div class="bsd">"이 노래" 같은 표현도 <b>사운드와 결합 해석</b></div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">↺</div>
+          <div class="bst">조작 부담 감소</div>
+          <div class="bsd">이동·운동 중 <b>화면 전환 없이</b> 음성만으로</div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">✓</div>
+          <div class="bst">답변 이후 실행</div>
+          <div class="bsd">음악·일정·알림 등 <b>후속 Action 연결</b></div>
+        </div>
+      </div>
+
+      <div class="corebar">
+        <div class="ct"><b>사용성 핵심 가치</b> — 기억·검색·전환 비용 감소 → 즉시 이해·저장·실행 경험 제공</div>
+        <div class="ctag">Listen → Ask → Act</div>
+      </div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>EXPECTED EFFECTS ②</div>
+  </section>
+
+  <!-- 11 · EXPECTED EFFECTS ③ product lineup -->
+  <section class="slide" data-no="11">
+    <div class="pad">
+      <div class="kicker">Slide 11 · Expected Effects ③</div>
+      <h2 class="stitle">당사 제품군 <span class="hl">확대 적용</span> 효과</h2>
+
+      <div class="bsgrid" style="grid-template-columns:repeat(3,1fr);grid-template-rows:auto auto;margin-top:18px">
+        <div class="bscard blue">
+          <div class="bsi">B</div>
+          <div class="bst">Buds 라인업 가치 상승</div>
+          <div class="bsd">후속 모델 <b>핵심 차별화 기능</b> · "AI 청취 어시스턴트"</div>
+        </div>
+        <div class="bscard blue">
+          <div class="bsi">G</div>
+          <div class="bst">Galaxy 생태계 락인</div>
+          <div class="bsd">폰·워치·TV·차량 확장 → <b>Galaxy 구매 동인</b></div>
+        </div>
+        <div class="bscard blue">
+          <div class="bsi">S</div>
+          <div class="bst">Bixby·SmartThings 재활성화</div>
+          <div class="bsd">기존 자산 재사용 → <b>인프라 투자 최소</b></div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">↔</div>
+          <div class="bst">타사 호환 저변 확대</div>
+          <div class="bsd">비-Galaxy도 동작 → <b>진입 마찰 0</b>, 이후 업셀</div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">＋</div>
+          <div class="bst">신제품 즉시 적용</div>
+          <div class="bsd">표준 BT PAN → <b>추가 개발 없이</b> 확장</div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">D</div>
+          <div class="bst">데이터 자산화</div>
+          <div class="bsd">(동의 하) <b>온디바이스 AI 학습 자원</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>EXPECTED EFFECTS ③</div>
+  </section>
+
+  <!-- 12 · EXPECTED EFFECTS ④ revenue / service -->
+  <section class="slide" data-no="12">
+    <div class="pad">
+      <div class="kicker">Slide 12 · Expected Effects ④</div>
+      <h2 class="stitle">신규 <span class="hl">수익·서비스</span> 기회</h2>
+
+      <div class="bsgrid three" style="margin-top:18px">
+        <div class="bscard">
+          <div class="bsi">🔁</div>
+          <div class="bst">제휴 · 트래픽 전환</div>
+          <div class="bsd">곡 → <b>스트리밍 앱 연결</b> · 제휴 수익</div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">⭐</div>
+          <div class="bst">구독 · 프리미엄</div>
+          <div class="bsd">고급 기능 유료화 · <b>갤럭시 AI 구독 번들</b></div>
+        </div>
+        <div class="bscard">
+          <div class="bsi">🏢</div>
+          <div class="bst">B2B 솔루션 납품</div>
+          <div class="bsd">차량·매장 등 <b>솔루션 제공</b> · 청각 보조</div>
+        </div>
+      </div>
+
+      <div class="corebar" style="margin-top:18px">
+        <div class="ct"><b>수익화 원칙</b> — 제휴·데이터는 동의·익명 전제 · 주 수익은 <b>기기 차별화·구독</b> 등 사용자 가치와 정렬</div>
+        <div class="ctag" style="background:linear-gradient(135deg,var(--amber),var(--pink))">User-aligned</div>
+      </div>
+    </div>
+    <div class="brandmini"><span class="dot"></span>EXPECTED EFFECTS ④</div>
+  </section>
+
+</div>
+
+<script>
+  // build compare table rows
+  var rows = [
+    ['진입점','BudsAI 서버','BudsAI 서버 (동일)'],
+    ['역할','AI Orchestrator','AI Orchestrator (동일)'],
+    ['추론 주체','Gemini / Galaxy AI 위임','서버 내장 대체 모델'],
+    ['응답 내용','answer + action_items[] + transcript','TTS audio (Opus)'],
+    ['TTS 합성 위치','폰 (VITS)','서버 (VITS)'],
+    ['저장 · 히스토리','● 폰 로컬 DB · Now brief','○ 없음 (휘발)'],
+    ['3rd party 위임','● Calendar·YouTube·Alarm…','○ 불가'],
+    ['질의 범위','전체 (앱 연동 task 포함)','검색 수준 QA만'],
+    ['매칭 키','session_id','session_id'],
+  ];
+  var html = rows.map(function(r){
+    var gal = r[1].replace(/^●/, '<span style="color:#0E8A4D;margin-right:6px">●</span>');
+    var oth = r[2].replace(/^○/, '<span style="color:#C5327A;margin-right:6px">○</span>');
+    return '<div style="display:grid;grid-template-columns:1.1fr 1.5fr 1.5fr;border-top:1px solid var(--line);font-size:12.5px">'+
+      '<div style="padding:8.5px 18px;border-right:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--dim);display:flex;align-items:center">'+r[0]+'</div>'+
+      '<div style="padding:8.5px 18px;border-right:1px solid var(--line);font-family:var(--kr);color:var(--ink)">'+gal+'</div>'+
+      '<div style="padding:8.5px 18px;font-family:var(--kr);color:var(--mut)">'+oth+'</div></div>';
+  }).join('');
+  document.querySelector('.cmprows').innerHTML = html;
+
+  function fit(){
+    var s = Math.min(1, window.innerWidth / 1280);
+    document.querySelectorAll('.slide').forEach(function(el){
+      el.style.setProperty('--s', s);
+      el.style.marginBottom = (s < 1 ? (720*s - 720) + 26 : 26) + 'px';
+    });
+  }
+  window.addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>
